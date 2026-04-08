@@ -24,6 +24,10 @@
     0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
+.auth-card {
+  width: 100%;
+}
+
 .center {
   text-align: center;
 }
@@ -141,6 +145,13 @@ button:disabled {
   color: #d1242f;
   font-weight: 600;
   margin: 0;
+}
+
+.field-error {
+  color: #d1242f;
+  font-size: 0.86rem;
+  margin: -4px 2px 2px;
+  text-align: left;
 }
 
 .grid {

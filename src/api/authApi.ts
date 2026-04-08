@@ -4,7 +4,16 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
 
 const toError = async (response: Response) => {
   const text = await response.text()
-  return text || `Request failed: ${response.status} ${response.statusText}`
+  if (!text) {
+    return `Request failed: ${response.status} ${response.statusText}`
+  }
+
+  try {
+    const parsed = JSON.parse(text) as { message?: string }
+    return parsed.message ?? text
+  } catch {
+    return text
+  }
 }
 
 export const signIn = async (payload: SignInRequest): Promise<string> => {
