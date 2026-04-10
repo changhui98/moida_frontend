@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signIn } from '../api/authApi'
 import { useAuth } from '../context/AuthContext'
+import styles from './HomePage.module.css'
 
 export function HomePage() {
   const navigate = useNavigate()
@@ -26,37 +27,56 @@ export function HomePage() {
   }
 
   return (
-    <main className="page page-center">
-      <section className="card center home-card">
-        <h1>Moida</h1>
-        <div className="actions actions-col">
-          <form className="form" onSubmit={handleSubmit}>
+    <main className={styles.root}>
+      <section className={`card animate-scale-in ${styles.card}`}>
+        {/* Brand */}
+        <div className={styles.brand}>
+          <h1 className={styles.brandName}>Moida</h1>
+          <p className={styles.tagline}>함께 모이는 공간</p>
+        </div>
+
+        {/* Login form */}
+        <form className="form" onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label className="input-label" htmlFor="home-username">
+              아이디
+            </label>
             <input
+              id="home-username"
               className="input"
-              placeholder="아이디(username)"
+              placeholder="username"
+              autoComplete="username"
               value={form.username}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, username: event.target.value }))
-              }
+              onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
             />
+          </div>
+
+          <div className="input-group">
+            <label className="input-label" htmlFor="home-password">
+              비밀번호
+            </label>
             <input
+              id="home-password"
               className="input"
               type="password"
-              placeholder="비밀번호(password)"
+              placeholder="••••••••"
+              autoComplete="current-password"
               value={form.password}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, password: event.target.value }))
-              }
+              onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
             />
-            <button type="submit" disabled={loading}>
-              로그인
-            </button>
-          </form>
-          <Link className="button-link" to="/sign-up">
-            회원가입
-          </Link>
-          {error && <p className="error">{error}</p>}
-        </div>
+          </div>
+
+          {error && <p className="alert alert-error">{error}</p>}
+
+          <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading}>
+            {loading ? '로그인 중…' : '로그인'}
+          </button>
+        </form>
+
+        <p className={styles.footer}>
+          아직 계정이 없으신가요?{' '}
+          <Link to="/sign-up">회원가입</Link>
+        </p>
       </section>
     </main>
   )

@@ -6,7 +6,6 @@ import { DashboardPage } from './pages/DashboardPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { SignUpPage } from './pages/SignUpPage'
-import './App.css'
 
 type ThemeMode = 'light' | 'dark'
 const THEME_STORAGE_KEY = 'moida_theme_mode'
@@ -14,8 +13,8 @@ const THEME_STORAGE_KEY = 'moida_theme_mode'
 function App() {
   const { isAuthenticated } = useAuth()
   const [theme, setTheme] = useState<ThemeMode>(() => {
-    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY)
-    return storedTheme === 'dark' ? 'dark' : 'light'
+    const stored = localStorage.getItem(THEME_STORAGE_KEY)
+    return stored === 'dark' ? 'dark' : 'light'
   })
 
   useEffect(() => {
@@ -38,12 +37,13 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
+      {/* Theme toggle */}
       <div className="theme-switcher" aria-label="theme switcher">
         <button
           type="button"
           role="switch"
           aria-checked={theme === 'dark'}
-          aria-label="theme toggle"
+          aria-label="테마 전환"
           className={`theme-toggle ${theme === 'dark' ? 'is-dark' : 'is-light'}`}
           onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
         >

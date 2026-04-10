@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signIn } from '../api/authApi'
 import { useAuth } from '../context/AuthContext'
+import styles from './LoginPage.module.css'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -28,34 +29,55 @@ export function LoginPage() {
   }
 
   return (
-    <main className="page">
-      <section className="card">
-        <h1>로그인</h1>
+    <main className={styles.root}>
+      <section className={`card animate-scale-in ${styles.card}`}>
+        <Link to="/" className={styles.backLink}>
+          ← 홈으로
+        </Link>
+
+        <h1 className={styles.heading}>다시 오셨군요</h1>
+        <p className={styles.subheading}>계정에 로그인하세요</p>
+
         <form className="form" onSubmit={handleSubmit}>
-          <input
-            className="input"
-            placeholder="아이디(username)"
-            value={form.username}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, username: event.target.value }))
-            }
-          />
-          <input
-            className="input"
-            type="password"
-            placeholder="비밀번호(password)"
-            value={form.password}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, password: event.target.value }))
-            }
-          />
-          <button type="submit" disabled={loading}>
-            로그인
+          <div className="input-group">
+            <label className="input-label" htmlFor="login-username">
+              아이디
+            </label>
+            <input
+              id="login-username"
+              className="input"
+              placeholder="username"
+              autoComplete="username"
+              value={form.username}
+              onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
+            />
+          </div>
+
+          <div className="input-group">
+            <label className="input-label" htmlFor="login-password">
+              비밀번호
+            </label>
+            <input
+              id="login-password"
+              className="input"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="current-password"
+              value={form.password}
+              onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+            />
+          </div>
+
+          {error && <p className="alert alert-error">{error}</p>}
+
+          <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading}>
+            {loading ? '로그인 중…' : '로그인'}
           </button>
         </form>
-        {error && <p className="error">{error}</p>}
-        <p>
-          계정이 없다면 <Link to="/sign-up">회원가입</Link>
+
+        <p className={styles.footer}>
+          아직 계정이 없으신가요?{' '}
+          <Link to="/sign-up">회원가입</Link>
         </p>
       </section>
     </main>
