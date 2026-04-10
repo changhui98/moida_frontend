@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '../api/authApi'
+import { PasswordChecklist, isPasswordValid } from '../components/PasswordChecklist'
 import styles from './SignUpPage.module.css'
 
 type SignUpField = 'username' | 'password' | 'nickname' | 'userEmail' | 'address'
@@ -55,6 +56,8 @@ export function SignUpPage() {
     }
   }
 
+  const pwValid = isPasswordValid(form.password)
+
   return (
     <main className={styles.root}>
       <section className={`card animate-scale-in ${styles.card}`}>
@@ -66,78 +69,85 @@ export function SignUpPage() {
         <p className={styles.subheading}>Moida에 합류하세요</p>
 
         <form className="form" onSubmit={handleSubmit}>
-          {/* Username + Password */}
+          {/* Username */}
+          <div className="input-group">
+            <label className="input-label" htmlFor="su-username">
+              아이디
+            </label>
+            <input
+              id="su-username"
+              className="input"
+              placeholder="영문만 입력 가능"
+              autoComplete="username"
+              value={form.username}
+              onChange={setField('username')}
+            />
+            {fieldErrors.username && (
+              <p className="field-error">{fieldErrors.username}</p>
+            )}
+          </div>
+
+          {/* Password + checklist */}
+          <div className="input-group">
+            <label className="input-label" htmlFor="su-password">
+              비밀번호
+            </label>
+            <input
+              id="su-password"
+              className={`input ${styles.pwInput} ${
+                form.password.length > 0
+                  ? pwValid
+                    ? styles.pwValid
+                    : styles.pwInvalid
+                  : ''
+              }`}
+              type="password"
+              placeholder="••••••••"
+              autoComplete="new-password"
+              value={form.password}
+              onChange={setField('password')}
+            />
+            <PasswordChecklist password={form.password} />
+            {fieldErrors.password && (
+              <p className="field-error">{fieldErrors.password}</p>
+            )}
+          </div>
+
+          {/* Nickname + Email */}
           <div className={styles.fieldRow}>
             <div className="input-group">
-              <label className="input-label" htmlFor="su-username">
-                아이디
+              <label className="input-label" htmlFor="su-nickname">
+                닉네임
               </label>
               <input
-                id="su-username"
+                id="su-nickname"
                 className="input"
-                placeholder="영문 소문자·숫자"
-                autoComplete="username"
-                value={form.username}
-                onChange={setField('username')}
+                placeholder="4~10자, 한글·영문·숫자"
+                value={form.nickname}
+                onChange={setField('nickname')}
               />
-              {fieldErrors.username && (
-                <p className="field-error">{fieldErrors.username}</p>
+              {fieldErrors.nickname && (
+                <p className="field-error">{fieldErrors.nickname}</p>
               )}
             </div>
 
             <div className="input-group">
-              <label className="input-label" htmlFor="su-password">
-                비밀번호
+              <label className="input-label" htmlFor="su-email">
+                이메일
               </label>
               <input
-                id="su-password"
+                id="su-email"
                 className="input"
-                type="password"
-                placeholder="••••••••"
-                autoComplete="new-password"
-                value={form.password}
-                onChange={setField('password')}
+                type="email"
+                placeholder="name@example.com"
+                autoComplete="email"
+                value={form.userEmail}
+                onChange={setField('userEmail')}
               />
-              {fieldErrors.password && (
-                <p className="field-error">{fieldErrors.password}</p>
+              {fieldErrors.userEmail && (
+                <p className="field-error">{fieldErrors.userEmail}</p>
               )}
             </div>
-          </div>
-
-          {/* Nickname */}
-          <div className="input-group">
-            <label className="input-label" htmlFor="su-nickname">
-              닉네임
-            </label>
-            <input
-              id="su-nickname"
-              className="input"
-              placeholder="표시될 이름"
-              value={form.nickname}
-              onChange={setField('nickname')}
-            />
-            {fieldErrors.nickname && (
-              <p className="field-error">{fieldErrors.nickname}</p>
-            )}
-          </div>
-
-          {/* Email */}
-          <div className="input-group">
-            <label className="input-label" htmlFor="su-email">
-              이메일
-            </label>
-            <input
-              id="su-email"
-              className="input"
-              type="email"
-              placeholder="name@example.com"
-              autoComplete="email"
-              value={form.userEmail}
-              onChange={setField('userEmail')}
-            />
-            {fieldErrors.userEmail && (
-              <p className="field-error">{fieldErrors.userEmail}</p>
-            )}
           </div>
 
           {/* Address */}
@@ -159,7 +169,11 @@ export function SignUpPage() {
 
           {error && <p className="alert alert-error">{error}</p>}
 
-          <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading}>
+          <button
+            type="submit"
+            className="btn btn-primary btn-full btn-lg"
+            disabled={loading || (form.password.length > 0 && !pwValid)}
+          >
             {loading ? '가입 처리 중…' : '회원가입'}
           </button>
         </form>

@@ -81,3 +81,20 @@
   color: var(--clr-text);
   opacity: 1;
 }
+
+/* ── Password input state feedback ── */
+.pwInput {
+  transition:
+    border-color var(--t-base),
+    box-shadow var(--t-base);
+}
+
+.pwValid {
+  border-color: var(--clr-success) !important;
+  box-shadow: 0 0 0 3px var(--clr-success-soft), 0 0 0 1px var(--clr-success) !important;
+}
+
+.pwInvalid {
+  border-color: var(--clr-error) !important;
+  box-shadow: 0 0 0 3px var(--clr-error-soft), 0 0 0 1px var(--clr-error) !important;
+}
