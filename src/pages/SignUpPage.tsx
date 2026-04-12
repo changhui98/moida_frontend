@@ -1,7 +1,9 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '../api/authApi'
-import { PasswordChecklist, isPasswordValid } from '../components/PasswordChecklist'
+import { PasswordInput } from '../components/PasswordInput'
+import { PasswordChecklist } from '../components/PasswordChecklist'
+import { isPasswordValid } from '../utils/passwordRules'
 import styles from './SignUpPage.module.css'
 
 type SignUpField = 'username' | 'password' | 'nickname' | 'userEmail' | 'address'
@@ -92,20 +94,19 @@ export function SignUpPage() {
             <label className="input-label" htmlFor="su-password">
               비밀번호
             </label>
-            <input
+            <PasswordInput
               id="su-password"
-              className={`input ${styles.pwInput} ${
+              placeholder="••••••••"
+              autoComplete="new-password"
+              value={form.password}
+              onChange={setField('password')}
+              className={
                 form.password.length > 0
                   ? pwValid
                     ? styles.pwValid
                     : styles.pwInvalid
                   : ''
-              }`}
-              type="password"
-              placeholder="••••••••"
-              autoComplete="new-password"
-              value={form.password}
-              onChange={setField('password')}
+              }
             />
             <PasswordChecklist password={form.password} />
             {fieldErrors.password && (

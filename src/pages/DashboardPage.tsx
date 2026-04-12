@@ -2,8 +2,9 @@ import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMyProfile, getUsers, updateMyProfile } from '../api/userApi'
 import { useAuth } from '../context/AuthContext'
-import type { UserDetailResponse, UserResponse } from '../types/user'
 import styles from './DashboardPage.module.css'
+import type { UserDetailResponse, UserResponse } from '../types/user'
+import { PasswordInput } from '../components/PasswordInput'
 
 function getInitials(name: string) {
   return name.slice(0, 2).toUpperCase()
@@ -289,10 +290,8 @@ export function DashboardPage() {
 
               <div className="input-group">
                 <label className="input-label" htmlFor="edit-cur-pw">현재 비밀번호</label>
-                <input
+                <PasswordInput
                   id="edit-cur-pw"
-                  className="input"
-                  type="password"
                   placeholder="••••••••"
                   autoComplete="current-password"
                   value={form.currentPassword}
@@ -302,10 +301,8 @@ export function DashboardPage() {
 
               <div className="input-group">
                 <label className="input-label" htmlFor="edit-new-pw">새 비밀번호</label>
-                <input
+                <PasswordInput
                   id="edit-new-pw"
-                  className="input"
-                  type="password"
                   placeholder="••••••••"
                   autoComplete="new-password"
                   value={form.newPassword}

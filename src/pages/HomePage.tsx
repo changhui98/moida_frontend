@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signIn } from '../api/authApi'
 import { useAuth } from '../context/AuthContext'
+import { PasswordInput } from '../components/PasswordInput'
 import styles from './HomePage.module.css'
 
 export function HomePage() {
@@ -55,10 +56,8 @@ export function HomePage() {
             <label className="input-label" htmlFor="home-password">
               비밀번호
             </label>
-            <input
+            <PasswordInput
               id="home-password"
-              className="input"
-              type="password"
               placeholder="••••••••"
               autoComplete="current-password"
               value={form.password}

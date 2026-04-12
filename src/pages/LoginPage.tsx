@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signIn } from '../api/authApi'
 import { useAuth } from '../context/AuthContext'
+import { PasswordInput } from '../components/PasswordInput'
 import styles from './LoginPage.module.css'
 
 export function LoginPage() {
@@ -57,10 +58,8 @@ export function LoginPage() {
             <label className="input-label" htmlFor="login-password">
               비밀번호
             </label>
-            <input
+            <PasswordInput
               id="login-password"
-              className="input"
-              type="password"
               placeholder="••••••••"
               autoComplete="current-password"
               value={form.password}
