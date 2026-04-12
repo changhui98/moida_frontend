@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '../api/authApi'
 import { PasswordInput } from '../components/PasswordInput'
 import { PasswordChecklist } from '../components/PasswordChecklist'
-import { isPasswordValid } from '../utils/passwordRules'
+import { isPasswordValid, isConfirmPasswordValid } from '../utils/passwordRules'
 import styles from './SignUpPage.module.css'
 
 type SignUpField = 'username' | 'password' | 'nickname' | 'userEmail' | 'address'
@@ -23,6 +23,7 @@ export function SignUpPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<SignUpField, string>>>({})
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [form, setForm] = useState({
     username: '',
     password: '',
@@ -59,6 +60,20 @@ export function SignUpPage() {
   }
 
   const pwValid = isPasswordValid(form.password)
+  const confirmValid = isConfirmPasswordValid(form.password, confirmPassword)
+
+  // 비밀번호를 입력했을 때 → 복잡도 조건 + (확인 입력했으면) 일치 조건 모두 충족해야 제출 가능
+  const canSubmit =
+    form.password.length === 0 ||
+    (pwValid && (confirmPassword.length === 0 || confirmValid))
+
+  // 비밀번호 확인 입력창 테두리 색상
+  const confirmBorderClass =
+    confirmPassword.length === 0
+      ? ''
+      : confirmValid
+        ? styles.pwValid
+        : styles.pwInvalid
 
   return (
     <main className={styles.root}>
@@ -89,7 +104,7 @@ export function SignUpPage() {
             )}
           </div>
 
-          {/* Password + checklist */}
+          {/* Password */}
           <div className="input-group">
             <label className="input-label" htmlFor="su-password">
               비밀번호
@@ -108,11 +123,30 @@ export function SignUpPage() {
                   : ''
               }
             />
-            <PasswordChecklist password={form.password} />
             {fieldErrors.password && (
               <p className="field-error">{fieldErrors.password}</p>
             )}
           </div>
+
+          {/* Confirm Password — 비밀번호 입력 시에만 노출 */}
+          {form.password.length > 0 && (
+            <div className="input-group">
+              <label className="input-label" htmlFor="su-confirm-password">
+                비밀번호 확인
+              </label>
+              <PasswordInput
+                id="su-confirm-password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={confirmBorderClass}
+              />
+            </div>
+          )}
+
+          {/* Checklist — 비밀번호 입력 시에만 노출 */}
+          <PasswordChecklist password={form.password} confirmPassword={confirmPassword} />
 
           {/* Nickname + Email */}
           <div className={styles.fieldRow}>
@@ -173,7 +207,7 @@ export function SignUpPage() {
           <button
             type="submit"
             className="btn btn-primary btn-full btn-lg"
-            disabled={loading || (form.password.length > 0 && !pwValid)}
+            disabled={loading || !canSubmit}
           >
             {loading ? '가입 처리 중…' : '회원가입'}
           </button>

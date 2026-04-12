@@ -10,3 +10,7 @@ export { RULES }
 export function isPasswordValid(password: string): boolean {
   return RULES.every(({ test }) => test(password))
 }
+
+export function isConfirmPasswordValid(password: string, confirm: string): boolean {
+  return confirm.length > 0 && password === confirm
+}
