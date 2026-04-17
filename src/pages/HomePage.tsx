@@ -1,31 +1,12 @@
-import { type FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { signIn } from '../api/authApi'
-import { useAuth } from '../context/AuthContext'
+import { Link } from 'react-router-dom'
+import { useLoginForm } from '../hooks/useLoginForm'
 import { PasswordInput } from '../components/PasswordInput'
 import styles from './HomePage.module.css'
 
 export function HomePage() {
-  const navigate = useNavigate()
-  const { login } = useAuth()
-  const [form, setForm] = useState({ username: '', password: '' })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    try {
-      setLoading(true)
-      setError('')
-      const token = await signIn(form)
-      login(token)
-      navigate('/app', { replace: true })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인 실패')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { form, setForm, loading, error, handleSubmit } = useLoginForm({
+    redirectTo: '/app',
+  })
 
   return (
     <main className={styles.root}>
@@ -65,7 +46,7 @@ export function HomePage() {
             />
           </div>
 
-          {error && <p className="alert alert-error">{error}</p>}
+          {error && <p className="alert alert-error" role="alert">{error}</p>}
 
           <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading}>
             {loading ? '로그인 중…' : '로그인'}

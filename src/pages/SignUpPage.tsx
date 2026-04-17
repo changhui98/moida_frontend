@@ -38,8 +38,22 @@ export function SignUpPage() {
       setFieldErrors((prev) => ({ ...prev, [key]: undefined }))
     }
 
+  const validateRequiredFields = (): boolean => {
+    const errors: Partial<Record<SignUpField, string>> = {}
+    if (!form.username.trim()) errors.username = '아이디를 입력해주세요.'
+    if (!form.nickname.trim()) errors.nickname = '닉네임을 입력해주세요.'
+    if (!form.userEmail.trim()) errors.userEmail = '이메일을 입력해주세요.'
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (!validateRequiredFields()) return
     try {
       setLoading(true)
       setError('')
@@ -62,10 +76,8 @@ export function SignUpPage() {
   const pwValid = isPasswordValid(form.password)
   const confirmValid = isConfirmPasswordValid(form.password, confirmPassword)
 
-  // 비밀번호를 입력했을 때 → 복잡도 조건 + (확인 입력했으면) 일치 조건 모두 충족해야 제출 가능
-  const canSubmit =
-    form.password.length === 0 ||
-    (pwValid && (confirmPassword.length === 0 || confirmValid))
+  // 비밀번호 복잡도 + 확인 일치 모두 충족해야 제출 가능
+  const canSubmit = form.password.length > 0 && pwValid && confirmValid
 
   // 비밀번호 확인 입력창 테두리 색상
   const confirmBorderClass =
@@ -100,7 +112,7 @@ export function SignUpPage() {
               onChange={setField('username')}
             />
             {fieldErrors.username && (
-              <p className="field-error">{fieldErrors.username}</p>
+              <p className="field-error" role="alert">{fieldErrors.username}</p>
             )}
           </div>
 
@@ -124,7 +136,7 @@ export function SignUpPage() {
               }
             />
             {fieldErrors.password && (
-              <p className="field-error">{fieldErrors.password}</p>
+              <p className="field-error" role="alert">{fieldErrors.password}</p>
             )}
           </div>
 
@@ -162,7 +174,7 @@ export function SignUpPage() {
                 onChange={setField('nickname')}
               />
               {fieldErrors.nickname && (
-                <p className="field-error">{fieldErrors.nickname}</p>
+                <p className="field-error" role="alert">{fieldErrors.nickname}</p>
               )}
             </div>
 
@@ -180,7 +192,7 @@ export function SignUpPage() {
                 onChange={setField('userEmail')}
               />
               {fieldErrors.userEmail && (
-                <p className="field-error">{fieldErrors.userEmail}</p>
+                <p className="field-error" role="alert">{fieldErrors.userEmail}</p>
               )}
             </div>
           </div>
@@ -198,11 +210,11 @@ export function SignUpPage() {
               onChange={setField('address')}
             />
             {fieldErrors.address && (
-              <p className="field-error">{fieldErrors.address}</p>
+              <p className="field-error" role="alert">{fieldErrors.address}</p>
             )}
           </div>
 
-          {error && <p className="alert alert-error">{error}</p>}
+          {error && <p className="alert alert-error" role="alert">{error}</p>}
 
           <button
             type="submit"

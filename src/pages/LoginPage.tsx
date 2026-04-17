@@ -1,33 +1,14 @@
-import { type FormEvent, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { signIn } from '../api/authApi'
-import { useAuth } from '../context/AuthContext'
+import { Link, useLocation } from 'react-router-dom'
+import { useLoginForm } from '../hooks/useLoginForm'
 import { PasswordInput } from '../components/PasswordInput'
 import styles from './LoginPage.module.css'
 
 export function LoginPage() {
-  const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useAuth()
-  const [form, setForm] = useState({ username: '', password: '' })
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    try {
-      setLoading(true)
-      setError('')
-      const token = await signIn(form)
-      login(token)
-      const nextPath = (location.state as { from?: string } | null)?.from ?? '/app'
-      navigate(nextPath, { replace: true })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인 실패')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const nextPath = (location.state as { from?: string } | null)?.from ?? '/app'
+  const { form, setForm, loading, error, handleSubmit } = useLoginForm({
+    redirectTo: nextPath,
+  })
 
   return (
     <main className={styles.root}>
@@ -67,7 +48,7 @@ export function LoginPage() {
             />
           </div>
 
-          {error && <p className="alert alert-error">{error}</p>}
+          {error && <p className="alert alert-error" role="alert">{error}</p>}
 
           <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading}>
             {loading ? '로그인 중…' : '로그인'}

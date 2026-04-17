@@ -1,8 +1,8 @@
 import type { SignInRequest, SignUpRequest } from '../types/auth'
+import { ApiError } from './ApiError'
+import { API_BASE_URL } from './config'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
-
-const toError = async (response: Response) => {
+const toErrorMessage = async (response: Response): Promise<string> => {
   const text = await response.text()
   if (!text) {
     return `Request failed: ${response.status} ${response.statusText}`
@@ -24,12 +24,12 @@ export const signIn = async (payload: SignInRequest): Promise<string> => {
   })
 
   if (!response.ok) {
-    throw new Error(await toError(response))
+    throw new ApiError(response.status, await toErrorMessage(response))
   }
 
   const token = response.headers.get('Authorization') ?? ''
   if (!token) {
-    throw new Error('로그인은 성공했지만 Authorization 토큰이 없습니다.')
+    throw new ApiError(response.status, '로그인은 성공했지만 Authorization 토큰이 없습니다.')
   }
   return token
 }
@@ -42,7 +42,7 @@ export const signUp = async (payload: SignUpRequest) => {
   })
 
   if (!response.ok) {
-    throw new Error(await toError(response))
+    throw new ApiError(response.status, await toErrorMessage(response))
   }
 
   return response.json()

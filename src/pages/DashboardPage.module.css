@@ -194,6 +194,36 @@
   }
 }
 
+/* ─ Spacing utilities ── */
+.mb4 {
+  margin-bottom: var(--sp-4);
+}
+
+.mb6 {
+  margin-bottom: var(--sp-6);
+}
+
+.py4 {
+  padding: var(--sp-4) 0;
+}
+
+/* ─ Badge deleted ── */
+.badgeDeleted {
+  background: var(--clr-error-soft);
+  color: var(--clr-error);
+}
+
+/* ─ Password input state feedback ── */
+.pwValid {
+  border-color: var(--clr-success) !important;
+  box-shadow: 0 0 0 3px var(--clr-success-soft), 0 0 0 1px var(--clr-success) !important;
+}
+
+.pwInvalid {
+  border-color: var(--clr-error) !important;
+  box-shadow: 0 0 0 3px var(--clr-error-soft), 0 0 0 1px var(--clr-error) !important;
+}
+
 /* ─ User count chip ── */
 .countChip {
   display: inline-flex;
