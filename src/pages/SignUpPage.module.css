@@ -82,6 +82,36 @@
   opacity: 1;
 }
 
+/* ── Email verification row ── */
+.emailRow {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: stretch;
+}
+
+.emailRow .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.verifyBtn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  padding: 11px var(--sp-3);
+}
+
+.verifiedMessage {
+  margin-top: calc(-1 * var(--sp-2));
+}
+
+@media (max-width: 520px) {
+  .verifyBtn {
+    padding: 11px var(--sp-2);
+    font-size: 0.75rem;
+  }
+}
+
 /* ── Password input state feedback ── */
 .pwInput {
   transition:

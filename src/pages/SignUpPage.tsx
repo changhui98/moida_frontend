@@ -1,6 +1,6 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signUp } from '../api/authApi'
+import { signUp, sendEmailVerification, verifyEmailCode } from '../api/authApi'
 import { PasswordInput } from '../components/PasswordInput'
 import { PasswordChecklist } from '../components/PasswordChecklist'
 import { isPasswordValid, isConfirmPasswordValid } from '../utils/passwordRules'
@@ -32,11 +32,66 @@ export function SignUpPage() {
     address: '',
   })
 
+  // 이메일 인증 상태
+  const [isCodeSent, setIsCodeSent] = useState(false)
+  const [isEmailVerified, setIsEmailVerified] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [isSendingCode, setIsSendingCode] = useState(false)
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false)
+  const [emailVerifyError, setEmailVerifyError] = useState('')
+  const previousEmailRef = useRef(form.userEmail)
+
   const setField =
     (key: SignUpField) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({ ...prev, [key]: e.target.value }))
+      const value = e.target.value
+      setForm((prev) => ({ ...prev, [key]: value }))
       setFieldErrors((prev) => ({ ...prev, [key]: undefined }))
+
+      // 이메일 변경 시 인증 상태 초기화
+      if (key === 'userEmail' && value !== previousEmailRef.current) {
+        previousEmailRef.current = value
+        setIsCodeSent(false)
+        setIsEmailVerified(false)
+        setVerificationCode('')
+        setEmailVerifyError('')
+      }
     }
+
+  const handleSendCode = async () => {
+    if (!form.userEmail.trim()) {
+      setFieldErrors((prev) => ({ ...prev, userEmail: '이메일을 입력해주세요.' }))
+      return
+    }
+    try {
+      setIsSendingCode(true)
+      setEmailVerifyError('')
+      await sendEmailVerification({ email: form.userEmail })
+      setIsCodeSent(true)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '인증코드 전송에 실패했습니다.'
+      setEmailVerifyError(message)
+    } finally {
+      setIsSendingCode(false)
+    }
+  }
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode.trim()) {
+      setEmailVerifyError('인증코드를 입력해주세요.')
+      return
+    }
+    try {
+      setIsVerifyingCode(true)
+      setEmailVerifyError('')
+      await verifyEmailCode({ email: form.userEmail, code: verificationCode })
+      setIsEmailVerified(true)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '인증코드 확인에 실패했습니다.'
+      setEmailVerifyError(message)
+    } finally {
+      setIsVerifyingCode(false)
+    }
+  }
 
   const validateRequiredFields = (): boolean => {
     const errors: Partial<Record<SignUpField, string>> = {}
@@ -76,8 +131,8 @@ export function SignUpPage() {
   const pwValid = isPasswordValid(form.password)
   const confirmValid = isConfirmPasswordValid(form.password, confirmPassword)
 
-  // 비밀번호 복잡도 + 확인 일치 모두 충족해야 제출 가능
-  const canSubmit = form.password.length > 0 && pwValid && confirmValid
+  // 비밀번호 복잡도 + 확인 일치 + 이메일 인증 모두 충족해야 제출 가능
+  const canSubmit = form.password.length > 0 && pwValid && confirmValid && isEmailVerified
 
   // 비밀번호 확인 입력창 테두리 색상
   const confirmBorderClass =
@@ -160,28 +215,29 @@ export function SignUpPage() {
           {/* Checklist — 비밀번호 입력 시에만 노출 */}
           <PasswordChecklist password={form.password} confirmPassword={confirmPassword} />
 
-          {/* Nickname + Email */}
-          <div className={styles.fieldRow}>
-            <div className="input-group">
-              <label className="input-label" htmlFor="su-nickname">
-                닉네임
-              </label>
-              <input
-                id="su-nickname"
-                className="input"
-                placeholder="4~10자, 한글·영문·숫자"
-                value={form.nickname}
-                onChange={setField('nickname')}
-              />
-              {fieldErrors.nickname && (
-                <p className="field-error" role="alert">{fieldErrors.nickname}</p>
-              )}
-            </div>
+          {/* Nickname */}
+          <div className="input-group">
+            <label className="input-label" htmlFor="su-nickname">
+              닉네임
+            </label>
+            <input
+              id="su-nickname"
+              className="input"
+              placeholder="4~10자, 한글·영문·숫자"
+              value={form.nickname}
+              onChange={setField('nickname')}
+            />
+            {fieldErrors.nickname && (
+              <p className="field-error" role="alert">{fieldErrors.nickname}</p>
+            )}
+          </div>
 
-            <div className="input-group">
-              <label className="input-label" htmlFor="su-email">
-                이메일
-              </label>
+          {/* Email + Verification */}
+          <div className="input-group">
+            <label className="input-label" htmlFor="su-email">
+              이메일
+            </label>
+            <div className={styles.emailRow}>
               <input
                 id="su-email"
                 className="input"
@@ -190,12 +246,60 @@ export function SignUpPage() {
                 autoComplete="email"
                 value={form.userEmail}
                 onChange={setField('userEmail')}
+                disabled={isEmailVerified}
               />
-              {fieldErrors.userEmail && (
-                <p className="field-error" role="alert">{fieldErrors.userEmail}</p>
-              )}
+              <button
+                type="button"
+                className={`btn btn-secondary ${styles.verifyBtn}`}
+                disabled={isSendingCode || isEmailVerified || !form.userEmail.trim()}
+                onClick={handleSendCode}
+              >
+                {isSendingCode ? '전송 중...' : isCodeSent ? '재전송' : '인증코드 전송'}
+              </button>
             </div>
+            {fieldErrors.userEmail && (
+              <p className="field-error" role="alert">{fieldErrors.userEmail}</p>
+            )}
           </div>
+
+          {/* Verification Code Input */}
+          {isCodeSent && !isEmailVerified && (
+            <div className="input-group">
+              <label className="input-label" htmlFor="su-verify-code">
+                인증코드
+              </label>
+              <div className={styles.emailRow}>
+                <input
+                  id="su-verify-code"
+                  className="input"
+                  type="text"
+                  placeholder="인증코드를 입력하세요"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  autoComplete="one-time-code"
+                  inputMode="numeric"
+                />
+                <button
+                  type="button"
+                  className={`btn btn-primary ${styles.verifyBtn}`}
+                  disabled={isVerifyingCode || !verificationCode.trim()}
+                  onClick={handleVerifyCode}
+                >
+                  {isVerifyingCode ? '확인 중...' : '인증코드 확인'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Email Verification Status */}
+          {emailVerifyError && (
+            <p className="field-error" role="alert">{emailVerifyError}</p>
+          )}
+          {isEmailVerified && (
+            <p className={`alert alert-success ${styles.verifiedMessage}`} role="status">
+              이메일 인증이 완료되었습니다.
+            </p>
+          )}
 
           {/* Address */}
           <div className="input-group">

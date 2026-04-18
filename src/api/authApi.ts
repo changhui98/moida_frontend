@@ -2,6 +2,15 @@ import type { SignInRequest, SignUpRequest } from '../types/auth'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
 
+interface SendVerificationRequest {
+  email: string
+}
+
+interface VerifyEmailRequest {
+  email: string
+  code: string
+}
+
 const toErrorMessage = async (response: Response): Promise<string> => {
   const text = await response.text()
   if (!text) {
@@ -46,4 +55,28 @@ export const signUp = async (payload: SignUpRequest) => {
   }
 
   return response.json()
+}
+
+export const sendEmailVerification = async (payload: SendVerificationRequest): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/auth/email/send-verification`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new ApiError(response.status, await toErrorMessage(response))
+  }
+}
+
+export const verifyEmailCode = async (payload: VerifyEmailRequest): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/auth/email/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new ApiError(response.status, await toErrorMessage(response))
+  }
 }
