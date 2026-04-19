@@ -161,7 +161,7 @@ export function SignUpPage() {
             <input
               id="su-username"
               className="input"
-              placeholder="영문만 입력 가능"
+              placeholder="영문, 숫자 입력 가능"
               autoComplete="username"
               value={form.username}
               onChange={setField('username')}
