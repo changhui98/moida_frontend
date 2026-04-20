@@ -10,7 +10,7 @@ import { PostCard } from '../components/post/PostCard'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { Skeleton } from '../components/common/Skeleton'
 import { EmptyState } from '../components/common/EmptyState'
-import type { PostResponse } from '../types/post'
+import type { ContentResponse } from '../types/post'
 import type { UserDetailResponse } from '../types/user'
 import styles from './PostListPage.module.css'
 
@@ -22,7 +22,7 @@ export function PostListPage() {
   const navigate = useNavigate()
   const { token, logout } = useAuth()
 
-  const [posts, setPosts] = useState<PostResponse[]>([])
+  const [posts, setPosts] = useState<ContentResponse[]>([])
   const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -30,6 +30,7 @@ export function PostListPage() {
   const [initialLoad, setInitialLoad] = useState(true)
   const [keyword, setKeyword] = useState('')
   const [searchedKeyword, setSearchedKeyword] = useState('')
+  const [searchType, setSearchType] = useState<'TITLE' | 'USERNAME'>('TITLE')
   const [serviceUnavailable, setServiceUnavailable] = useState(false)
 
   const handleUnauthorized = useCallback(
@@ -43,11 +44,11 @@ export function PostListPage() {
   )
 
   const loadPosts = useCallback(
-    async (targetPage: number, search: string) => {
+    async (targetPage: number, search: string, type: 'TITLE' | 'USERNAME' = 'TITLE') => {
       try {
         setLoading(true)
         setServiceUnavailable(false)
-        const response = await getPosts(token, targetPage, PAGE_SIZE, search)
+        const response = await getPosts(token, targetPage, PAGE_SIZE, search, type)
         setPosts(response.content)
         setTotalPages(response.totalPages)
       } catch (err) {
@@ -80,12 +81,12 @@ export function PostListPage() {
   const handleSearch = () => {
     setPage(0)
     setSearchedKeyword(keyword)
-    loadPosts(0, keyword)
+    loadPosts(0, keyword, searchType)
   }
 
   const handlePageChange = (nextPage: number) => {
     setPage(nextPage)
-    loadPosts(nextPage, searchedKeyword)
+    loadPosts(nextPage, searchedKeyword, searchType)
   }
 
   const handleLogout = () => {
@@ -151,8 +152,9 @@ export function PostListPage() {
                     onClick: () => {
                       setKeyword('')
                       setSearchedKeyword('')
+                      setSearchType('TITLE')
                       setPage(0)
-                      loadPosts(0, '')
+                      loadPosts(0, '', 'TITLE')
                     },
                   }
                 : undefined
@@ -221,13 +223,25 @@ export function PostListPage() {
       <main className={styles.main}>
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>게시글</h1>
-          <SearchBar
-            value={keyword}
-            onChange={setKeyword}
-            onSearch={handleSearch}
-            placeholder="게시글 검색..."
-            disabled={loading}
-          />
+          <div className={styles.searchArea}>
+            <select
+              className={styles.searchTypeSelect}
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value as 'TITLE' | 'USERNAME')}
+              disabled={loading}
+              aria-label="검색 유형"
+            >
+              <option value="TITLE">제목</option>
+              <option value="USERNAME">작성자</option>
+            </select>
+            <SearchBar
+              value={keyword}
+              onChange={setKeyword}
+              onSearch={handleSearch}
+              placeholder="게시글 검색..."
+              disabled={loading}
+            />
+          </div>
         </div>
 
         {renderContent()}
