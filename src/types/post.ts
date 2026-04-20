@@ -1,14 +1,22 @@
-export interface PostResponse {
-  id: string
+export interface ContentResponse {
+  id: number
   title: string
-  content: string
-  authorNickname: string
-  authorUsername: string
-  viewCount?: number
+  body: string
+  createdBy: string
   createdAt: string
-  category?: string
 }
 
-export interface PostDetailResponse extends PostResponse {
-  modifiedAt: string
+export interface AdminContentResponse {
+  id: number
+  title: string
+  body: string
+  createdBy: string
+  createdAt: string
+  lastModifiedBy: string | null
+  lastModifiedDate: string | null
+  deletedBy: string | null
+  deletedDate: string | null
 }
+
+// 하위 호환용 타입 alias
+export type PostResponse = ContentResponse

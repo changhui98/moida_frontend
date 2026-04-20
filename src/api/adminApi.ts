@@ -1,4 +1,5 @@
 import type { PageResponse, UserDetailResponse, UserResponse } from '../types/user'
+import type { AdminContentResponse } from '../types/post'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
 
@@ -60,4 +61,59 @@ export const getAdminUserDetail = (
   return fetch(`${API_BASE_URL}/admin/users/${username}`, {
     headers: createAuthHeaders(token),
   }).then((response) => parseResponse<UserDetailResponse>(response))
+}
+
+export const getAdminContents = (
+  token: string,
+  page = 0,
+  size = 10,
+): Promise<PageResponse<AdminContentResponse>> => {
+  return fetch(`${API_BASE_URL}/admin/contents?page=${page}&size=${size}`, {
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<PageResponse<AdminContentResponse>>(response))
+}
+
+export const deleteAdminContent = (
+  token: string,
+  contentId: number,
+): Promise<void> => {
+  return fetch(`${API_BASE_URL}/admin/contents/${contentId}`, {
+    method: 'DELETE',
+    headers: createAuthHeaders(token),
+  }).then(async (response) => {
+    if (!response.ok) {
+      const text = await response.text()
+      throw new ApiError(
+        response.status,
+        text || `Request failed: ${response.status} ${response.statusText}`,
+      )
+    }
+  })
+}
+
+export const restoreAdminContent = (
+  token: string,
+  contentId: number,
+): Promise<void> => {
+  return fetch(`${API_BASE_URL}/admin/contents/${contentId}/restore`, {
+    method: 'PATCH',
+    headers: createAuthHeaders(token),
+  }).then(async (response) => {
+    if (!response.ok) {
+      const text = await response.text()
+      throw new ApiError(
+        response.status,
+        text || `Request failed: ${response.status} ${response.statusText}`,
+      )
+    }
+  })
+}
+
+export const getAdminContentDetail = (
+  token: string,
+  contentId: number,
+): Promise<AdminContentResponse> => {
+  return fetch(`${API_BASE_URL}/admin/contents/${contentId}`, {
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<AdminContentResponse>(response))
 }

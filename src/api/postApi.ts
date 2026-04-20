@@ -1,5 +1,5 @@
 import type { PageResponse } from '../types/user'
-import type { PostResponse } from '../types/post'
+import type { ContentResponse } from '../types/post'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
 
@@ -31,7 +31,8 @@ export const getPosts = (
   page = 0,
   size = 12,
   keyword = '',
-): Promise<PageResponse<PostResponse>> => {
+  searchType: 'TITLE' | 'USERNAME' = 'TITLE',
+): Promise<PageResponse<ContentResponse>> => {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
@@ -39,9 +40,10 @@ export const getPosts = (
 
   if (keyword.trim()) {
     params.set('keyword', keyword.trim())
+    params.set('searchType', searchType)
   }
 
-  return fetch(`${API_BASE_URL}/posts?${params.toString()}`, {
+  return fetch(`${API_BASE_URL}/contents?${params.toString()}`, {
     headers: createAuthHeaders(token),
-  }).then((response) => parseResponse<PageResponse<PostResponse>>(response))
+  }).then((response) => parseResponse<PageResponse<ContentResponse>>(response))
 }
