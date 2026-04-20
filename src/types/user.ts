@@ -13,6 +13,7 @@ export interface UserDetailResponse {
   nickname: string
   userEmail: string
   address: string
+  role: string
   createdAt: string
   modifiedAt: string
 }
