@@ -128,6 +128,7 @@ export function DashboardPage() {
     <>
       <Navbar
         nickname={myProfile?.nickname ?? null}
+        role={myProfile?.role ?? null}
         onLogout={handleLogout}
       />
 
