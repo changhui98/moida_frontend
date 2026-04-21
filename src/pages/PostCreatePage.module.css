@@ -4,6 +4,8 @@
   justify-content: center;
   min-height: 100dvh;
   padding: var(--sp-8) var(--sp-6);
+  padding-left: calc(var(--layout-sidebar-w) + var(--sp-6));
+  padding-bottom: calc(var(--sp-8) + var(--layout-bottom-bar-h));
 }
 
 .formWrapper {
@@ -103,5 +105,7 @@
 @media (max-width: 767px) {
   .main {
     padding: var(--sp-4);
+    padding-left: calc(var(--layout-sidebar-w) + var(--sp-4));
+    padding-bottom: calc(var(--sp-4) + var(--layout-bottom-bar-h));
   }
 }

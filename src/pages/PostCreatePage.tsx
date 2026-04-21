@@ -1,12 +1,44 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createPost } from '../api/postApi'
+import { getMyProfile } from '../api/userApi'
+import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
+import { Navbar } from '../components/Navbar'
+import type { UserDetailResponse } from '../types/user'
 import styles from './PostCreatePage.module.css'
 
 export function PostCreatePage() {
   const navigate = useNavigate()
-  const { token } = useAuth()
+  const { token, logout } = useAuth()
+  const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
+
+  const handleUnauthorized = useCallback(
+    (err: unknown) => {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        logout()
+        navigate('/login', { replace: true })
+      }
+    },
+    [logout, navigate],
+  )
+
+  useEffect(() => {
+    let cancelled = false
+    getMyProfile(token)
+      .then((res) => {
+        if (!cancelled) setMyProfile(res)
+      })
+      .catch((err) => handleUnauthorized(err))
+    return () => {
+      cancelled = true
+    }
+  }, [token, handleUnauthorized])
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
 
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
@@ -33,8 +65,14 @@ export function PostCreatePage() {
   }
 
   return (
-    <main className={styles.main}>
-      <div className={styles.formWrapper}>
+    <>
+      <Navbar
+        nickname={myProfile?.nickname ?? null}
+        role={myProfile?.role ?? null}
+        onLogout={handleLogout}
+      />
+      <main className={styles.main}>
+        <div className={styles.formWrapper}>
         <div className={styles.header}>
           <h1 className={styles.title}>게시글 작성</h1>
         </div>
@@ -91,7 +129,8 @@ export function PostCreatePage() {
             </button>
           </div>
         </form>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   )
 }

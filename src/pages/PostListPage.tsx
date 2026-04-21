@@ -8,7 +8,6 @@ import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 import { Navbar } from '../components/Navbar'
 import { SearchBar } from '../components/post/SearchBar'
 import { PostCard } from '../components/post/PostCard'
-import { PostWriteButton } from '../components/post/PostWriteButton'
 import {
   PostInlineForm,
   type PostInlineFormHandle,
@@ -94,11 +93,6 @@ export function PostListPage() {
     setSearchedKeyword('')
     setSearchType('TITLE')
     resetAndRefresh()
-  }
-
-  const handleFabClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    inlineFormRef.current?.focusTitleInput()
   }
 
   const renderContent = () => {
@@ -225,8 +219,6 @@ export function PostListPage() {
 
         {renderContent()}
       </main>
-
-      <PostWriteButton variant="fab" onClick={handleFabClick} />
     </>
   )
 }
