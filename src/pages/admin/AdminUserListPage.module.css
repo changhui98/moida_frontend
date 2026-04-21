@@ -89,6 +89,17 @@
   color: var(--clr-text-secondary);
 }
 
+.tableDate {
+  color: var(--clr-text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
 .badgeDeleted {
   background: var(--clr-error-soft);
   color: var(--clr-error);

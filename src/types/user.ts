@@ -5,6 +5,8 @@ export interface UserResponse {
   userEmail: string
   address: string
   isDeleted?: boolean
+  createdDate?: string | null
+  modifiedDate?: string | null
 }
 
 export interface UserDetailResponse {
