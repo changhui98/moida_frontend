@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext'
 import { LoadingSpinner } from '../../components/common/LoadingSpinner'
 import { Skeleton } from '../../components/common/Skeleton'
 import { ConfirmDialog } from '../../components/common/ConfirmDialog'
+import { formatDateTime } from '../../utils/dateUtils'
 import type { AdminContentResponse } from '../../types/post'
 import styles from './AdminUserListPage.module.css'
 
@@ -21,14 +22,6 @@ type ConfirmAction = 'delete' | 'restore'
 interface ConfirmState {
   content: AdminContentResponse
   action: ConfirmAction
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
 }
 
 export function AdminPostListPage() {
@@ -151,6 +144,7 @@ export function AdminPostListPage() {
                     <th>제목</th>
                     <th>작성자</th>
                     <th>작성일</th>
+                    <th>수정일</th>
                     <th>상태</th>
                     <th>관리</th>
                   </tr>
@@ -158,7 +152,7 @@ export function AdminPostListPage() {
                 <tbody>
                   {contents.length === 0 ? (
                     <tr className={styles.emptyRow}>
-                      <td colSpan={5}>등록된 게시글이 없습니다.</td>
+                      <td colSpan={6}>등록된 게시글이 없습니다.</td>
                     </tr>
                   ) : (
                     contents.map((content) => (
@@ -171,8 +165,11 @@ export function AdminPostListPage() {
                         <td className={styles.tableSecondary}>
                           @{content.createdBy}
                         </td>
-                        <td className={styles.tableSecondary}>
-                          {formatDate(content.createdAt)}
+                        <td className={styles.tableDate}>
+                          {formatDateTime(content.createdAt)}
+                        </td>
+                        <td className={styles.tableDate}>
+                          {formatDateTime(content.lastModifiedDate)}
                         </td>
                         <td>
                           {isDeleted(content) ? (

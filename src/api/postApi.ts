@@ -52,7 +52,7 @@ export const createPost = (
   token: string,
   data: CreateContentRequest,
 ): Promise<ContentResponse> => {
-  return fetch(`${API_BASE_URL}/content`, {
+  return fetch(`${API_BASE_URL}/contents`, {
     method: 'POST',
     headers: createAuthHeaders(token),
     body: JSON.stringify(data),
