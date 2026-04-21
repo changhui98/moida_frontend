@@ -46,51 +46,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 48px;
+  height: 56px;
   padding: 0;
   color: var(--clr-text);
   text-decoration: none;
-  font-family: var(--font-brand) !important;
-  transition: color var(--t-fast), padding var(--t-base), justify-content var(--t-base);
+  transition: opacity var(--t-fast);
 }
 
 .brand:hover {
+  opacity: 0.8;
+}
+
+.brandLogo {
+  width: 24px;
+  height: 24px;
+  display: block;
   color: var(--clr-accent);
-}
-
-.brandFull {
-  font-size: 1.75rem;
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: 0.5px;
-  display: none;
-  white-space: nowrap;
-}
-
-.brandMark {
-  display: inline;
-  font-size: 2rem;
-  font-weight: 300;
-  line-height: 1;
-}
-
-.sidebar:hover .brand,
-.sidebar:focus-within .brand,
-.sidebarOpen .brand {
-  justify-content: flex-start;
-  padding: 0 var(--sp-3);
-}
-
-.sidebar:hover .brandFull,
-.sidebar:focus-within .brandFull,
-.sidebarOpen .brandFull {
-  display: inline;
-}
-
-.sidebar:hover .brandMark,
-.sidebar:focus-within .brandMark,
-.sidebarOpen .brandMark {
-  display: none;
 }
 
 /* ── Nav List ──────────────────────────────────────────────── */

@@ -15,6 +15,30 @@ const BASE: IconProps = {
   focusable: false,
 }
 
+export function BrandLogo(props: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      focusable={false}
+      {...props}
+    >
+      <g opacity="0.55">
+        <circle cx="5.5" cy="9" r="2.3" />
+        <path d="M1 17.2c0-2.5 2-4.5 4.5-4.5S10 14.7 10 17.2v1.3H1v-1.3z" />
+      </g>
+      <g opacity="0.55">
+        <circle cx="18.5" cy="9" r="2.3" />
+        <path d="M14 17.2c0-2.5 2-4.5 4.5-4.5S23 14.7 23 17.2v1.3h-9v-1.3z" />
+      </g>
+      <circle cx="12" cy="7.5" r="3" />
+      <path d="M5 19.2c0-3.9 3.1-7 7-7s7 3.1 7 7V22H5v-2.8z" />
+    </svg>
+  )
+}
+
 export function HomeIcon(props: IconProps) {
   return (
     <svg {...BASE} {...props}>

@@ -12,6 +12,7 @@ import {
   ActivityIcon,
   AlertIcon,
   BookmarkIcon,
+  BrandLogo,
   ChevronLeftIcon,
   HomeIcon,
   LogoutIcon,
@@ -145,8 +146,7 @@ export function Navbar({ role, onLogout }: NavbarProps) {
     >
       <div className={styles.sidebarInner}>
         <Link to="/app" className={styles.brand} aria-label="Moida 홈">
-          <span className={styles.brandFull}>Moida</span>
-          <span className={styles.brandMark} aria-hidden>M</span>
+          <BrandLogo className={styles.brandLogo} />
         </Link>
 
         <nav className={styles.nav}>
