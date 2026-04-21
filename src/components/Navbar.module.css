@@ -10,7 +10,7 @@
   width: 72px;
   z-index: 50;
   background: var(--clr-bg);
-  border-right: 1px solid var(--clr-border);
+  border-right: none;
   display: flex;
   flex-direction: column;
   transition: width var(--t-base), box-shadow var(--t-base);
@@ -326,7 +326,7 @@
     bottom: 0;
     height: 56px;
     border-right: none;
-    border-top: 1px solid var(--clr-border);
+    border-top: none;
     box-shadow: none;
   }
 
