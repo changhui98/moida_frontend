@@ -12,6 +12,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminUserListPage } from './pages/admin/AdminUserListPage'
 import { AdminPostListPage } from './pages/admin/AdminPostListPage'
+import { PostCreatePage } from './pages/PostCreatePage'
 
 type ThemeMode = 'light' | 'dark'
 const THEME_STORAGE_KEY = 'moida_theme_mode'
@@ -39,6 +40,7 @@ function App() {
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/app" element={<PostListPage />} />
+          <Route path="/app/posts/new" element={<PostCreatePage />} />
           <Route path="/app/users" element={<UserGridPage />} />
           <Route path="/app/profile" element={<ProfilePage />} />
           <Route path="/app/admin" element={<AdminLayout />}>

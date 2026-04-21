@@ -1,37 +1,57 @@
-/* ── PostCard ── */
+/* ── PostCard (Feed Style) ── */
 
 .card {
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
   background: var(--clr-surface);
-  border: 1px solid var(--clr-border);
-  border-radius: var(--r-xl);
+  border-bottom: 1px solid var(--clr-border);
   padding: var(--sp-5);
-  box-shadow: var(--shadow-sm);
-  transition:
-    transform var(--t-fast),
-    box-shadow var(--t-fast);
   cursor: default;
+  transition: background var(--t-fast);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background: var(--clr-surface-hover, var(--clr-surface));
 }
 
-.categoryBadge {
-  display: inline-flex;
+.header {
+  display: flex;
   align-items: center;
-  align-self: flex-start;
-  padding: 2px var(--sp-2);
+  gap: var(--sp-3);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
   border-radius: var(--r-full);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   background: var(--clr-accent-muted);
   color: var(--clr-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--clr-text);
+}
+
+.date {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
 }
 
 .title {
@@ -53,39 +73,6 @@
   margin: 0;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
-}
-
-.divider {
-  width: 100%;
-  height: 1px;
-  background: var(--clr-border);
-}
-
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2);
-}
-
-.author {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
-
-.authorName {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--clr-text);
-}
-
-.meta {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  font-size: 0.75rem;
-  color: var(--clr-text-muted);
 }

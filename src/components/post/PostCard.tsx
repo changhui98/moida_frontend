@@ -13,20 +13,24 @@ function formatDate(dateStr: string): string {
   })
 }
 
+function getInitial(name: string): string {
+  return name.charAt(0).toUpperCase()
+}
+
 export function PostCard({ post }: PostCardProps) {
   return (
     <article className={styles.card}>
-      <h3 className={styles.title}>{post.title}</h3>
-      <p className={styles.content}>{post.body}</p>
-      <div className={styles.divider} />
-      <div className={styles.footer}>
-        <div className={styles.author}>
-          <span className={styles.authorName}>@{post.createdBy}</span>
+      <div className={styles.header}>
+        <div className={styles.avatar} aria-hidden="true">
+          {getInitial(post.createdBy)}
         </div>
-        <div className={styles.meta}>
-          <span>{formatDate(post.createdAt)}</span>
+        <div className={styles.headerInfo}>
+          <span className={styles.authorName}>@{post.createdBy}</span>
+          <span className={styles.date}>{formatDate(post.createdAt)}</span>
         </div>
       </div>
+      <h3 className={styles.title}>{post.title}</h3>
+      <p className={styles.content}>{post.body}</p>
     </article>
   )
 }

@@ -1,5 +1,5 @@
 import type { PageResponse } from '../types/user'
-import type { ContentResponse } from '../types/post'
+import type { ContentResponse, CreateContentRequest } from '../types/post'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
 
@@ -46,4 +46,15 @@ export const getPosts = (
   return fetch(`${API_BASE_URL}/contents?${params.toString()}`, {
     headers: createAuthHeaders(token),
   }).then((response) => parseResponse<PageResponse<ContentResponse>>(response))
+}
+
+export const createPost = (
+  token: string,
+  data: CreateContentRequest,
+): Promise<ContentResponse> => {
+  return fetch(`${API_BASE_URL}/content`, {
+    method: 'POST',
+    headers: createAuthHeaders(token),
+    body: JSON.stringify(data),
+  }).then((response) => parseResponse<ContentResponse>(response))
 }

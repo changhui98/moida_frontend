@@ -18,5 +18,10 @@ export interface AdminContentResponse {
   deletedDate: string | null
 }
 
+export interface CreateContentRequest {
+  title: string
+  body: string
+}
+
 // 하위 호환용 타입 alias
 export type PostResponse = ContentResponse
