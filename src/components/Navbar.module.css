@@ -21,7 +21,6 @@
 .sidebar:focus-within,
 .sidebarOpen {
   width: 244px;
-  box-shadow: var(--shadow-md);
 }
 
 .sidebarInner {
@@ -181,41 +180,6 @@
 
 .moreButtonOpen {
   background: var(--clr-accent-muted);
-}
-
-.userBlock {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-3);
-  padding: var(--sp-2) var(--sp-3);
-  color: var(--clr-text-secondary);
-}
-
-.sidebar:hover .userBlock,
-.sidebar:focus-within .userBlock,
-.sidebarOpen .userBlock {
-  justify-content: flex-start;
-}
-
-.userAvatar {
-  flex-shrink: 0;
-}
-
-.userName {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--clr-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: none;
-}
-
-.sidebar:hover .userName,
-.sidebar:focus-within .userName,
-.sidebarOpen .userName {
-  display: inline;
 }
 
 /* ── Popover Menu ──────────────────────────────────────────── */
@@ -406,8 +370,7 @@
     gap: var(--sp-1);
   }
 
-  .brand,
-  .userBlock {
+  .brand {
     display: none;
   }
 

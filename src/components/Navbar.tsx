@@ -7,7 +7,6 @@ import {
 } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styles from './Navbar.module.css'
-import { getInitials } from '../utils/stringUtils'
 import { useTheme } from '../context/ThemeContext'
 import {
   ActivityIcon,
@@ -31,7 +30,6 @@ import {
 const ADMIN_ROLE = 'ADMIN'
 
 interface NavbarProps {
-  nickname: string | null
   role: string | null
   onLogout: () => void
 }
@@ -43,7 +41,7 @@ interface NavItem {
   match?: (pathname: string) => boolean
 }
 
-export function Navbar({ nickname, role, onLogout }: NavbarProps) {
+export function Navbar({ role, onLogout }: NavbarProps) {
   const isAdmin = role === ADMIN_ROLE
   const location = useLocation()
   const navigate = useNavigate()
@@ -300,15 +298,6 @@ export function Navbar({ nickname, role, onLogout }: NavbarProps) {
             </span>
             <span className={styles.navLabel}>더 보기</span>
           </button>
-
-          {nickname && (
-            <div className={styles.userBlock} title={nickname}>
-              <span className={`avatar avatar-sm ${styles.userAvatar}`}>
-                {getInitials(nickname)}
-              </span>
-              <span className={styles.userName}>{nickname}</span>
-            </div>
-          )}
         </div>
       </div>
     </aside>
