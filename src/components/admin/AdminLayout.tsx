@@ -5,7 +5,6 @@ import { ApiError } from '../../api/ApiError'
 import { useAuth } from '../../context/AuthContext'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { AdminSidebar } from './AdminSidebar'
-import { getInitials } from '../../utils/stringUtils'
 import type { UserDetailResponse } from '../../types/user'
 import styles from './AdminLayout.module.css'
 
@@ -82,14 +81,6 @@ export function AdminLayout() {
             <Link to="/app" className={styles.backLink}>
               사이트로 돌아가기
             </Link>
-            {profile && (
-              <div className={styles.userInfo}>
-                <span className="avatar avatar-md">
-                  {getInitials(profile.nickname)}
-                </span>
-                <span className={styles.userName}>{profile.nickname}</span>
-              </div>
-            )}
             <button
               type="button"
               className={styles.logoutButton}
@@ -101,7 +92,7 @@ export function AdminLayout() {
         </nav>
 
         <div className={styles.body}>
-          <AdminSidebar />
+          <AdminSidebar profile={profile} />
           <main className={styles.content}>
             <Outlet />
           </main>
