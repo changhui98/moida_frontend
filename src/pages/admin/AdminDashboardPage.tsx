@@ -1,12 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { getAdminUsers } from '../../api/adminApi'
+import { useNavigate } from 'react-router-dom'
+import {
+  getAdminUsers,
+  getMonthlyContentCreations,
+  getMonthlySignups,
+} from '../../api/adminApi'
 import { ApiError } from '../../api/ApiError'
 import { useAuth } from '../../context/AuthContext'
 import { StatCard } from '../../components/admin/StatCard'
+import { MonthlyChartCard } from '../../components/admin/MonthlyChartCard'
 import { Skeleton } from '../../components/common/Skeleton'
 import { getInitials } from '../../utils/stringUtils'
 import type { UserResponse } from '../../types/user'
+import type { MonthlyStatsPoint } from '../../types/adminStats'
 import styles from './AdminDashboardPage.module.css'
 
 const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'] as const
@@ -31,6 +37,12 @@ export function AdminDashboardPage() {
   const [totalUsers, setTotalUsers] = useState<number | null>(null)
   const [recentUsers, setRecentUsers] = useState<UserResponse[]>([])
   const [loading, setLoading] = useState(true)
+
+  const [signupStats, setSignupStats] = useState<MonthlyStatsPoint[]>([])
+  const [contentStats, setContentStats] = useState<MonthlyStatsPoint[]>([])
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [signupError, setSignupError] = useState<string | null>(null)
+  const [contentError, setContentError] = useState<string | null>(null)
 
   const handleUnauthorized = useCallback(
     (err: unknown) => {
@@ -67,13 +79,56 @@ export function AdminDashboardPage() {
     loadData()
   }, [token, handleUnauthorized])
 
+  const loadStats = useCallback(async () => {
+    const describeError = (reason: unknown, fallback: string): string => {
+      if (reason instanceof ApiError) {
+        if (reason.status >= 500) {
+          return `${fallback} 잠시 후 다시 시도해 주세요. (HTTP ${reason.status})`
+        }
+        return `${fallback} (HTTP ${reason.status})`
+      }
+      return fallback
+    }
+
+    try {
+      setStatsLoading(true)
+      setSignupError(null)
+      setContentError(null)
+      const [signupRes, contentRes] = await Promise.allSettled([
+        getMonthlySignups(token, 12),
+        getMonthlyContentCreations(token, 12),
+      ])
+
+      if (signupRes.status === 'fulfilled') {
+        setSignupStats(signupRes.value.points)
+      } else {
+        console.error('[admin] 가입자 통계 로드 실패:', signupRes.reason)
+        handleUnauthorized(signupRes.reason)
+        setSignupError(
+          describeError(signupRes.reason, '가입자 통계를 불러오지 못했습니다.'),
+        )
+      }
+
+      if (contentRes.status === 'fulfilled') {
+        setContentStats(contentRes.value.points)
+      } else {
+        console.error('[admin] 게시글 통계 로드 실패:', contentRes.reason)
+        handleUnauthorized(contentRes.reason)
+        setContentError(
+          describeError(contentRes.reason, '게시글 통계를 불러오지 못했습니다.'),
+        )
+      }
+    } finally {
+      setStatsLoading(false)
+    }
+  }, [token, handleUnauthorized])
+
+  useEffect(() => {
+    loadStats()
+  }, [loadStats])
+
   return (
     <div className={styles.container}>
-      <div>
-        <h1 className={styles.greeting}>관리자 대시보드</h1>
-        <p className={styles.greetingSub}>Moida 서비스 현황을 한눈에 확인하세요.</p>
-      </div>
-
       <div className={styles.statsGrid}>
         <StatCard
           title="현재 시간"
@@ -89,24 +144,38 @@ export function AdminDashboardPage() {
           accent
         />
         <StatCard
-          title="오늘의 게시글"
-          value="준비 중"
-          subtitle="게시글 API 연동 후 표시됩니다"
+          title="최근 12개월 게시글"
+          value={
+            contentStats.length > 0
+              ? `${contentStats.reduce((s, p) => s + p.count, 0)}건`
+              : '-'
+          }
+          subtitle="최근 12개월간 작성된 게시글"
+          loading={statsLoading}
         />
       </div>
 
-      <div className={styles.sectionCard}>
-        <h2 className={styles.sectionTitle}>처리해야 할 업무</h2>
-        <div className={styles.taskList}>
-          <Link to="/app/admin/users" className={styles.taskItem}>
-            <span>신규 가입 사용자 검토</span>
-            <span className={styles.taskArrow}>→</span>
-          </Link>
-          <Link to="/app/admin/posts" className={styles.taskItem}>
-            <span>신규 게시글 검토</span>
-            <span className={styles.taskArrow}>→</span>
-          </Link>
-        </div>
+      <div className={styles.chartsGrid}>
+        <MonthlyChartCard
+          title="월별 신규 가입자 수"
+          subtitle="최근 12개월 · KST 기준"
+          unit="명"
+          color="#c0784a"
+          data={signupStats}
+          loading={statsLoading}
+          error={signupError}
+          onRetry={loadStats}
+        />
+        <MonthlyChartCard
+          title="월별 신규 게시글 수"
+          subtitle="최근 12개월 · KST 기준"
+          unit="건"
+          color="#10b981"
+          data={contentStats}
+          loading={statsLoading}
+          error={contentError}
+          onRetry={loadStats}
+        />
       </div>
 
       <div className={styles.sectionCard}>

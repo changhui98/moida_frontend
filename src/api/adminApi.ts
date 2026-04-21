@@ -1,5 +1,6 @@
 import type { PageResponse, UserDetailResponse, UserResponse } from '../types/user'
 import type { AdminContentResponse } from '../types/post'
+import type { MonthlyStatsResponse } from '../types/adminStats'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
 
@@ -116,4 +117,28 @@ export const getAdminContentDetail = (
   return fetch(`${API_BASE_URL}/admin/contents/${contentId}`, {
     headers: createAuthHeaders(token),
   }).then((response) => parseResponse<AdminContentResponse>(response))
+}
+
+export const getMonthlySignups = (
+  token: string,
+  months = 12,
+): Promise<MonthlyStatsResponse> => {
+  return fetch(
+    `${API_BASE_URL}/admin/stats/users/monthly-signups?months=${months}`,
+    {
+      headers: createAuthHeaders(token),
+    },
+  ).then((response) => parseResponse<MonthlyStatsResponse>(response))
+}
+
+export const getMonthlyContentCreations = (
+  token: string,
+  months = 12,
+): Promise<MonthlyStatsResponse> => {
+  return fetch(
+    `${API_BASE_URL}/admin/stats/contents/monthly-creations?months=${months}`,
+    {
+      headers: createAuthHeaders(token),
+    },
+  ).then((response) => parseResponse<MonthlyStatsResponse>(response))
 }
