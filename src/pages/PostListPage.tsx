@@ -201,7 +201,6 @@ export function PostListPage() {
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>게시글</h1>
           <div className={styles.headerActions}>
-            <PostWriteButton variant="header" onClick={handleFabClick} />
             <div className={styles.searchArea}>
               <select
                 className={styles.searchTypeSelect}
