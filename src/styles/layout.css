@@ -2,6 +2,21 @@
    Layout Utilities — Moida
    ============================================================ */
 
+/* ── Sidebar width tokens ──────────────────────────────────── */
+/* 사이드바는 기본 collapsed(72px) 상태이며, hover 시에만 overlay 방식으로
+   244px로 확장되므로 콘텐츠 padding은 항상 collapsed 너비로 고정합니다. */
+:root {
+  --layout-sidebar-w: 72px;
+  --layout-bottom-bar-h: 0px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --layout-sidebar-w: 0px;
+    --layout-bottom-bar-h: 56px;
+  }
+}
+
 /* ── Page Container ────────────────────────────────────────── */
 .page {
   width: min(100%, 960px);

@@ -1,6 +1,32 @@
-import { Link } from 'react-router-dom'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styles from './Navbar.module.css'
 import { getInitials } from '../utils/stringUtils'
+import { useTheme } from '../context/ThemeContext'
+import {
+  ActivityIcon,
+  AlertIcon,
+  BookmarkIcon,
+  ChevronLeftIcon,
+  HomeIcon,
+  LogoutIcon,
+  MenuIcon,
+  MoonIcon,
+  PeopleIcon,
+  PlusSquareIcon,
+  SearchIcon,
+  SettingsIcon,
+  ShieldIcon,
+  SunIcon,
+  SwitchIcon,
+  UserCircleIcon,
+} from './NavIcons'
 
 const ADMIN_ROLE = 'ADMIN'
 
@@ -10,45 +36,281 @@ interface NavbarProps {
   onLogout: () => void
 }
 
+interface NavItem {
+  to: string
+  label: string
+  icon: ReactNode
+  match?: (pathname: string) => boolean
+}
+
 export function Navbar({ nickname, role, onLogout }: NavbarProps) {
   const isAdmin = role === ADMIN_ROLE
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { theme, toggleTheme } = useTheme()
+
+  const [moreOpen, setMoreOpen] = useState(false)
+  const [moreView, setMoreView] = useState<'root' | 'theme'>('root')
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  const closeMenu = useCallback(() => {
+    setMoreOpen(false)
+    setMoreView('root')
+  }, [])
+
+  useEffect(() => {
+    if (!moreOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        closeMenu()
+      }
+    }
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeMenu()
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [moreOpen, closeMenu])
+
+  const navItems: NavItem[] = [
+    {
+      to: '/app',
+      label: '홈',
+      icon: <HomeIcon />,
+      match: (p) => p === '/app',
+    },
+    {
+      to: '/app?focus=search',
+      label: '검색',
+      icon: <SearchIcon />,
+      match: (p) => p === '/app' && location.search.includes('focus=search'),
+    },
+    {
+      to: '/app/users',
+      label: '사용자',
+      icon: <PeopleIcon />,
+      match: (p) => p.startsWith('/app/users'),
+    },
+    {
+      to: '/app/posts/new',
+      label: '만들기',
+      icon: <PlusSquareIcon />,
+      match: (p) => p.startsWith('/app/posts/new'),
+    },
+    {
+      to: '/app/profile',
+      label: '프로필',
+      icon: <UserCircleIcon />,
+      match: (p) => p.startsWith('/app/profile'),
+    },
+  ]
+
+  if (isAdmin) {
+    navItems.push({
+      to: '/app/admin',
+      label: '관리자',
+      icon: <ShieldIcon />,
+      match: (p) => p.startsWith('/app/admin'),
+    })
+  }
+
+  const handleLogoutClick = () => {
+    closeMenu()
+    onLogout()
+  }
+
+  const handleModeBack = () => setMoreView('root')
+
+  const goPlaceholder = (label: string) => {
+    closeMenu()
+    window.alert(`${label} 기능은 준비 중입니다.`)
+  }
+
+  const handleAccountSwitch = () => {
+    closeMenu()
+    navigate('/login')
+  }
+
+  const isActive = (item: NavItem) => {
+    if (item.match) return item.match(location.pathname)
+    return location.pathname === item.to
+  }
 
   return (
-    <nav className={styles.navbar}>
-      <Link to="/app" className={styles.navBrand}>
-        Moida
-      </Link>
-
-      <div className={styles.navRight}>
-        {isAdmin && (
-          <Link to="/app/admin" className={styles.navLink}>
-            관리자
-          </Link>
-        )}
-
-        <Link to="/app/users" className={styles.navLink}>
-          사용자 목록
+    <aside
+      className={`${styles.sidebar} ${moreOpen ? styles.sidebarOpen : ''}`}
+      aria-label="주 메뉴"
+    >
+      <div className={styles.sidebarInner}>
+        <Link to="/app" className={styles.brand} aria-label="Moida 홈">
+          <span className={styles.brandFull}>Moida</span>
+          <span className={styles.brandMark} aria-hidden>M</span>
         </Link>
 
-        <Link to="/app/profile" className={styles.navLink}>
-          마이페이지
-        </Link>
+        <nav className={styles.nav}>
+          <ul className={styles.navList}>
+            {navItems.map((item) => {
+              const active = isActive(item)
+              return (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className={`${styles.navItem} ${active ? styles.navItemActive : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <span className={styles.navIcon}>{item.icon}</span>
+                    <span className={styles.navLabel}>{item.label}</span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
 
-        {nickname && (
-          <div className={styles.userInfo}>
-            <span className="avatar avatar-md">{getInitials(nickname)}</span>
-            <span className={styles.userName}>{nickname}</span>
-          </div>
-        )}
+        <div className={styles.footer} ref={menuRef}>
+          {moreOpen && (
+            <div
+              className={styles.menuPopover}
+              role="menu"
+              aria-label={moreView === 'root' ? '더 보기' : '모드 전환'}
+            >
+              {moreView === 'root' ? (
+                <>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={() => goPlaceholder('설정')}
+                    role="menuitem"
+                  >
+                    <span className={styles.menuItemLabel}>설정</span>
+                    <SettingsIcon className={styles.menuItemIcon} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={() => goPlaceholder('내 활동')}
+                    role="menuitem"
+                  >
+                    <span className={styles.menuItemLabel}>내 활동</span>
+                    <ActivityIcon className={styles.menuItemIcon} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={() => goPlaceholder('저장됨')}
+                    role="menuitem"
+                  >
+                    <span className={styles.menuItemLabel}>저장됨</span>
+                    <BookmarkIcon className={styles.menuItemIcon} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={() => setMoreView('theme')}
+                    role="menuitem"
+                  >
+                    <span className={styles.menuItemLabel}>모드 전환</span>
+                    {theme === 'dark' ? (
+                      <MoonIcon className={styles.menuItemIcon} />
+                    ) : (
+                      <SunIcon className={styles.menuItemIcon} />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={() => goPlaceholder('문제 신고')}
+                    role="menuitem"
+                  >
+                    <span className={styles.menuItemLabel}>문제 신고</span>
+                    <AlertIcon className={styles.menuItemIcon} />
+                  </button>
 
-        <button
-          type="button"
-          className={styles.logoutButton}
-          onClick={onLogout}
-        >
-          로그아웃
-        </button>
+                  <div className={styles.menuDivider} />
+
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={handleAccountSwitch}
+                    role="menuitem"
+                  >
+                    <span className={styles.menuItemLabel}>계정 전환</span>
+                    <SwitchIcon className={styles.menuItemIcon} />
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                    onClick={handleLogoutClick}
+                    role="menuitem"
+                  >
+                    <span className={styles.menuItemLabel}>로그아웃</span>
+                    <LogoutIcon className={styles.menuItemIcon} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className={styles.menuHeader}>
+                    <button
+                      type="button"
+                      className={styles.menuBack}
+                      onClick={handleModeBack}
+                      aria-label="뒤로"
+                    >
+                      <ChevronLeftIcon />
+                    </button>
+                    <span className={styles.menuHeaderTitle}>모드 전환</span>
+                    <span className={styles.menuHeaderIcon} aria-hidden>
+                      {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
+                    </span>
+                  </div>
+                  <div className={styles.menuDivider} />
+                  <div className={styles.menuToggleRow}>
+                    <span className={styles.menuItemLabel}>다크 모드</span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={theme === 'dark'}
+                      className={`${styles.toggleSwitch} ${theme === 'dark' ? styles.toggleSwitchOn : ''}`}
+                      onClick={toggleTheme}
+                    >
+                      <span className={styles.toggleKnob} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <button
+            type="button"
+            className={`${styles.navItem} ${styles.moreButton} ${moreOpen ? styles.moreButtonOpen : ''}`}
+            onClick={() => {
+              setMoreView('root')
+              setMoreOpen((v) => !v)
+            }}
+            aria-haspopup="menu"
+            aria-expanded={moreOpen}
+          >
+            <span className={styles.navIcon}>
+              <MenuIcon />
+            </span>
+            <span className={styles.navLabel}>더 보기</span>
+          </button>
+
+          {nickname && (
+            <div className={styles.userBlock} title={nickname}>
+              <span className={`avatar avatar-sm ${styles.userAvatar}`}>
+                {getInitials(nickname)}
+              </span>
+              <span className={styles.userName}>{nickname}</span>
+            </div>
+          )}
+        </div>
       </div>
-    </nav>
+    </aside>
   )
 }
