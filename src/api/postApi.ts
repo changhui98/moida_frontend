@@ -58,3 +58,18 @@ export const createPost = (
     body: JSON.stringify(data),
   }).then((response) => parseResponse<ContentResponse>(response))
 }
+
+export const getMyPosts = (
+  token: string,
+  page = 0,
+  size = 10,
+): Promise<PageResponse<ContentResponse>> => {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  })
+
+  return fetch(`${API_BASE_URL}/contents/me?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<PageResponse<ContentResponse>>(response))
+}
