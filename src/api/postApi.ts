@@ -1,5 +1,9 @@
 import type { PageResponse } from '../types/user'
-import type { ContentResponse, CreateContentRequest } from '../types/post'
+import type {
+  ContentResponse,
+  CreateContentRequest,
+  LikeToggleResponse,
+} from '../types/post'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
 
@@ -57,6 +61,16 @@ export const createPost = (
     headers: createAuthHeaders(token),
     body: JSON.stringify(data),
   }).then((response) => parseResponse<ContentResponse>(response))
+}
+
+export const toggleContentLike = (
+  token: string,
+  contentId: number,
+): Promise<LikeToggleResponse> => {
+  return fetch(`${API_BASE_URL}/contents/${contentId}/likes`, {
+    method: 'POST',
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<LikeToggleResponse>(response))
 }
 
 export const getMyPosts = (

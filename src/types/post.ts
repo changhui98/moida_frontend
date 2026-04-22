@@ -4,6 +4,14 @@ export interface ContentResponse {
   body: string
   createdBy: string
   createdAt: string
+  likeCount?: number
+  commentCount?: number
+  likedByMe?: boolean
+}
+
+export interface LikeToggleResponse {
+  liked: boolean
+  likeCount: number
 }
 
 export interface AdminContentResponse {
