@@ -8,6 +8,7 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styles from './Navbar.module.css'
 import { useTheme } from '../context/ThemeContext'
+import { usePostCreateModal } from '../context/PostCreateModalContext'
 import {
   ActivityIcon,
   AlertIcon,
@@ -36,9 +37,10 @@ interface NavbarProps {
 }
 
 interface NavItem {
-  to: string
   label: string
   icon: ReactNode
+  to?: string
+  onClick?: () => void
   match?: (pathname: string) => boolean
 }
 
@@ -47,6 +49,7 @@ export function Navbar({ role, onLogout }: NavbarProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
+  const { open: openPostCreateModal, isOpen: isPostCreateModalOpen } = usePostCreateModal()
 
   const [moreOpen, setMoreOpen] = useState(false)
   const [moreView, setMoreView] = useState<'root' | 'theme'>('root')
@@ -95,10 +98,10 @@ export function Navbar({ role, onLogout }: NavbarProps) {
       match: (p) => p.startsWith('/app/users'),
     },
     {
-      to: '/app/posts/new',
       label: '만들기',
       icon: <PlusSquareIcon />,
-      match: (p) => p.startsWith('/app/posts/new'),
+      onClick: openPostCreateModal,
+      match: () => isPostCreateModalOpen,
     },
     {
       to: '/app/profile',
@@ -153,16 +156,34 @@ export function Navbar({ role, onLogout }: NavbarProps) {
           <ul className={styles.navList}>
             {navItems.map((item) => {
               const active = isActive(item)
+              const itemClassName = `${styles.navItem} ${active ? styles.navItemActive : ''}`
+              const itemContent = (
+                <>
+                  <span className={styles.navIcon}>{item.icon}</span>
+                  <span className={styles.navLabel}>{item.label}</span>
+                </>
+              )
+
               return (
-                <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    className={`${styles.navItem} ${active ? styles.navItemActive : ''}`}
-                    aria-current={active ? 'page' : undefined}
-                  >
-                    <span className={styles.navIcon}>{item.icon}</span>
-                    <span className={styles.navLabel}>{item.label}</span>
-                  </Link>
+                <li key={item.label}>
+                  {item.onClick ? (
+                    <button
+                      type="button"
+                      className={itemClassName}
+                      onClick={item.onClick}
+                      aria-current={active ? 'page' : undefined}
+                    >
+                      {itemContent}
+                    </button>
+                  ) : (
+                    <Link
+                      to={item.to ?? '#'}
+                      className={itemClassName}
+                      aria-current={active ? 'page' : undefined}
+                    >
+                      {itemContent}
+                    </Link>
+                  )}
                 </li>
               )
             })}
