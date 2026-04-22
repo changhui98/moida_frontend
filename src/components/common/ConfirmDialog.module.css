@@ -1,4 +1,7 @@
-/* ── ConfirmDialog ── */
+/* ── ConfirmDialog ──
+   PostCreateModal / ProfileEditModal overlay(z-index: 200) 위에
+   표시되어야 하므로 z-index 를 300 으로 지정한다.
+*/
 
 .overlay {
   position: fixed;
@@ -8,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 300;
   animation: fadeIn 0.2s var(--ease) both;
 }
 
