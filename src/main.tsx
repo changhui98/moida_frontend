@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { PostCreateModalProvider } from './context/PostCreateModalContext'
 import './styles/variables.css'
 import './styles/base.css'
 import './styles/components.css'
@@ -16,7 +17,9 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <App />
+          <PostCreateModalProvider>
+            <App />
+          </PostCreateModalProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
