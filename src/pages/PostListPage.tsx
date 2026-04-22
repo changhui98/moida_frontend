@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { getMyProfile } from '../api/userApi'
 import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
+import {
+  usePostCreateModal,
+  usePostCreatedSubscription,
+} from '../context/PostCreateModalContext'
 import { useInfinitePostList } from '../hooks/useInfinitePostList'
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 import { Navbar } from '../components/Navbar'
@@ -31,7 +35,17 @@ export function PostListPage() {
     error,
     retry,
     loadMore,
+    resetAndRefresh,
   } = useInfinitePostList()
+
+  usePostCreatedSubscription(
+    useCallback(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      resetAndRefresh()
+    }, [resetAndRefresh]),
+  )
+
+  const { open: openPostCreateModal } = usePostCreateModal()
 
   const { ref: sentinelRef, isIntersecting } = useIntersectionObserver({
     rootMargin: '0px 0px 200px 0px',
@@ -105,7 +119,7 @@ export function PostListPage() {
             description="아직 작성된 게시글이 없습니다. 첫 번째 게시글을 작성해 보세요!"
             action={{
               label: '게시글 작성',
-              onClick: () => navigate('/posts/new'),
+              onClick: openPostCreateModal,
             }}
           />
         </div>
