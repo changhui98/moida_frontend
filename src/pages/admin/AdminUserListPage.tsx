@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { LoadingSpinner } from '../../components/common/LoadingSpinner'
 import { Skeleton } from '../../components/common/Skeleton'
 import { ConfirmDialog } from '../../components/common/ConfirmDialog'
+import { SuccessDialog } from '../../components/common/SuccessDialog'
 import { getInitials } from '../../utils/stringUtils'
 import { formatDateTime } from '../../utils/dateUtils'
 import type { UserResponse } from '../../types/user'
@@ -27,6 +28,7 @@ export function AdminUserListPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<UserResponse | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteSuccess, setDeleteSuccess] = useState(false)
 
   const handleUnauthorized = useCallback(
     (err: unknown) => {
@@ -73,6 +75,7 @@ export function AdminUserListPage() {
       setDeleteLoading(true)
       await deleteAdminUser(token, deleteTarget.username)
       setDeleteTarget(null)
+      setDeleteSuccess(true)
       loadUsers(page)
     } catch (err) {
       const message = err instanceof Error ? err.message : '사용자 삭제 실패'
@@ -241,6 +244,13 @@ export function AdminUserListPage() {
         isLoading={deleteLoading}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <SuccessDialog
+        isOpen={deleteSuccess}
+        title="사용자가 삭제되었습니다"
+        message="선택한 사용자를 삭제 처리했어요."
+        onClose={() => setDeleteSuccess(false)}
       />
     </div>
   )

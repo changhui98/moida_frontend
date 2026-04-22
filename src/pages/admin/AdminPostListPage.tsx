@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext'
 import { LoadingSpinner } from '../../components/common/LoadingSpinner'
 import { Skeleton } from '../../components/common/Skeleton'
 import { ConfirmDialog } from '../../components/common/ConfirmDialog'
+import { SuccessDialog } from '../../components/common/SuccessDialog'
 import { formatDateTime } from '../../utils/dateUtils'
 import type { AdminContentResponse } from '../../types/post'
 import styles from './AdminUserListPage.module.css'
@@ -37,6 +38,7 @@ export function AdminPostListPage() {
 
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
+  const [successAction, setSuccessAction] = useState<ConfirmAction | null>(null)
 
   const handleUnauthorized = useCallback(
     (err: unknown) => {
@@ -79,17 +81,19 @@ export function AdminPostListPage() {
 
   const handleConfirm = async () => {
     if (!confirmState) return
+    const { action } = confirmState
     try {
       setActionLoading(true)
-      if (confirmState.action === 'delete') {
+      if (action === 'delete') {
         await deleteAdminContent(token, confirmState.content.id)
       } else {
         await restoreAdminContent(token, confirmState.content.id)
       }
       setConfirmState(null)
+      setSuccessAction(action)
       loadContents(page)
     } catch (err) {
-      const label = confirmState.action === 'delete' ? '삭제' : '복구'
+      const label = action === 'delete' ? '삭제' : '복구'
       const message = err instanceof Error ? err.message : `게시글 ${label} 실패`
       setError(message)
       handleUnauthorized(err)
@@ -268,6 +272,21 @@ export function AdminPostListPage() {
         isLoading={actionLoading}
         onConfirm={handleConfirm}
         onCancel={() => setConfirmState(null)}
+      />
+
+      <SuccessDialog
+        isOpen={successAction !== null}
+        title={
+          successAction === 'delete'
+            ? '게시글이 삭제되었습니다'
+            : '게시글이 복구되었습니다'
+        }
+        message={
+          successAction === 'delete'
+            ? '선택한 게시글을 삭제 처리했어요.'
+            : '선택한 게시글을 복구했어요.'
+        }
+        onClose={() => setSuccessAction(null)}
       />
     </div>
   )
