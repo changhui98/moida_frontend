@@ -60,6 +60,29 @@ export const uploadContentImage = (
   }).then((response) => parseResponse<ImageUploadResponse>(response))
 }
 
+export const uploadUserProfileImage = (
+  token: string,
+  file: File,
+  userId: string,
+): Promise<ImageUploadResponse> => {
+  if (!token.trim()) {
+    throw new ApiError(401, '로그인이 필요합니다.')
+  }
+
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('targetType', 'USER')
+  formData.append('targetId', userId)
+
+  return fetch(`${API_BASE_URL}/images`, {
+    method: 'POST',
+    headers: {
+      Authorization: token.trim(),
+    },
+    body: formData,
+  }).then((response) => parseResponse<ImageUploadResponse>(response))
+}
+
 export const getContentImages = (token: string, contentId: number): Promise<ImageResponse[]> => {
   if (!token.trim()) {
     throw new ApiError(401, '로그인이 필요합니다.')

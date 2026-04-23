@@ -9,6 +9,7 @@ import { Link, useLocation } from 'react-router-dom'
 import styles from './Navbar.module.css'
 import { useTheme } from '../context/ThemeContext'
 import { usePostCreateModal } from '../context/PostCreateModalContext'
+import { useAuth } from '../context/AuthContext'
 import {
   ActivityIcon,
   AlertIcon,
@@ -44,7 +45,9 @@ interface NavItem {
 }
 
 export function Navbar({ role, onLogout }: NavbarProps) {
-  const isAdmin = role === ADMIN_ROLE
+  const { meRole, meProfileImageUrl } = useAuth()
+  const effectiveRole = role ?? meRole ?? null
+  const isAdmin = effectiveRole === ADMIN_ROLE
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const { open: openPostCreateModal, isOpen: isPostCreateModalOpen } = usePostCreateModal()
@@ -104,7 +107,13 @@ export function Navbar({ role, onLogout }: NavbarProps) {
     {
       to: '/app/profile',
       label: '프로필',
-      icon: <UserCircleIcon />,
+      icon: meProfileImageUrl ? (
+        <span className={styles.navAvatar} aria-hidden="true">
+          <img src={meProfileImageUrl} alt="" className={styles.navAvatarImg} />
+        </span>
+      ) : (
+        <UserCircleIcon />
+      ),
       match: (p) => p.startsWith('/app/profile'),
     },
   ]

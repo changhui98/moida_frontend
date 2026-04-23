@@ -16,6 +16,7 @@ export interface UserDetailResponse {
   userEmail: string
   address: string
   role: string
+  profileImageUrl?: string | null
   createdAt: string
   modifiedAt: string
 }
@@ -35,4 +36,5 @@ export interface UserUpdateRequest {
   address: string
   currentPassword: string
   newPassword: string
+  profileImageUrl?: string | null
 }

@@ -22,7 +22,7 @@ export interface PostInlineFormHandle {
 
 export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormProps>(
   function PostInlineForm({ myUsername, onPostCreated }, ref) {
-    const { token } = useAuth()
+    const { token, meProfileImageUrl } = useAuth()
     const formRef = useRef<HTMLDivElement>(null)
     const bodyTextareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -90,6 +90,7 @@ export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormPro
     }
 
     const avatarInitial = myUsername ? myUsername.charAt(0).toUpperCase() : '?'
+    const avatarUrl = meProfileImageUrl
 
     if (!isExpanded) {
       return (
@@ -107,7 +108,11 @@ export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormPro
             }}
           >
             <div className={styles.collapsedAvatar} aria-hidden="true">
-              {avatarInitial}
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className={styles.collapsedAvatarImg} />
+              ) : (
+                avatarInitial
+              )}
             </div>
             <div className={styles.collapsedPlaceholder}>
               무슨 생각을 하고 계신가요?

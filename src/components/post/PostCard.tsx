@@ -52,7 +52,7 @@ function formatCount(n: number): string {
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const { token } = useAuth()
+  const { token, meUsername, meProfileImageUrl } = useAuth()
 
   // 좋아요 상태의 단일 소스는 로컬 state. 초기값만 prop 에서 가져오고, 이후
   // 부모가 같은 post 객체로 재렌더 해도 낙관적 업데이트가 덮어써지지 않는다.
@@ -134,20 +134,29 @@ export function PostCard({ post }: PostCardProps) {
   }, [imageUrls])
 
   const commentCount = post.commentCount ?? 0
+  const tags = post.tags?.filter((tag) => tag.trim().length > 0) ?? []
 
   // 서버가 작성자 닉네임을 내려주면 그걸 우선 사용하고, 누락되었거나 구버전
   // 응답인 경우에 한해 username(`createdBy`) 으로 폴백한다. 사용자가 볼 화면에는
   // 더 이상 @아이디 형태를 노출하지 않는다.
   const displayName = post.nickname?.trim() || post.createdBy
   const profilePath = `/app/profile/${encodeURIComponent(post.createdBy)}`
+  const isMine = !!meUsername && post.createdBy === meUsername
+  const avatarUrl = isMine ? meProfileImageUrl : null
 
   return (
     <article className={styles.card}>
       <div className={styles.header}>
         <Link to={profilePath} className={styles.authorAvatarLink} aria-label={`${displayName} 프로필 보기`}>
-          <div className={styles.avatar} aria-hidden="true">
-            {getInitial(displayName)}
-          </div>
+          {avatarUrl ? (
+            <div className={styles.avatar} aria-hidden="true">
+              <img src={avatarUrl} alt="" className={styles.avatarImg} />
+            </div>
+          ) : (
+            <div className={styles.avatar} aria-hidden="true">
+              {getInitial(displayName)}
+            </div>
+          )}
         </Link>
         <div className={styles.headerInfo}>
           <Link to={profilePath} className={`${styles.authorName} ${styles.authorNameLink}`}>
@@ -206,6 +215,15 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       )}
       <p className={styles.content}>{post.body}</p>
+      {tags.length > 0 && (
+        <div className={styles.tagChipList} aria-label="태그">
+          {tags.map((tag) => (
+            <span key={tag} className={styles.tagChip}>
+              <span className={styles.tagChipText}>{tag}</span>
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className={styles.actions}>
         <button

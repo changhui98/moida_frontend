@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getMyProfile, getUserProfile } from '../api/userApi'
+import { getMyProfile, getUserProfile, updateMyProfile } from '../api/userApi'
+import { uploadUserProfileImage } from '../api/imageApi'
 import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
 import { usePostCreatedSubscription } from '../context/PostCreateModalContext'
@@ -14,27 +15,20 @@ import { getInitials } from '../utils/stringUtils'
 import styles from './ProfilePage.module.css'
 import type { UserDetailResponse } from '../types/user'
 
-const formatJoinDate = (value: string | null | undefined): string => {
-  if (!value) return '-'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '-'
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}.${m}.${d}`
-}
-
 export function ProfilePage() {
   const navigate = useNavigate()
   const { username } = useParams<{ username?: string }>()
-  const { token, logout } = useAuth()
+  const { token, logout, setMeProfile } = useAuth()
 
   const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
   const [viewerProfile, setViewerProfile] = useState<UserDetailResponse | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileError, setProfileError] = useState('')
+  const [avatarUploading, setAvatarUploading] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const myPostsRef = useRef<MyPostsSectionHandle | null>(null)
+  const avatarInputRef = useRef<HTMLInputElement | null>(null)
+  const isOwner = !!viewerProfile && !!myProfile && viewerProfile.username === myProfile.username
 
   const handleUnauthorized = useCallback(
     (err: unknown) => {
@@ -57,10 +51,12 @@ export function ProfilePage() {
         ])
         setViewerProfile(viewerResponse)
         setMyProfile(targetResponse)
+        setMeProfile(viewerResponse)
       } else {
         const response = await getMyProfile(token)
         setViewerProfile(response)
         setMyProfile(response)
+        setMeProfile(response)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : '프로필 조회 실패'
@@ -69,16 +65,61 @@ export function ProfilePage() {
     } finally {
       setProfileLoading(false)
     }
-  }, [token, handleUnauthorized, username])
+  }, [token, handleUnauthorized, username, setMeProfile])
 
   const handleProfileSaved = (updated: UserDetailResponse) => {
     setMyProfile(updated)
+    setViewerProfile(updated)
+    setMeProfile(updated)
   }
 
   const handleLogout = () => {
     logout()
     navigate('/login', { replace: true })
   }
+
+  const handleAvatarPick = useCallback(() => {
+    if (!isOwner || avatarUploading || !myProfile) return
+    avatarInputRef.current?.click()
+  }, [avatarUploading, isOwner, myProfile])
+
+  const handleAvatarChange = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      if (!myProfile) return
+      const file = e.target.files?.[0]
+      e.currentTarget.value = ''
+      if (!file) return
+
+      try {
+        setAvatarUploading(true)
+        setProfileError('')
+        const uploaded = await uploadUserProfileImage(token, file, myProfile.id)
+        const updated = await updateMyProfile(token, {
+          nickname: myProfile.nickname,
+          userEmail: myProfile.userEmail,
+          address: myProfile.address,
+          currentPassword: '',
+          newPassword: '',
+          profileImageUrl: uploaded.fileUrl,
+        })
+        setMyProfile(updated)
+        if (viewerProfile?.username === updated.username) {
+          setViewerProfile(updated)
+        }
+        setMeProfile(updated)
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message || '프로필 이미지 변경에 실패했습니다.'
+            : '프로필 이미지 변경에 실패했습니다.'
+        setProfileError(message)
+        handleUnauthorized(err)
+      } finally {
+        setAvatarUploading(false)
+      }
+    },
+    [myProfile, token, viewerProfile, handleUnauthorized, setMeProfile],
+  )
 
   useEffect(() => {
     loadProfile()
@@ -90,8 +131,6 @@ export function ProfilePage() {
       myPostsRef.current?.refresh()
     }, []),
   )
-
-  const isOwner = !!viewerProfile && !!myProfile && viewerProfile.username === myProfile.username
 
   return (
     <>
@@ -105,9 +144,35 @@ export function ProfilePage() {
         {/* ── 공개 프로필 헤더 ── */}
         <section className={styles.profileHeader} aria-label={isOwner ? '내 프로필' : '사용자 프로필'}>
           <div className={styles.avatarWrap}>
-            <span className={`avatar ${styles.avatarLg}`}>
-              {myProfile ? getInitials(myProfile.nickname) : '··'}
-            </span>
+            <button
+              type="button"
+              className={styles.avatarButton}
+              onClick={handleAvatarPick}
+              disabled={!isOwner || avatarUploading || !myProfile}
+              aria-label={isOwner ? '프로필 사진 변경' : '프로필 사진'}
+            >
+              {myProfile?.profileImageUrl ? (
+                <img
+                  src={myProfile.profileImageUrl}
+                  alt={`${myProfile.nickname} 프로필 이미지`}
+                  className={styles.avatarImage}
+                />
+              ) : (
+                <span className={`avatar ${styles.avatarLg}`}>
+                  {myProfile ? getInitials(myProfile.nickname) : '··'}
+                </span>
+              )}
+            </button>
+            {isOwner && (
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className={styles.avatarInput}
+                onChange={handleAvatarChange}
+                disabled={avatarUploading}
+              />
+            )}
           </div>
 
           <div className={styles.headerInfo}>
@@ -117,13 +182,11 @@ export function ProfilePage() {
               </h1>
             </div>
 
-            <p className={styles.meta}>
-              {myProfile
-                ? `${formatJoinDate(myProfile.createdAt)} 가입`
-                : profileLoading
-                  ? '불러오는 중…'
-                  : ''}
-            </p>
+            {isOwner && (
+              <p className={styles.meta}>
+                {avatarUploading ? '프로필 이미지 업로드 중…' : '이미지를 눌러 프로필 사진 변경'}
+              </p>
+            )}
           </div>
         </section>
 

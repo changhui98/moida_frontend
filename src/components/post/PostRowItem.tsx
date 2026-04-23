@@ -33,7 +33,7 @@ function formatRelativeTime(dateStr: string): string {
  * - MyPostsSection 에서 list 뷰 모드일 때 사용된다.
  */
 export function PostRowItem({ post, firstImageUrl, imageCount }: PostRowItemProps) {
-  const { token } = useAuth()
+  const { token, meUsername, meProfileImageUrl } = useAuth()
   const [liked, setLiked] = useState(() => post.likedByMe ?? false)
   const [likeCount, setLikeCount] = useState(() => post.likeCount ?? 0)
   const [pending, setPending] = useState(false)
@@ -70,14 +70,23 @@ export function PostRowItem({ post, firstImageUrl, imageCount }: PostRowItemProp
 
   const displayName = post.nickname?.trim() || post.createdBy
   const commentCount = post.commentCount ?? 0
+  const tags = post.tags?.filter((tag) => tag.trim().length > 0) ?? []
+  const isMine = !!meUsername && post.createdBy === meUsername
+  const avatarUrl = isMine ? meProfileImageUrl : null
 
   return (
     <article className={styles.row}>
       <div className={styles.head}>
         <div className={styles.authorWrap}>
-          <div className={styles.avatar} aria-hidden="true">
-            {(displayName.charAt(0) || '?').toUpperCase()}
-          </div>
+          {avatarUrl ? (
+            <div className={styles.avatar} aria-hidden="true">
+              <img src={avatarUrl} alt="" className={styles.avatarImg} />
+            </div>
+          ) : (
+            <div className={styles.avatar} aria-hidden="true">
+              {(displayName.charAt(0) || '?').toUpperCase()}
+            </div>
+          )}
           <span className={styles.author}>{displayName}</span>
           <span className={styles.dot} aria-hidden="true">·</span>
           <span className={styles.date}>{formatRelativeTime(post.createdAt)}</span>
@@ -85,6 +94,16 @@ export function PostRowItem({ post, firstImageUrl, imageCount }: PostRowItemProp
       </div>
 
       <p className={styles.snippet}>{post.body}</p>
+
+      {tags.length > 0 && (
+        <div className={styles.tagChipList} aria-label="태그">
+          {tags.map((tag) => (
+            <span key={tag} className={styles.tagChip}>
+              <span className={styles.tagChipText}>{tag}</span>
+            </span>
+          ))}
+        </div>
+      )}
 
       {firstImageUrl && (
         <div className={styles.thumbWrap}>

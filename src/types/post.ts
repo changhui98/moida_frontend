@@ -8,6 +8,7 @@ export interface ContentResponse {
   likeCount?: number
   commentCount?: number
   likedByMe?: boolean
+  tags?: string[]
 }
 
 export interface LikeToggleResponse {

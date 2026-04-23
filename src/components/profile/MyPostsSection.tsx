@@ -276,7 +276,14 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
       if (viewMode === 'card' && photoPosts.length === 0) {
         return (
           <div className={styles.photoEmptyWrap} aria-label="사진 게시글 없음">
-            <span className={styles.photoEmptyEmoji} aria-hidden="true">🐱</span>
+            <svg
+              className={styles.photoEmptyEmoji}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path d="M7 4.5A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h10a2.5 2.5 0 0 0 2.5-2.5V7A2.5 2.5 0 0 0 17 4.5H7zm1.6 3.1a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8zm7.9 9.2H7.6l3.1-3.5 2.4 1.9 2-2.5 1.4 1.7v2.4z" />
+            </svg>
           </div>
         )
       }
