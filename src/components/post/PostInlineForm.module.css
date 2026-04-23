@@ -61,23 +61,6 @@
   pointer-events: none;
 }
 
-.titleInput {
-  width: 100%;
-  padding: var(--sp-2) var(--sp-3);
-  border: 1px solid var(--clr-border);
-  border-radius: var(--r-md);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--clr-text);
-  background: var(--clr-bg);
-  transition: border-color var(--t-fast);
-}
-
-.titleInput:focus {
-  outline: none;
-  border-color: var(--clr-accent);
-}
-
 .bodyTextarea {
   width: 100%;
   padding: var(--sp-2) var(--sp-3);
@@ -111,3 +94,4 @@
   color: var(--clr-error);
   margin: 0;
 }
+

@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createPost } from '../api/postApi'
+import { uploadContentImage } from '../api/imageApi'
 import { getMyProfile } from '../api/userApi'
 import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
 import { Navbar } from '../components/Navbar'
+import { ImageBoxPicker } from '../components/post/ImageBoxPicker'
 import type { UserDetailResponse } from '../types/user'
 import styles from './PostCreatePage.module.css'
 
@@ -40,12 +42,12 @@ export function PostCreatePage() {
     navigate('/login', { replace: true })
   }
 
-  const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [images, setImages] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const isValid = title.trim().length > 0 && body.trim().length > 0
+  const isValid = body.trim().length > 0
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,7 +57,10 @@ export function PostCreatePage() {
     setError(null)
 
     try {
-      await createPost(token, { title: title.trim(), body: body.trim() })
+      const createdPost = await createPost(token, { title: '', body: body.trim() })
+      if (images.length > 0) {
+        await Promise.all(images.map((file) => uploadContentImage(token, file, createdPost.id)))
+      }
       navigate('/app')
     } catch {
       setError('게시글 등록에 실패했습니다. 다시 시도해 주세요.')
@@ -78,23 +83,6 @@ export function PostCreatePage() {
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="post-title">
-              제목
-            </label>
-            <input
-              id="post-title"
-              className={styles.titleInput}
-              type="text"
-              placeholder="게시글 제목을 입력하세요"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={submitting}
-              maxLength={200}
-              autoFocus
-            />
-          </div>
-
-          <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="post-body">
               내용
             </label>
@@ -105,7 +93,11 @@ export function PostCreatePage() {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               disabled={submitting}
+              autoFocus
             />
+          </div>
+          <div className={styles.fieldGroup}>
+            <ImageBoxPicker images={images} onChange={setImages} disabled={submitting} />
           </div>
 
           {error && <p className={styles.errorMessage}>{error}</p>}

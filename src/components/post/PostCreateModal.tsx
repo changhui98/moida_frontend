@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { createPost } from '../../api/postApi'
+import { uploadContentImage } from '../../api/imageApi'
 import { ApiError } from '../../api/ApiError'
 import { useAuth } from '../../context/AuthContext'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { SuccessDialog } from '../common/SuccessDialog'
+import { ImageBoxPicker } from './ImageBoxPicker'
 import styles from './PostCreateModal.module.css'
 
 interface PostCreateModalProps {
@@ -14,8 +16,8 @@ interface PostCreateModalProps {
 
 export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalProps) {
   const { token } = useAuth()
-  const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [images, setImages] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -24,8 +26,8 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
 
   useEffect(() => {
     if (!isOpen) return
-    setTitle('')
     setBody('')
+    setImages([])
     setError(null)
     setSubmitting(false)
     setConfirmOpen(false)
@@ -56,7 +58,7 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
 
   if (!isOpen) return null
 
-  const isValid = title.trim().length > 0 && body.trim().length > 0
+  const isValid = body.trim().length > 0
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -70,7 +72,10 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
     setSubmitting(true)
     setError(null)
     try {
-      await createPost(token, { title: title.trim(), body: body.trim() })
+      const createdPost = await createPost(token, { title: '', body: body.trim() })
+      if (images.length > 0) {
+        await Promise.all(images.map((file) => uploadContentImage(token, file, createdPost.id)))
+      }
       setConfirmOpen(false)
       setSuccessOpen(true)
     } catch (err) {
@@ -131,23 +136,15 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
             className={styles.form}
             onSubmit={handleSubmit}
           >
-            <input
-              className={styles.titleInput}
-              type="text"
-              placeholder="제목"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={submitting}
-              maxLength={200}
-              autoFocus
-            />
             <textarea
               className={styles.bodyTextarea}
               placeholder="내용을 입력하세요"
               value={body}
               onChange={(e) => setBody(e.target.value)}
               disabled={submitting}
+              autoFocus
             />
+            <ImageBoxPicker images={images} onChange={setImages} disabled={submitting} />
             {error && <p className={styles.errorMessage}>{error}</p>}
           </form>
         </div>

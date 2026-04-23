@@ -6,7 +6,9 @@ import {
   useState,
 } from 'react'
 import { createPost } from '../../api/postApi'
+import { uploadContentImage } from '../../api/imageApi'
 import { useAuth } from '../../context/AuthContext'
+import { ImageBoxPicker } from './ImageBoxPicker'
 import styles from './PostInlineForm.module.css'
 
 interface PostInlineFormProps {
@@ -22,28 +24,28 @@ export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormPro
   function PostInlineForm({ myUsername, onPostCreated }, ref) {
     const { token } = useAuth()
     const formRef = useRef<HTMLDivElement>(null)
-    const titleInputRef = useRef<HTMLInputElement>(null)
+    const bodyTextareaRef = useRef<HTMLTextAreaElement>(null)
 
     const [isExpanded, setIsExpanded] = useState(false)
-    const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
+    const [images, setImages] = useState<File[]>([])
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const isValid = title.trim().length > 0 && body.trim().length > 0
+    const isValid = body.trim().length > 0
 
     useImperativeHandle(ref, () => ({
       focusTitleInput() {
         setIsExpanded(true)
         requestAnimationFrame(() => {
-          titleInputRef.current?.focus()
+          bodyTextareaRef.current?.focus()
         })
       },
     }))
 
     const resetForm = useCallback(() => {
-      setTitle('')
       setBody('')
+      setImages([])
       setError(null)
       setIsExpanded(false)
     }, [])
@@ -55,7 +57,10 @@ export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormPro
       setError(null)
 
       try {
-        await createPost(token, { title: title.trim(), body: body.trim() })
+        const createdPost = await createPost(token, { title: '', body: body.trim() })
+        if (images.length > 0) {
+          await Promise.all(images.map((file) => uploadContentImage(token, file, createdPost.id)))
+        }
         resetForm()
         onPostCreated()
       } catch {
@@ -71,7 +76,7 @@ export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormPro
         return
       }
 
-      if (!title.trim() && !body.trim()) {
+      if (!body.trim() && images.length === 0) {
         setIsExpanded(false)
         setError(null)
       }
@@ -80,7 +85,7 @@ export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormPro
     const handleCollapsedClick = () => {
       setIsExpanded(true)
       requestAnimationFrame(() => {
-        titleInputRef.current?.focus()
+        bodyTextareaRef.current?.focus()
       })
     }
 
@@ -119,23 +124,15 @@ export const PostInlineForm = forwardRef<PostInlineFormHandle, PostInlineFormPro
         onBlur={handleBlur}
       >
         <div className={styles.expandedForm}>
-          <input
-            ref={titleInputRef}
-            className={styles.titleInput}
-            type="text"
-            placeholder="제목"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            disabled={submitting}
-            maxLength={200}
-          />
           <textarea
+            ref={bodyTextareaRef}
             className={styles.bodyTextarea}
             placeholder="내용을 입력하세요..."
             value={body}
             onChange={(e) => setBody(e.target.value)}
             disabled={submitting}
           />
+          <ImageBoxPicker images={images} onChange={setImages} disabled={submitting} />
           {error && <p className={styles.errorMessage}>{error}</p>}
           <div className={styles.actions}>
             <button

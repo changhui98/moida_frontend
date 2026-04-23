@@ -47,23 +47,6 @@
   color: var(--clr-text-secondary);
 }
 
-.titleInput {
-  width: 100%;
-  padding: var(--sp-3);
-  border: 1px solid var(--clr-border);
-  border-radius: var(--r-md);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--clr-text);
-  background: var(--clr-surface);
-  transition: border-color var(--t-fast);
-}
-
-.titleInput:focus {
-  outline: none;
-  border-color: var(--clr-accent);
-}
-
 .bodyTextarea {
   width: 100%;
   padding: var(--sp-3);
