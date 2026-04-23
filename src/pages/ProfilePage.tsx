@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getMyProfile } from '../api/userApi'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getMyProfile, getUserProfile } from '../api/userApi'
 import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
 import { usePostCreatedSubscription } from '../context/PostCreateModalContext'
@@ -14,8 +14,6 @@ import { getInitials } from '../utils/stringUtils'
 import styles from './ProfilePage.module.css'
 import type { UserDetailResponse } from '../types/user'
 
-const ADMIN_ROLE = 'ADMIN'
-
 const formatJoinDate = (value: string | null | undefined): string => {
   if (!value) return '-'
   const date = new Date(value)
@@ -28,9 +26,11 @@ const formatJoinDate = (value: string | null | undefined): string => {
 
 export function ProfilePage() {
   const navigate = useNavigate()
+  const { username } = useParams<{ username?: string }>()
   const { token, logout } = useAuth()
 
   const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
+  const [viewerProfile, setViewerProfile] = useState<UserDetailResponse | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileError, setProfileError] = useState('')
   const [editOpen, setEditOpen] = useState(false)
@@ -50,16 +50,26 @@ export function ProfilePage() {
     try {
       setProfileLoading(true)
       setProfileError('')
-      const response = await getMyProfile(token)
-      setMyProfile(response)
+      if (username) {
+        const [viewerResponse, targetResponse] = await Promise.all([
+          getMyProfile(token),
+          getUserProfile(token, username),
+        ])
+        setViewerProfile(viewerResponse)
+        setMyProfile(targetResponse)
+      } else {
+        const response = await getMyProfile(token)
+        setViewerProfile(response)
+        setMyProfile(response)
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : '내 프로필 조회 실패'
+      const message = err instanceof Error ? err.message : '프로필 조회 실패'
       setProfileError(message)
       handleUnauthorized(err)
     } finally {
       setProfileLoading(false)
     }
-  }, [token, handleUnauthorized])
+  }, [token, handleUnauthorized, username])
 
   const handleProfileSaved = (updated: UserDetailResponse) => {
     setMyProfile(updated)
@@ -81,7 +91,7 @@ export function ProfilePage() {
     }, []),
   )
 
-  const isAdmin = myProfile?.role === ADMIN_ROLE
+  const isOwner = !!viewerProfile && !!myProfile && viewerProfile.username === myProfile.username
 
   return (
     <>
@@ -93,7 +103,7 @@ export function ProfilePage() {
         )}
 
         {/* ── 공개 프로필 헤더 ── */}
-        <section className={styles.profileHeader} aria-label="내 프로필">
+        <section className={styles.profileHeader} aria-label={isOwner ? '내 프로필' : '사용자 프로필'}>
           <div className={styles.avatarWrap}>
             <span className={`avatar ${styles.avatarLg}`}>
               {myProfile ? getInitials(myProfile.nickname) : '··'}
@@ -105,14 +115,7 @@ export function ProfilePage() {
               <h1 className={styles.displayName}>
                 {myProfile?.nickname ?? '\u00A0'}
               </h1>
-              {isAdmin && (
-                <span className={styles.roleBadge}>ADMIN</span>
-              )}
             </div>
-
-            {myProfile && (
-              <p className={styles.handle}>@{myProfile.username}</p>
-            )}
 
             <p className={styles.meta}>
               {myProfile
@@ -125,28 +128,47 @@ export function ProfilePage() {
         </section>
 
         {/* ── 액션 버튼 ── */}
-        <div className={styles.actionRow}>
-          <button
-            type="button"
-            className={styles.editButton}
-            onClick={() => setEditOpen(true)}
-            disabled={!myProfile || profileLoading}
-          >
-            프로필 편집
-          </button>
-        </div>
+        {isOwner && (
+          <div className={styles.actionRow}>
+            <button
+              type="button"
+              className={styles.editButton}
+              onClick={() => setEditOpen(true)}
+              disabled={!myProfile || profileLoading}
+            >
+              프로필 편집
+            </button>
+          </div>
+        )}
+        {myProfile && viewerProfile && !isOwner && (
+          <div className={styles.socialActionRow}>
+            <button type="button" className={`${styles.socialButton} ${styles.followButton}`}>
+              팔로우
+            </button>
+            <button type="button" className={styles.socialButton}>
+              메시지 보내기
+            </button>
+          </div>
+        )}
 
         {/* ── 내가 작성한 글 ── */}
-        <MyPostsSection ref={myPostsRef} onUnauthorized={handleUnauthorized} />
+        <MyPostsSection
+          ref={myPostsRef}
+          username={username}
+          isOwner={isOwner}
+          onUnauthorized={handleUnauthorized}
+        />
       </main>
 
-      <ProfileEditModal
-        isOpen={editOpen}
-        profile={myProfile}
-        onClose={() => setEditOpen(false)}
-        onSaved={handleProfileSaved}
-        onUnauthorized={handleUnauthorized}
-      />
+      {isOwner && (
+        <ProfileEditModal
+          isOpen={editOpen}
+          profile={myProfile}
+          onClose={() => setEditOpen(false)}
+          onSaved={handleProfileSaved}
+          onUnauthorized={handleUnauthorized}
+        />
+      )}
     </>
   )
 }

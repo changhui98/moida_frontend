@@ -139,6 +139,19 @@
   background: var(--clr-surface);
 }
 
+.photoEmptyWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  background: transparent;
+}
+
+.photoEmptyEmoji {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
 .errorBox {
   display: flex;
   flex-direction: column;

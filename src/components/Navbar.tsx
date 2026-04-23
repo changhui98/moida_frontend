@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import styles from './Navbar.module.css'
 import { useTheme } from '../context/ThemeContext'
 import { usePostCreateModal } from '../context/PostCreateModalContext'
@@ -25,7 +25,6 @@ import {
   SettingsIcon,
   ShieldIcon,
   SunIcon,
-  SwitchIcon,
   UserCircleIcon,
 } from './NavIcons'
 
@@ -47,7 +46,6 @@ interface NavItem {
 export function Navbar({ role, onLogout }: NavbarProps) {
   const isAdmin = role === ADMIN_ROLE
   const location = useLocation()
-  const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
   const { open: openPostCreateModal, isOpen: isPostCreateModalOpen } = usePostCreateModal()
 
@@ -130,11 +128,6 @@ export function Navbar({ role, onLogout }: NavbarProps) {
   const goPlaceholder = (label: string) => {
     closeMenu()
     window.alert(`${label} 기능은 준비 중입니다.`)
-  }
-
-  const handleAccountSwitch = () => {
-    closeMenu()
-    navigate('/login')
   }
 
   const isActive = (item: NavItem) => {
@@ -251,15 +244,6 @@ export function Navbar({ role, onLogout }: NavbarProps) {
 
                   <div className={styles.menuDivider} />
 
-                  <button
-                    type="button"
-                    className={styles.menuItem}
-                    onClick={handleAccountSwitch}
-                    role="menuitem"
-                  >
-                    <span className={styles.menuItemLabel}>계정 전환</span>
-                    <SwitchIcon className={styles.menuItemIcon} />
-                  </button>
                   <button
                     type="button"
                     className={`${styles.menuItem} ${styles.menuItemDanger}`}

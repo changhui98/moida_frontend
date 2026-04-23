@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { createPost } from '../../api/postApi'
 import { uploadContentImage } from '../../api/imageApi'
 import { ApiError } from '../../api/ApiError'
@@ -18,6 +18,8 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
   const { token } = useAuth()
   const [body, setBody] = useState('')
   const [images, setImages] = useState<File[]>([])
+  const [tags, setTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,6 +30,8 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
     if (!isOpen) return
     setBody('')
     setImages([])
+    setTags([])
+    setTagInput('')
     setError(null)
     setSubmitting(false)
     setConfirmOpen(false)
@@ -72,7 +76,11 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
     setSubmitting(true)
     setError(null)
     try {
-      const createdPost = await createPost(token, { title: '', body: body.trim() })
+      const createdPost = await createPost(token, {
+        title: '',
+        body: body.trim(),
+        tags,
+      })
       if (images.length > 0) {
         await Promise.all(images.map((file) => uploadContentImage(token, file, createdPost.id)))
       }
@@ -94,6 +102,26 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
     setSuccessOpen(false)
     onCreated()
     onClose()
+  }
+
+  const addTag = (rawTag: string) => {
+    const normalized = rawTag.trim().replace(/^#/, '').replace(/\s+/g, '')
+    if (!normalized) return
+    if (tags.includes(normalized)) return
+    setTags((prev) => [...prev, normalized])
+  }
+
+  const handleTagKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
+    // 한글 IME 조합 중 Enter 입력 시 중복 태그가 생성되는 현상을 방지한다.
+    if (e.nativeEvent.isComposing || e.keyCode === 229) return
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    addTag(tagInput)
+    setTagInput('')
+  }
+
+  const removeTag = (target: string) => {
+    setTags((prev) => prev.filter((tag) => tag !== target))
   }
 
   return (
@@ -145,6 +173,37 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
               autoFocus
             />
             <ImageBoxPicker images={images} onChange={setImages} disabled={submitting} />
+            <div className={styles.tagSection}>
+              <label htmlFor="post-tag-input" className={styles.tagLabel}>태그</label>
+              <input
+                id="post-tag-input"
+                type="text"
+                className={styles.tagInput}
+                placeholder="태그 입력 후 Enter"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleTagKeyDown}
+                disabled={submitting}
+              />
+              {tags.length > 0 && (
+                <div className={styles.tagChipList} aria-label="입력한 태그">
+                  {tags.map((tag) => (
+                    <div key={tag} className={styles.tagChip}>
+                      <span className={styles.tagChipText}>#{tag}</span>
+                      <button
+                        type="button"
+                        className={styles.tagChipRemove}
+                        onClick={() => removeTag(tag)}
+                        disabled={submitting}
+                        aria-label={`${tag} 태그 삭제`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             {error && <p className={styles.errorMessage}>{error}</p>}
           </form>
         </div>

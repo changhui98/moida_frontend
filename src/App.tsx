@@ -38,6 +38,7 @@ function App() {
         <Route path="/app/groups/new" element={<GroupCreatePage />} />
         <Route path="/app/groups/:groupId" element={<GroupDetailPage />} />
         <Route path="/app/profile" element={<ProfilePage />} />
+        <Route path="/app/profile/:username" element={<ProfilePage />} />
         <Route path="/app/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="users" element={<AdminUserListPage />} />

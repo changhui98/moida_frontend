@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { getMyPosts } from '../../api/postApi'
+import { getMyPosts, getUserPosts } from '../../api/postApi'
 import { getContentImages } from '../../api/imageApi'
 import { ApiError } from '../../api/ApiError'
 import { useAuth } from '../../context/AuthContext'
@@ -26,6 +26,8 @@ const PAGE_SIZE = 12
 const VIEW_MODE_STORAGE_KEY = 'moida.profile.myPosts.viewMode'
 
 interface MyPostsSectionProps {
+  username?: string
+  isOwner?: boolean
   onUnauthorized?: (err: unknown) => void
 }
 
@@ -46,12 +48,11 @@ const readInitialViewMode = (): ViewMode => {
 }
 
 export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionProps>(
-  function MyPostsSection({ onUnauthorized }, ref) {
+  function MyPostsSection({ username, isOwner = true, onUnauthorized }, ref) {
     const { token } = useAuth()
 
     const [viewMode, setViewMode] = useState<ViewMode>(readInitialViewMode)
     const [posts, setPosts] = useState<ContentResponse[]>([])
-    const [totalElements, setTotalElements] = useState(0)
     const [postImageMeta, setPostImageMeta] = useState<Record<number, { firstUrl: string | null; count: number }>>({})
 
     const [loading, setLoading] = useState(true)
@@ -81,20 +82,21 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
           else setLoading(true)
           setError(null)
 
-          const response = await getMyPosts(token, targetPage, PAGE_SIZE)
+          const response = username
+            ? await getUserPosts(token, username, targetPage, PAGE_SIZE)
+            : await getMyPosts(token, targetPage, PAGE_SIZE)
 
           setPosts((prev) =>
             append ? [...prev, ...response.content] : response.content,
           )
-          setTotalElements(response.totalElements)
           setHasMore(response.hasNext)
           nextPageRef.current = targetPage + 1
         } catch (err) {
           if (err instanceof ApiError) {
-            setError(err.message || '내 글을 불러오지 못했습니다.')
+            setError(err.message || '게시글을 불러오지 못했습니다.')
             onUnauthorized?.(err)
           } else {
-            setError('내 글을 불러오지 못했습니다.')
+            setError('게시글을 불러오지 못했습니다.')
           }
           // 첫 로드 실패 시에만 hasMore 를 끊어 무한 루프 방지
           if (!append) setHasMore(false)
@@ -105,7 +107,7 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
           fetchingRef.current = false
         }
       },
-      [token, onUnauthorized],
+      [token, onUnauthorized, username],
     )
 
     // 최초 1회 로드
@@ -273,11 +275,8 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
 
       if (viewMode === 'card' && photoPosts.length === 0) {
         return (
-          <div className={styles.emptyWrap}>
-            <EmptyState
-              title="사진이 첨부된 게시글이 없습니다"
-              description="사진이 첨부된 게시글부터 인스타그램형 그리드로 보여드릴게요."
-            />
+          <div className={styles.photoEmptyWrap} aria-label="사진 게시글 없음">
+            <span className={styles.photoEmptyEmoji} aria-hidden="true">🐱</span>
           </div>
         )
       }
@@ -287,7 +286,7 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
           <div className={styles.emptyWrap}>
             <EmptyState
               title="아직 작성한 글이 없어요"
-              description="첫 게시글을 작성해 목록을 채워보세요."
+              description={isOwner ? '첫 게시글을 작성해 목록을 채워보세요.' : '아직 작성된 게시글이 없습니다.'}
             />
           </div>
         )
@@ -332,7 +331,7 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
     }
 
     return (
-      <section className={styles.section} aria-label="내가 작성한 글">
+      <section className={styles.section} aria-label={isOwner ? '내가 작성한 글' : '사용자가 작성한 글'}>
         <header className={styles.header}>
           <div
             className={styles.viewToggle}

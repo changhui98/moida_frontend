@@ -30,6 +30,7 @@ export interface AdminContentResponse {
 export interface CreateContentRequest {
   title: string
   body: string
+  tags?: string[]
 }
 
 // 하위 호환용 타입 alias

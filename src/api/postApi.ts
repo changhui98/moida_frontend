@@ -87,3 +87,19 @@ export const getMyPosts = (
     headers: createAuthHeaders(token),
   }).then((response) => parseResponse<PageResponse<ContentResponse>>(response))
 }
+
+export const getUserPosts = (
+  token: string,
+  username: string,
+  page = 0,
+  size = 10,
+): Promise<PageResponse<ContentResponse>> => {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  })
+
+  return fetch(`${API_BASE_URL}/contents/users/${encodeURIComponent(username)}?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<PageResponse<ContentResponse>>(response))
+}

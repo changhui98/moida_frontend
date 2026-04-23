@@ -42,6 +42,12 @@ export const getMyProfile = (token: string) => {
   }).then((response) => parseResponse<UserDetailResponse>(response))
 }
 
+export const getUserProfile = (token: string, username: string) => {
+  return fetch(`${API_BASE_URL}/users/${encodeURIComponent(username)}`, {
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<UserDetailResponse>(response))
+}
+
 export const updateMyProfile = (token: string, body: UserUpdateRequest) => {
   return fetch(`${API_BASE_URL}/users/me`, {
     method: 'PATCH',

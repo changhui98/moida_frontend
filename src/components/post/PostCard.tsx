@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { ContentResponse } from '../../types/post'
 import { ApiError } from '../../api/ApiError'
 import { toggleContentLike } from '../../api/postApi'
@@ -138,15 +139,20 @@ export function PostCard({ post }: PostCardProps) {
   // 응답인 경우에 한해 username(`createdBy`) 으로 폴백한다. 사용자가 볼 화면에는
   // 더 이상 @아이디 형태를 노출하지 않는다.
   const displayName = post.nickname?.trim() || post.createdBy
+  const profilePath = `/app/profile/${encodeURIComponent(post.createdBy)}`
 
   return (
     <article className={styles.card}>
       <div className={styles.header}>
-        <div className={styles.avatar} aria-hidden="true">
-          {getInitial(displayName)}
-        </div>
+        <Link to={profilePath} className={styles.authorAvatarLink} aria-label={`${displayName} 프로필 보기`}>
+          <div className={styles.avatar} aria-hidden="true">
+            {getInitial(displayName)}
+          </div>
+        </Link>
         <div className={styles.headerInfo}>
-          <span className={styles.authorName}>{displayName}</span>
+          <Link to={profilePath} className={`${styles.authorName} ${styles.authorNameLink}`}>
+            {displayName}
+          </Link>
           <span className={styles.sep} aria-hidden="true">·</span>
           <time className={styles.date} dateTime={post.createdAt}>
             {formatRelativeTime(post.createdAt)}
