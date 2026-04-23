@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { getMyPosts } from '../../api/postApi'
+import { getContentImages } from '../../api/imageApi'
 import { ApiError } from '../../api/ApiError'
 import { useAuth } from '../../context/AuthContext'
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver'
@@ -51,12 +52,16 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
     const [viewMode, setViewMode] = useState<ViewMode>(readInitialViewMode)
     const [posts, setPosts] = useState<ContentResponse[]>([])
     const [totalElements, setTotalElements] = useState(0)
+    const [postImageMeta, setPostImageMeta] = useState<Record<number, { firstUrl: string | null; count: number }>>({})
 
     const [loading, setLoading] = useState(true)
     const [initialLoad, setInitialLoad] = useState(true)
     const [isFetchingMore, setIsFetchingMore] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const photoPosts = posts.filter((post) => (postImageMeta[post.id]?.count ?? 0) > 0)
+    const textPosts = posts.filter((post) => (postImageMeta[post.id]?.count ?? 0) === 0)
+
 
     // 다음에 요청할 페이지 번호. (마지막으로 성공한 페이지 + 1)
     const nextPageRef = useRef(0)
@@ -107,9 +112,57 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
     useEffect(() => {
       nextPageRef.current = 0
       setPosts([])
+      setPostImageMeta({})
       setHasMore(true)
       fetchPage(0, false)
     }, [fetchPage])
+
+    useEffect(() => {
+      if (posts.length === 0) return
+
+      const unresolvedIds = posts
+        .map((post) => post.id)
+        .filter((id) => postImageMeta[id] === undefined)
+
+      if (unresolvedIds.length === 0) return
+
+      let cancelled = false
+
+      Promise.all(
+        unresolvedIds.map(async (postId) => {
+          try {
+            const images = await getContentImages(token, postId)
+            return {
+              postId,
+              firstUrl: images[0]?.fileUrl ?? null,
+              count: images.length,
+            }
+          } catch {
+            return {
+              postId,
+              firstUrl: null,
+              count: 0,
+            }
+          }
+        }),
+      ).then((results) => {
+        if (cancelled) return
+        setPostImageMeta((prev) => {
+          const next = { ...prev }
+          results.forEach((result) => {
+            next[result.postId] = {
+              firstUrl: result.firstUrl,
+              count: result.count,
+            }
+          })
+          return next
+        })
+      })
+
+      return () => {
+        cancelled = true
+      }
+    }, [posts, postImageMeta, token])
 
     // 센티넬이 뷰포트에 들어오면 다음 페이지 요청
     useEffect(() => {
@@ -153,9 +206,7 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
           <div className={styles.cardGrid}>
             {Array.from({ length: 8 }, (_, i) => (
               <div key={i} className={styles.cardSkeleton}>
-                <Skeleton height="18px" width="70%" />
-                <Skeleton height="12px" count={4} />
-                <Skeleton height="12px" width="40%" />
+                <Skeleton height="100%" />
               </div>
             ))}
           </div>
@@ -177,16 +228,26 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
       if (viewMode === 'card') {
         return (
           <div className={styles.cardGrid}>
-            {posts.map((post) => (
-              <MyPostCard key={post.id} post={post} />
+            {photoPosts.map((post) => (
+              <MyPostCard
+                key={post.id}
+                post={post}
+                firstImageUrl={postImageMeta[post.id]?.firstUrl ?? null}
+                imageCount={postImageMeta[post.id]?.count ?? 0}
+              />
             ))}
           </div>
         )
       }
       return (
         <div className={styles.listWrap}>
-          {posts.map((post) => (
-            <PostRowItem key={post.id} post={post} />
+          {textPosts.map((post) => (
+            <PostRowItem
+              key={post.id}
+              post={post}
+              firstImageUrl={postImageMeta[post.id]?.firstUrl ?? null}
+              imageCount={postImageMeta[post.id]?.count ?? 0}
+            />
           ))}
         </div>
       )
@@ -210,12 +271,34 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
         )
       }
 
+      if (viewMode === 'card' && photoPosts.length === 0) {
+        return (
+          <div className={styles.emptyWrap}>
+            <EmptyState
+              title="사진이 첨부된 게시글이 없습니다"
+              description="사진이 첨부된 게시글부터 인스타그램형 그리드로 보여드릴게요."
+            />
+          </div>
+        )
+      }
+
       if (posts.length === 0) {
         return (
           <div className={styles.emptyWrap}>
             <EmptyState
               title="아직 작성한 글이 없어요"
               description="첫 게시글을 작성해 목록을 채워보세요."
+            />
+          </div>
+        )
+      }
+
+      if (viewMode === 'list' && textPosts.length === 0) {
+        return (
+          <div className={styles.emptyWrap}>
+            <EmptyState
+              title="사진 없는 글이 없습니다"
+              description="글 탭에서는 사진이 없는 글만 보여드려요."
             />
           </div>
         )
@@ -251,13 +334,6 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
     return (
       <section className={styles.section} aria-label="내가 작성한 글">
         <header className={styles.header}>
-          <div className={styles.titleWrap}>
-            <h2 className={styles.title}>내 글</h2>
-            <span className={styles.count}>
-              총 {totalElements.toLocaleString()}개
-            </span>
-          </div>
-
           <div
             className={styles.viewToggle}
             role="tablist"
@@ -269,6 +345,7 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
               aria-selected={viewMode === 'card'}
               className={`${styles.toggleBtn} ${viewMode === 'card' ? styles.toggleBtnActive : ''}`}
               onClick={() => handleViewModeChange('card')}
+              aria-label="사진 게시글 보기"
             >
               <svg
                 className={styles.toggleIcon}
@@ -276,12 +353,10 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
               >
-                <rect x="2.5" y="2.5" width="6" height="6" rx="1.2" />
-                <rect x="11.5" y="2.5" width="6" height="6" rx="1.2" />
-                <rect x="2.5" y="11.5" width="6" height="6" rx="1.2" />
-                <rect x="11.5" y="11.5" width="6" height="6" rx="1.2" />
+                <rect x="3" y="3" width="14" height="14" rx="2.2" fill="none" strokeWidth="1.6" />
+                <circle cx="8" cy="8" r="1.4" />
+                <path d="M5.5 14.5l3.2-3.6 2.5 2 2.4-2.9 1.4 1.6" fill="none" strokeWidth="1.6" />
               </svg>
-              카드
             </button>
             <button
               type="button"
@@ -289,6 +364,7 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
               aria-selected={viewMode === 'list'}
               className={`${styles.toggleBtn} ${viewMode === 'list' ? styles.toggleBtnActive : ''}`}
               onClick={() => handleViewModeChange('list')}
+              aria-label="글 보기"
             >
               <svg
                 className={styles.toggleIcon}
@@ -296,11 +372,8 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
               >
-                <line x1="3" y1="5" x2="17" y2="5" strokeWidth="1.6" />
-                <line x1="3" y1="10" x2="17" y2="10" strokeWidth="1.6" />
-                <line x1="3" y1="15" x2="17" y2="15" strokeWidth="1.6" />
+                <path d="M4.5 4.5h11a1.5 1.5 0 0 1 1.5 1.5v6.6a1.5 1.5 0 0 1-1.5 1.5H9.4l-3.6 3v-3H4.5A1.5 1.5 0 0 1 3 12.6V6a1.5 1.5 0 0 1 1.5-1.5z" fill="none" strokeWidth="1.6" />
               </svg>
-              리스트
             </button>
           </div>
         </header>
