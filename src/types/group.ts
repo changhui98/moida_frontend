@@ -1,0 +1,39 @@
+export type GroupCategory = 'CLUB' | 'STUDY' | 'SOCIAL'
+export type GroupMemberRole = 'LEADER' | 'MEMBER'
+
+export interface GroupResponse {
+  id: number
+  name: string
+  description: string | null
+  category: GroupCategory
+  maxMemberCount: number
+  currentMemberCount: number
+  leaderNickname: string
+  leaderUsername: string
+  createdDate: string
+}
+
+export interface GroupMemberResponse {
+  userId: string
+  nickname: string
+  username: string
+  role: GroupMemberRole
+  joinedAt: string
+}
+
+export interface GroupDetailResponse extends GroupResponse {
+  members: GroupMemberResponse[]
+}
+
+export interface GroupCreateRequest {
+  name: string
+  description: string
+  category: GroupCategory
+  maxMemberCount: number
+}
+
+export const GROUP_CATEGORY_LABELS: Record<GroupCategory, string> = {
+  CLUB: '동아리',
+  STUDY: '스터디',
+  SOCIAL: '소셜',
+}

@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { AdminRoute } from './components/AdminRoute'
 import { AdminLayout } from './components/admin/AdminLayout'
 import { useAuth } from './context/AuthContext'
 import { HomePage } from './pages/HomePage'
@@ -12,6 +13,9 @@ import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminUserListPage } from './pages/admin/AdminUserListPage'
 import { AdminPostListPage } from './pages/admin/AdminPostListPage'
 import { PostCreatePage } from './pages/PostCreatePage'
+import { GroupListPage } from './pages/GroupListPage'
+import { GroupDetailPage } from './pages/GroupDetailPage'
+import { GroupCreatePage } from './pages/GroupCreatePage'
 
 function App() {
   const { isAuthenticated } = useAuth()
@@ -27,7 +31,12 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/app" element={<PostListPage />} />
         <Route path="/app/posts/new" element={<PostCreatePage />} />
-        <Route path="/app/users" element={<UserGridPage />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/app/users" element={<UserGridPage />} />
+        </Route>
+        <Route path="/app/groups" element={<GroupListPage />} />
+        <Route path="/app/groups/new" element={<GroupCreatePage />} />
+        <Route path="/app/groups/:groupId" element={<GroupDetailPage />} />
         <Route path="/app/profile" element={<ProfilePage />} />
         <Route path="/app/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
