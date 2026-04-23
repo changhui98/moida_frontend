@@ -1,7 +1,8 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ContentResponse } from '../../types/post'
 import { ApiError } from '../../api/ApiError'
 import { toggleContentLike } from '../../api/postApi'
+import { getContentImages } from '../../api/imageApi'
 import { useAuth } from '../../context/AuthContext'
 import styles from './PostCard.module.css'
 
@@ -9,16 +10,38 @@ interface PostCardProps {
   post: ContentResponse
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+/**
+ * 게시글 작성 시각을 SNS 스타일 상대시간 문자열로 변환한다.
+ *
+ * 규칙
+ * - 1시간 미만: "n분" (0분은 "방금")
+ * - 24시간 미만: "n시간"
+ * - 그 이후: "n일"
+ *
+ * 미래(시계 오차 등)로 찍힌 timestamp 는 음수 방지를 위해 "방금" 으로 처리한다.
+ * 백엔드가 KST 기준 LocalDateTime 문자열을 보내기 때문에, 타임존이 포함되지
+ * 않은 값은 그대로 Date 로 파싱해도 브라우저가 로컬 타임존으로 해석한다.
+ * 한국 사용자 기준 환경에서 자연스럽게 맞물리도록 보정 없이 사용한다.
+ */
+function formatRelativeTime(dateStr: string): string {
+  const then = new Date(dateStr).getTime()
+  if (Number.isNaN(then)) return ''
+
+  const diffMs = Date.now() - then
+  const diffMin = Math.floor(diffMs / 60_000)
+
+  if (diffMin < 1) return '방금'
+  if (diffMin < 60) return `${diffMin}분`
+
+  const diffHour = Math.floor(diffMin / 60)
+  if (diffHour < 24) return `${diffHour}시간`
+
+  const diffDay = Math.floor(diffHour / 24)
+  return `${diffDay}일`
 }
 
 function getInitial(name: string): string {
-  return name.charAt(0).toUpperCase()
+  return (name?.trim().charAt(0) ?? '').toUpperCase()
 }
 
 function formatCount(n: number): string {
@@ -36,6 +59,8 @@ export function PostCard({ post }: PostCardProps) {
   // PostCard 역시 새로 마운트 되어 서버의 likedByMe 값으로 자연스럽게 초기화된다.
   const [liked, setLiked] = useState(() => post.likedByMe ?? false)
   const [likeCount, setLikeCount] = useState(() => post.likeCount ?? 0)
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [pending, setPending] = useState(false)
 
   // setState 는 비동기라 단순 `pending` state 만으로는 같은 tick 안에서의
@@ -85,20 +110,95 @@ export function PostCard({ post }: PostCardProps) {
     }
   }, [post.id, token, updateLiked, updateLikeCount])
 
+  useEffect(() => {
+    let cancelled = false
+
+    getContentImages(token, post.id)
+      .then((images) => {
+        if (cancelled) return
+        setImageUrls(images.map((image) => image.fileUrl))
+      })
+      .catch(() => {
+        if (cancelled) return
+        setImageUrls([])
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [post.id, token])
+
+  useEffect(() => {
+    setCurrentImageIndex(0)
+  }, [imageUrls])
+
   const commentCount = post.commentCount ?? 0
+
+  // 서버가 작성자 닉네임을 내려주면 그걸 우선 사용하고, 누락되었거나 구버전
+  // 응답인 경우에 한해 username(`createdBy`) 으로 폴백한다. 사용자가 볼 화면에는
+  // 더 이상 @아이디 형태를 노출하지 않는다.
+  const displayName = post.nickname?.trim() || post.createdBy
 
   return (
     <article className={styles.card}>
       <div className={styles.header}>
         <div className={styles.avatar} aria-hidden="true">
-          {getInitial(post.createdBy)}
+          {getInitial(displayName)}
         </div>
         <div className={styles.headerInfo}>
-          <span className={styles.authorName}>@{post.createdBy}</span>
-          <span className={styles.date}>{formatDate(post.createdAt)}</span>
+          <span className={styles.authorName}>{displayName}</span>
+          <span className={styles.sep} aria-hidden="true">·</span>
+          <time className={styles.date} dateTime={post.createdAt}>
+            {formatRelativeTime(post.createdAt)}
+          </time>
         </div>
       </div>
-      <h3 className={styles.title}>{post.title}</h3>
+      {imageUrls.length > 0 && (
+        <div className={styles.imageWrap}>
+          <img
+            src={imageUrls[currentImageIndex]}
+            alt={`게시글 첨부 이미지 ${currentImageIndex + 1}`}
+            className={styles.image}
+            loading="lazy"
+          />
+          {imageUrls.length > 1 && (
+            <>
+              <button
+                type="button"
+                className={`${styles.slideBtn} ${styles.slideBtnPrev}`}
+                aria-label="이전 이미지"
+                onClick={() =>
+                  setCurrentImageIndex((prev) =>
+                    prev === 0 ? imageUrls.length - 1 : prev - 1,
+                  )
+                }
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className={`${styles.slideBtn} ${styles.slideBtnNext}`}
+                aria-label="다음 이미지"
+                onClick={() =>
+                  setCurrentImageIndex((prev) =>
+                    prev === imageUrls.length - 1 ? 0 : prev + 1,
+                  )
+                }
+              >
+                ›
+              </button>
+              <div className={styles.indicators}>
+                {imageUrls.map((_, index) => (
+                  <span
+                    key={index}
+                    className={`${styles.dot} ${index === currentImageIndex ? styles.dotActive : ''}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
       <p className={styles.content}>{post.body}</p>
 
       <div className={styles.actions}>

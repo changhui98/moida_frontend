@@ -3,6 +3,7 @@ export interface ContentResponse {
   title: string
   body: string
   createdBy: string
+  nickname?: string | null
   createdAt: string
   likeCount?: number
   commentCount?: number
