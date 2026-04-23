@@ -1,20 +1,15 @@
-/* ── ProfilePage ─────────────────────────────────────────────
-   레퍼런스(Threads / Instagram 프로필)에 가까운 구성.
-   공개 헤더에는 닉네임/핸들/가입일만 노출하고,
-   이메일·주소·비밀번호 같은 민감 정보는 "프로필 편집" 패널에서만 다룬다.
-   ──────────────────────────────────────────────────────────── */
-
 .main {
   width: 100%;
-  /* 내 글 4열 그리드가 너무 작게 보이지 않도록 컨테이너 폭을 확장한다. */
-  max-width: calc(960px + var(--layout-sidebar-w));
+  /* 큰 화면에서 사이드바와 본문 사이에 여유 간격을 두고, 우측도 동일한 안전 여백을 확보한다. */
+  max-width: min(2000px, calc(100vw - var(--layout-sidebar-w) - 2 * var(--sp-10)));
   margin: 0 auto;
-  padding: var(--sp-8) var(--sp-6);
-  padding-left: calc(var(--layout-sidebar-w) + var(--sp-6));
+  padding: var(--sp-8) var(--sp-10);
+  padding-left: calc(var(--layout-sidebar-w) + var(--sp-10));
   padding-bottom: calc(var(--sp-8) + var(--layout-bottom-bar-h));
   display: flex;
   flex-direction: column;
   gap: var(--sp-5);
+  box-sizing: border-box;
 }
 
 /* 프로필 헤더 · 액션 버튼은 넓어진 컨테이너 안에서 가운데로 정렬한다.
@@ -37,6 +32,37 @@
 
 .avatarWrap {
   flex-shrink: 0;
+}
+
+.avatarButton {
+  width: 96px;
+  height: 96px;
+  border: none;
+  border-radius: var(--r-full);
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatarButton:disabled {
+  cursor: default;
+}
+
+.avatarButton:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatarInput {
+  display: none;
 }
 
 .avatarLg {
@@ -182,6 +208,11 @@
     width: 72px;
     height: 72px;
     font-size: 1.5rem;
+  }
+
+  .avatarButton {
+    width: 72px;
+    height: 72px;
   }
 
   .displayName {

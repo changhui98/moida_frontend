@@ -118,6 +118,22 @@
   color: var(--clr-text);
 }
 
+.navAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-full);
+  overflow: hidden;
+  border: 1px solid var(--clr-border);
+  background: var(--clr-surface-2);
+}
+
+.navAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .navLabel {
   white-space: nowrap;
   overflow: hidden;
