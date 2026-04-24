@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { signOut as signOutApi } from '../api/authApi'
 import { getMyProfile } from '../api/userApi'
 import type { UserDetailResponse } from '../types/user'
 import { authStorage } from '../lib/authStorage'
@@ -78,9 +79,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setToken(nextToken)
       },
       logout: () => {
+        const currentToken = authStorage.getToken()
         authStorage.clearToken()
         setToken('')
         setMeProfile(null)
+        if (currentToken.trim()) {
+          signOutApi(currentToken).catch(() => {
+            // 서버 로그아웃 실패 시에도 클라이언트 토큰은 이미 삭제됨
+          })
+        }
       },
       meUsername,
       meNickname,

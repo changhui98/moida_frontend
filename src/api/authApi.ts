@@ -91,3 +91,20 @@ export const checkUsername = async (username: string): Promise<boolean> => {
   const data = await response.json() as { available: boolean }
   return data.available
 }
+
+export const signOut = async (token: string): Promise<void> => {
+  if (!token.trim()) return
+
+  const response = await fetch(`${API_BASE_URL}/auth/sign-out`, {
+    method: 'POST',
+    headers: {
+      Authorization: token.trim(),
+    },
+  })
+
+  // 204 No Content 또는 성공 응답이면 정상
+  if (!response.ok && response.status !== 204) {
+    // 로그아웃 자체는 서버 오류여도 클라이언트에서 토큰 삭제를 막지 않음
+    console.warn('[signOut] 서버 로그아웃 실패:', response.status)
+  }
+}
