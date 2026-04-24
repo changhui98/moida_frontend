@@ -170,7 +170,7 @@ export function AdminPostListPage() {
                           @{content.createdBy}
                         </td>
                         <td className={styles.tableDate}>
-                          {formatDateTime(content.createdAt)}
+                          {formatDateTime(content.createdDate)}
                         </td>
                         <td className={styles.tableDate}>
                           {formatDateTime(content.lastModifiedDate)}

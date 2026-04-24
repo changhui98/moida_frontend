@@ -21,7 +21,7 @@ export interface AdminContentResponse {
   title: string
   body: string
   createdBy: string
-  createdAt: string
+  createdDate: string
   lastModifiedBy: string | null
   lastModifiedDate: string | null
   deletedBy: string | null

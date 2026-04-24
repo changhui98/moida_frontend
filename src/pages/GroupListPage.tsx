@@ -43,6 +43,7 @@ export function GroupListPage() {
         const response = await getGroups(token, targetPage, PAGE_SIZE)
         setGroups(response.content)
         setTotalPages(response.totalPages)
+        setPage(targetPage)
       } catch (err) {
         const message = err instanceof Error ? err.message : '모임 목록 조회 실패'
         setError(message)
@@ -69,7 +70,6 @@ export function GroupListPage() {
   }, [loadProfile, loadGroups])
 
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage)
     loadGroups(nextPage)
   }
 
@@ -101,7 +101,7 @@ export function GroupListPage() {
 
     if (groups.length === 0) {
       return (
-        <div className="card">
+        <div className={styles.emptyStateCenter}>
           <EmptyState title="등록된 모임이 없습니다." description="첫 번째 모임을 만들어보세요." />
         </div>
       )
@@ -178,17 +178,6 @@ export function GroupListPage() {
       <Navbar role={myProfile?.role ?? null} onLogout={handleLogout} />
 
       <main className={styles.main}>
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>모임</h1>
-          <button
-            type="button"
-            className={styles.createButton}
-            onClick={() => navigate('/app/groups/new')}
-          >
-            모임 만들기
-          </button>
-        </div>
-
         {renderContent()}
       </main>
     </>
