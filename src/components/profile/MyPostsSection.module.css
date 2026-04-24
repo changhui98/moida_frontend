@@ -179,9 +179,9 @@
 
 /* ── Empty / error ── */
 .emptyWrap {
-  border: 1px solid var(--clr-border);
+  border: none;
   border-radius: var(--r-lg);
-  background: var(--clr-surface);
+  background: var(--clr-bg);
 }
 
 .photoEmptyWrap {
