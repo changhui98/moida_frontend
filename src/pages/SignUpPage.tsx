@@ -5,6 +5,7 @@ import { PasswordInput } from '../components/PasswordInput'
 import { PasswordChecklist } from '../components/PasswordChecklist'
 import { isPasswordValid, isConfirmPasswordValid } from '../utils/passwordRules'
 import styles from './SignUpPage.module.css'
+import { AlertDialog } from '../components/common/AlertDialog'
 
 type SignUpField = 'username' | 'password' | 'nickname' | 'userEmail' | 'address'
 
@@ -36,7 +37,9 @@ export function SignUpPage() {
   const [isUsernameChecked, setIsUsernameChecked] = useState(false)
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(false)
   const [isCheckingUsername, setIsCheckingUsername] = useState(false)
-  const [usernameCheckError, setUsernameCheckError] = useState('')
+  const [usernameAlertOpen, setUsernameAlertOpen] = useState(false)
+  const [usernameAlertVariant, setUsernameAlertVariant] = useState<'success' | 'error'>('success')
+  const [usernameAlertMessage, setUsernameAlertMessage] = useState('')
 
   // 이메일 인증 상태
   const [isCodeSent, setIsCodeSent] = useState(false)
@@ -57,7 +60,6 @@ export function SignUpPage() {
       if (key === 'username') {
         setIsUsernameChecked(false)
         setIsUsernameAvailable(false)
-        setUsernameCheckError('')
       }
 
       // 이메일 변경 시 인증 상태 초기화
@@ -77,16 +79,22 @@ export function SignUpPage() {
     }
     try {
       setIsCheckingUsername(true)
-      setUsernameCheckError('')
       const available = await checkUsername(form.username)
       setIsUsernameChecked(true)
       setIsUsernameAvailable(available)
-      if (!available) {
-        setUsernameCheckError('이미 사용 중인 아이디입니다.')
+      if (available) {
+        setUsernameAlertVariant('success')
+        setUsernameAlertMessage('사용 가능한 아이디입니다.')
+      } else {
+        setUsernameAlertVariant('error')
+        setUsernameAlertMessage('이미 사용 중인 아이디입니다.')
       }
+      setUsernameAlertOpen(true)
     } catch (err) {
       const message = err instanceof Error ? err.message : '중복 확인에 실패했습니다.'
-      setUsernameCheckError(message)
+      setUsernameAlertVariant('error')
+      setUsernameAlertMessage(message)
+      setUsernameAlertOpen(true)
     } finally {
       setIsCheckingUsername(false)
     }
@@ -184,6 +192,7 @@ export function SignUpPage() {
         : styles.pwInvalid
 
   return (
+    <>
     <main className={styles.root}>
       <section className={`card animate-scale-in ${styles.card}`}>
         <Link to="/" className={styles.backLink}>
@@ -220,14 +229,6 @@ export function SignUpPage() {
             </div>
             {fieldErrors.username && (
               <p className="field-error" role="alert">{fieldErrors.username}</p>
-            )}
-            {usernameCheckError && (
-              <p className="field-error" role="alert">{usernameCheckError}</p>
-            )}
-            {isUsernameChecked && isUsernameAvailable && (
-              <p className={`alert alert-success ${styles.verifiedMessage}`} role="status">
-                사용 가능한 아이디입니다.
-              </p>
             )}
           </div>
 
@@ -395,5 +396,13 @@ export function SignUpPage() {
         </p>
       </section>
     </main>
+
+    <AlertDialog
+      isOpen={usernameAlertOpen}
+      variant={usernameAlertVariant}
+      message={usernameAlertMessage}
+      onClose={() => setUsernameAlertOpen(false)}
+    />
+    </>
   )
 }
