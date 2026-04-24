@@ -99,3 +99,43 @@ export const getContentImages = (token: string, contentId: number): Promise<Imag
     },
   }).then((response) => parseResponse<ImageResponse[]>(response))
 }
+
+export const uploadGroupImage = (
+  token: string,
+  file: File,
+  groupId: number,
+): Promise<ImageUploadResponse> => {
+  if (!token.trim()) {
+    throw new ApiError(401, '로그인이 필요합니다.')
+  }
+
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('targetType', 'GROUP')
+  formData.append('targetId', String(groupId))
+
+  return fetch(`${API_BASE_URL}/images`, {
+    method: 'POST',
+    headers: {
+      Authorization: token.trim(),
+    },
+    body: formData,
+  }).then((response) => parseResponse<ImageUploadResponse>(response))
+}
+
+export const getGroupImages = (token: string, groupId: number): Promise<ImageResponse[]> => {
+  if (!token.trim()) {
+    throw new ApiError(401, '로그인이 필요합니다.')
+  }
+
+  const params = new URLSearchParams({
+    targetType: 'GROUP',
+    targetId: String(groupId),
+  })
+
+  return fetch(`${API_BASE_URL}/images?${params.toString()}`, {
+    headers: {
+      Authorization: token.trim(),
+    },
+  }).then((response) => parseResponse<ImageResponse[]>(response))
+}

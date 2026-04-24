@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createGroup } from '../api/groupApi'
+import { uploadGroupImage } from '../api/imageApi'
 import { getMyProfile } from '../api/userApi'
 import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
 import { Navbar } from '../components/Navbar'
+import { ImageBoxPicker } from '../components/post/ImageBoxPicker'
 import type { GroupCategory } from '../types/group'
 import type { UserDetailResponse } from '../types/user'
 import { GROUP_CATEGORY_LABELS } from '../types/group'
@@ -19,6 +21,7 @@ export function GroupCreatePage() {
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<GroupCategory>('CLUB')
   const [maxMemberCount, setMaxMemberCount] = useState(10)
+  const [images, setImages] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -69,6 +72,9 @@ export function GroupCreatePage() {
         category,
         maxMemberCount,
       })
+      if (images.length > 0) {
+        await Promise.all(images.map((file) => uploadGroupImage(token, file, created.id)))
+      }
       navigate(`/app/groups/${created.id}`, { replace: true })
     } catch (err) {
       const message = err instanceof Error ? err.message : '모임 생성 실패'
@@ -172,6 +178,11 @@ export function GroupCreatePage() {
               {errors.maxMemberCount && (
                 <p className={styles.errorText}>{errors.maxMemberCount}</p>
               )}
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>사진</label>
+              <ImageBoxPicker images={images} onChange={setImages} disabled={submitting} />
             </div>
 
             <div className={styles.buttonRow}>
