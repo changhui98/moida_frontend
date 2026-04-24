@@ -35,8 +35,12 @@ export const getGroups = (
   token: string,
   page = 0,
   size = 10,
+  keyword?: string,
+  category?: string,
 ): Promise<PageResponse<GroupResponse>> => {
   const params = new URLSearchParams({ page: String(page), size: String(size) })
+  if (keyword && keyword.trim()) params.set('keyword', keyword.trim())
+  if (category) params.set('category', category)
   return fetch(`${API_BASE_URL}/groups?${params.toString()}`, {
     headers: createAuthHeaders(token),
   }).then((res) => parseResponse<PageResponse<GroupResponse>>(res))

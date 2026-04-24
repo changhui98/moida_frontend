@@ -11,6 +11,12 @@ export interface GroupResponse {
   leaderNickname: string
   leaderUsername: string
   createdDate: string
+  imageUrl: string | null
+}
+
+export interface GroupSearchParams {
+  keyword?: string
+  category?: GroupCategory | ''
 }
 
 export interface GroupMemberResponse {
