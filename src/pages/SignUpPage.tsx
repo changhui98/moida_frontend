@@ -1,6 +1,6 @@
 import { type FormEvent, useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signUp, sendEmailVerification, verifyEmailCode } from '../api/authApi'
+import { signUp, sendEmailVerification, verifyEmailCode, checkUsername } from '../api/authApi'
 import { PasswordInput } from '../components/PasswordInput'
 import { PasswordChecklist } from '../components/PasswordChecklist'
 import { isPasswordValid, isConfirmPasswordValid } from '../utils/passwordRules'
@@ -32,6 +32,12 @@ export function SignUpPage() {
     address: '',
   })
 
+  // 아이디 중복확인 상태
+  const [isUsernameChecked, setIsUsernameChecked] = useState(false)
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(false)
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false)
+  const [usernameCheckError, setUsernameCheckError] = useState('')
+
   // 이메일 인증 상태
   const [isCodeSent, setIsCodeSent] = useState(false)
   const [isEmailVerified, setIsEmailVerified] = useState(false)
@@ -47,6 +53,13 @@ export function SignUpPage() {
       setForm((prev) => ({ ...prev, [key]: value }))
       setFieldErrors((prev) => ({ ...prev, [key]: undefined }))
 
+      // 아이디 변경 시 중복확인 상태 초기화
+      if (key === 'username') {
+        setIsUsernameChecked(false)
+        setIsUsernameAvailable(false)
+        setUsernameCheckError('')
+      }
+
       // 이메일 변경 시 인증 상태 초기화
       if (key === 'userEmail' && value !== previousEmailRef.current) {
         previousEmailRef.current = value
@@ -56,6 +69,28 @@ export function SignUpPage() {
         setEmailVerifyError('')
       }
     }
+
+  const handleCheckUsername = async () => {
+    if (!form.username.trim()) {
+      setFieldErrors((prev) => ({ ...prev, username: '아이디를 입력해주세요.' }))
+      return
+    }
+    try {
+      setIsCheckingUsername(true)
+      setUsernameCheckError('')
+      const available = await checkUsername(form.username)
+      setIsUsernameChecked(true)
+      setIsUsernameAvailable(available)
+      if (!available) {
+        setUsernameCheckError('이미 사용 중인 아이디입니다.')
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '중복 확인에 실패했습니다.'
+      setUsernameCheckError(message)
+    } finally {
+      setIsCheckingUsername(false)
+    }
+  }
 
   const handleSendCode = async () => {
     if (!form.userEmail.trim()) {
@@ -131,8 +166,14 @@ export function SignUpPage() {
   const pwValid = isPasswordValid(form.password)
   const confirmValid = isConfirmPasswordValid(form.password, confirmPassword)
 
-  // 비밀번호 복잡도 + 확인 일치 + 이메일 인증 모두 충족해야 제출 가능
-  const canSubmit = form.password.length > 0 && pwValid && confirmValid && isEmailVerified
+  // 비밀번호 복잡도 + 확인 일치 + 아이디 중복확인 + 이메일 인증 모두 충족해야 제출 가능
+  const canSubmit =
+    form.password.length > 0 &&
+    pwValid &&
+    confirmValid &&
+    isUsernameChecked &&
+    isUsernameAvailable &&
+    isEmailVerified
 
   // 비밀번호 확인 입력창 테두리 색상
   const confirmBorderClass =
@@ -158,16 +199,35 @@ export function SignUpPage() {
             <label className="input-label" htmlFor="su-username">
               아이디
             </label>
-            <input
-              id="su-username"
-              className="input"
-              placeholder="영문, 숫자 입력 가능"
-              autoComplete="username"
-              value={form.username}
-              onChange={setField('username')}
-            />
+            <div className={styles.emailRow}>
+              <input
+                id="su-username"
+                className="input"
+                placeholder="영문, 숫자 입력 가능"
+                autoComplete="username"
+                value={form.username}
+                onChange={setField('username')}
+                disabled={isUsernameChecked && isUsernameAvailable}
+              />
+              <button
+                type="button"
+                className={`btn btn-secondary ${styles.verifyBtn}`}
+                disabled={isCheckingUsername || (isUsernameChecked && isUsernameAvailable) || !form.username.trim()}
+                onClick={handleCheckUsername}
+              >
+                {isCheckingUsername ? '확인 중...' : '중복확인'}
+              </button>
+            </div>
             {fieldErrors.username && (
               <p className="field-error" role="alert">{fieldErrors.username}</p>
+            )}
+            {usernameCheckError && (
+              <p className="field-error" role="alert">{usernameCheckError}</p>
+            )}
+            {isUsernameChecked && isUsernameAvailable && (
+              <p className={`alert alert-success ${styles.verifiedMessage}`} role="status">
+                사용 가능한 아이디입니다.
+              </p>
             )}
           </div>
 

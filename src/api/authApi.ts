@@ -80,3 +80,14 @@ export const verifyEmailCode = async (payload: VerifyEmailRequest): Promise<void
     throw new ApiError(response.status, await toErrorMessage(response))
   }
 }
+
+export const checkUsername = async (username: string): Promise<boolean> => {
+  const response = await fetch(`${API_BASE_URL}/auth/check-username?username=${encodeURIComponent(username)}`)
+
+  if (!response.ok) {
+    throw new ApiError(response.status, await toErrorMessage(response))
+  }
+
+  const data = await response.json() as { available: boolean }
+  return data.available
+}
