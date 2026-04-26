@@ -145,7 +145,7 @@ export function AdminPostListPage() {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>제목</th>
+                    <th>내용</th>
                     <th>작성자</th>
                     <th>작성일</th>
                     <th>수정일</th>
@@ -163,7 +163,7 @@ export function AdminPostListPage() {
                       <tr key={content.id}>
                         <td>
                           <span className={styles.tableUsername}>
-                            {content.title}
+                            {content.body}
                           </span>
                         </td>
                         <td className={styles.tableSecondary}>
@@ -263,8 +263,8 @@ export function AdminPostListPage() {
         message={
           confirmState
             ? confirmState.action === 'delete'
-              ? `'${confirmState.content.title}' 게시글을 삭제하시겠습니까?`
-              : `'${confirmState.content.title}' 게시글을 복구하시겠습니까?`
+              ? '선택한 게시글을 삭제하시겠습니까?'
+              : '선택한 게시글을 복구하시겠습니까?'
             : ''
         }
         confirmLabel={confirmState?.action === 'delete' ? '삭제' : '복구'}

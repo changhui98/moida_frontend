@@ -77,7 +77,6 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
     setError(null)
     try {
       const createdPost = await createPost(token, {
-        title: '',
         body: body.trim(),
         tags,
       })

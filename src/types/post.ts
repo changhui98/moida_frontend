@@ -1,6 +1,5 @@
 export interface ContentResponse {
   id: number
-  title: string
   body: string
   createdBy: string
   nickname?: string | null
@@ -18,7 +17,6 @@ export interface LikeToggleResponse {
 
 export interface AdminContentResponse {
   id: number
-  title: string
   body: string
   createdBy: string
   createdDate: string
@@ -29,7 +27,6 @@ export interface AdminContentResponse {
 }
 
 export interface CreateContentRequest {
-  title: string
   body: string
   tags?: string[]
 }

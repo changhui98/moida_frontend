@@ -57,7 +57,7 @@ export function PostCreatePage() {
     setError(null)
 
     try {
-      const createdPost = await createPost(token, { title: '', body: body.trim() })
+      const createdPost = await createPost(token, { body: body.trim() })
       if (images.length > 0) {
         await Promise.all(images.map((file) => uploadContentImage(token, file, createdPost.id)))
       }
