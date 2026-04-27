@@ -2,11 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getGroup, joinGroup, leaveGroup, updateGroup, deleteGroup, kickGroupMember } from '../api/groupApi'
 import { getMyProfile } from '../api/userApi'
-import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
+import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
+import { extractErrorMessage } from '../utils/errorUtils'
 import { Navbar } from '../components/Navbar'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
-import type { GroupCategory, GroupDetailResponse } from '../types/group'
+import { GroupEditForm } from '../components/group/GroupEditForm'
+import { GroupMemberList } from '../components/group/GroupMemberList'
+import type { GroupDetailResponse } from '../types/group'
 import type { UserDetailResponse } from '../types/user'
 import { GROUP_CATEGORY_LABELS } from '../types/group'
 import styles from './GroupDetailPage.module.css'
@@ -15,6 +18,7 @@ export function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
   const { token, logout } = useAuth()
+  const handleUnauthorized = useHandleUnauthorized()
 
   const [group, setGroup] = useState<GroupDetailResponse | null>(null)
   const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
@@ -22,22 +26,7 @@ export function GroupDetailPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // 수정 모드 상태
   const [isEditMode, setIsEditMode] = useState(false)
-  const [editName, setEditName] = useState('')
-  const [editDescription, setEditDescription] = useState('')
-  const [editCategory, setEditCategory] = useState<GroupCategory>('CLUB')
-  const [editMaxMemberCount, setEditMaxMemberCount] = useState(10)
-
-  const handleUnauthorized = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        logout()
-        navigate('/login', { replace: true })
-      }
-    },
-    [logout, navigate],
-  )
 
   const loadData = useCallback(async () => {
     if (!groupId) return
@@ -51,8 +40,7 @@ export function GroupDetailPage() {
       setGroup(groupData)
       setMyProfile(profileData)
     } catch (err) {
-      const message = err instanceof Error ? err.message : '모임 정보 조회 실패'
-      setError(message)
+      setError(extractErrorMessage(err, '모임 정보 조회 실패'))
       handleUnauthorized(err)
     } finally {
       setLoading(false)
@@ -78,8 +66,7 @@ export function GroupDetailPage() {
       await joinGroup(token, Number(groupId))
       await loadData()
     } catch (err) {
-      const message = err instanceof Error ? err.message : '모임 가입 실패'
-      alert(message)
+      alert(extractErrorMessage(err, '모임 가입 실패'))
       handleUnauthorized(err)
     } finally {
       setActionLoading(false)
@@ -94,42 +81,27 @@ export function GroupDetailPage() {
       await leaveGroup(token, Number(groupId))
       await loadData()
     } catch (err) {
-      const message = err instanceof Error ? err.message : '모임 탈퇴 실패'
-      alert(message)
+      alert(extractErrorMessage(err, '모임 탈퇴 실패'))
       handleUnauthorized(err)
     } finally {
       setActionLoading(false)
     }
   }
 
-  const handleEditOpen = () => {
-    if (!group) return
-    setEditName(group.name)
-    setEditDescription(group.description ?? '')
-    setEditCategory(group.category)
-    setEditMaxMemberCount(group.maxMemberCount)
-    setIsEditMode(true)
-  }
-
-  const handleEditSubmit = async () => {
-    if (!groupId || !group) return
-    if (!editName.trim()) {
-      alert('모임 이름을 입력해주세요.')
-      return
-    }
+  const handleEditSubmit = async (data: {
+    name: string
+    description: string
+    category: string
+    maxMemberCount: number
+  }) => {
+    if (!groupId) return
     try {
       setActionLoading(true)
-      await updateGroup(token, Number(groupId), {
-        name: editName.trim(),
-        description: editDescription,
-        category: editCategory,
-        maxMemberCount: editMaxMemberCount,
-      })
+      await updateGroup(token, Number(groupId), data)
       setIsEditMode(false)
       await loadData()
     } catch (err) {
-      const message = err instanceof Error ? err.message : '모임 수정 실패'
-      alert(message)
+      alert(extractErrorMessage(err, '모임 수정 실패'))
       handleUnauthorized(err)
     } finally {
       setActionLoading(false)
@@ -144,8 +116,7 @@ export function GroupDetailPage() {
       await deleteGroup(token, Number(groupId))
       navigate('/app/groups', { replace: true })
     } catch (err) {
-      const message = err instanceof Error ? err.message : '모임 삭제 실패'
-      alert(message)
+      alert(extractErrorMessage(err, '모임 삭제 실패'))
       handleUnauthorized(err)
     } finally {
       setActionLoading(false)
@@ -160,8 +131,7 @@ export function GroupDetailPage() {
       await kickGroupMember(token, Number(groupId), username)
       await loadData()
     } catch (err) {
-      const message = err instanceof Error ? err.message : '강퇴 실패'
-      alert(message)
+      alert(extractErrorMessage(err, '강퇴 실패'))
       handleUnauthorized(err)
     } finally {
       setActionLoading(false)
@@ -236,7 +206,7 @@ export function GroupDetailPage() {
             <button
               type="button"
               className={styles.editButton}
-              onClick={handleEditOpen}
+              onClick={() => setIsEditMode(true)}
               disabled={actionLoading}
             >
               모임 수정
@@ -253,60 +223,12 @@ export function GroupDetailPage() {
         )}
 
         {isLeader && isEditMode && (
-          <div className={styles.editForm}>
-            <input
-              type="text"
-              className={styles.editInput}
-              placeholder="모임 이름 (최대 50자)"
-              maxLength={50}
-              required
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-            />
-            <textarea
-              className={styles.editTextarea}
-              placeholder="모임 설명 (최대 1000자)"
-              maxLength={1000}
-              rows={4}
-              value={editDescription}
-              onChange={(e) => setEditDescription(e.target.value)}
-            />
-            <select
-              className={styles.editSelect}
-              value={editCategory}
-              onChange={(e) => setEditCategory(e.target.value as GroupCategory)}
-            >
-              {(Object.keys(GROUP_CATEGORY_LABELS) as GroupCategory[]).map((key) => (
-                <option key={key} value={key}>{GROUP_CATEGORY_LABELS[key]}</option>
-              ))}
-            </select>
-            <input
-              type="number"
-              className={styles.editInput}
-              min={group.currentMemberCount}
-              max={100}
-              value={editMaxMemberCount}
-              onChange={(e) => setEditMaxMemberCount(Number(e.target.value))}
-            />
-            <div className={styles.editButtonRow}>
-              <button
-                type="button"
-                className={styles.cancelButton}
-                onClick={() => setIsEditMode(false)}
-                disabled={actionLoading}
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                className={styles.saveButton}
-                onClick={handleEditSubmit}
-                disabled={actionLoading}
-              >
-                {actionLoading ? '저장 중...' : '저장'}
-              </button>
-            </div>
-          </div>
+          <GroupEditForm
+            group={group}
+            actionLoading={actionLoading}
+            onSubmit={handleEditSubmit}
+            onCancel={() => setIsEditMode(false)}
+          />
         )}
 
         {!isLeader && (
@@ -337,35 +259,12 @@ export function GroupDetailPage() {
           </div>
         )}
 
-        <section className={styles.membersSection}>
-          <h2 className={styles.sectionTitle}>멤버 ({group.members.length})</h2>
-          <ul className={styles.memberList}>
-            {group.members.map((member) => (
-              <li key={member.userId} className={styles.memberItem}>
-                <span className={`avatar ${styles.memberAvatar}`}>
-                  {member.nickname.charAt(0).toUpperCase()}
-                </span>
-                <div className={styles.memberInfo}>
-                  <span className={styles.memberNickname}>{member.nickname}</span>
-                  <span className={styles.memberUsername}>@{member.username}</span>
-                </div>
-                {member.role === 'LEADER' && (
-                  <span className={styles.leaderBadge}>모임장</span>
-                )}
-                {isLeader && member.role !== 'LEADER' && (
-                  <button
-                    type="button"
-                    className={styles.kickButton}
-                    onClick={() => handleKick(member.username, member.nickname)}
-                    disabled={actionLoading}
-                  >
-                    강퇴
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
+        <GroupMemberList
+          members={group.members}
+          isLeader={isLeader}
+          actionLoading={actionLoading}
+          onKick={handleKick}
+        />
       </main>
     </>
   )
