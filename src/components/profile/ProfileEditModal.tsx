@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { updateMyProfile } from '../../api/userApi'
+import { uploadUserProfileImage } from '../../api/imageApi'
 import { ApiError } from '../../api/ApiError'
 import { useAuth } from '../../context/AuthContext'
 import { PasswordInput } from '../PasswordInput'
 import { PasswordChecklist } from '../PasswordChecklist'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { SuccessDialog } from '../common/SuccessDialog'
+import { KakaoAddressSearch } from '../common/KakaoAddressSearch'
 import { isPasswordValid } from '../../utils/passwordRules'
 import type { UserDetailResponse } from '../../types/user'
 import styles from './ProfileEditModal.module.css'
@@ -24,6 +26,7 @@ interface EditFormState {
   address: string
   currentPassword: string
   newPassword: string
+  profileImageUrl: string | null
 }
 
 const buildInitialForm = (profile: UserDetailResponse | null): EditFormState => ({
@@ -32,6 +35,7 @@ const buildInitialForm = (profile: UserDetailResponse | null): EditFormState => 
   address: profile?.address ?? '',
   currentPassword: '',
   newPassword: '',
+  profileImageUrl: profile?.profileImageUrl ?? null,
 })
 
 export function ProfileEditModal({
@@ -45,6 +49,9 @@ export function ProfileEditModal({
   const [form, setForm] = useState<EditFormState>(buildInitialForm(null))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageUploading, setImageUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [successOpen, setSuccessOpen] = useState(false)
@@ -58,6 +65,8 @@ export function ProfileEditModal({
     setConfirmOpen(false)
     setSuccessOpen(false)
     setSavedProfile(null)
+    setImagePreview(null)
+    setImageUploading(false)
   }, [isOpen, profile])
 
   const handleClose = useCallback(() => {
@@ -107,7 +116,10 @@ export function ProfileEditModal({
     setSubmitting(true)
     setError(null)
     try {
-      const updated = await updateMyProfile(token, form)
+      const updated = await updateMyProfile(token, {
+        ...form,
+        profileImageUrl: form.profileImageUrl ?? null,
+      })
       setSavedProfile(updated)
       setConfirmOpen(false)
       setSuccessOpen(true)
@@ -129,6 +141,28 @@ export function ProfileEditModal({
     if (savedProfile) onSaved(savedProfile)
     onClose()
   }
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !profile) return
+
+    // 미리보기 업데이트
+    const objectUrl = URL.createObjectURL(file)
+    setImagePreview(objectUrl)
+
+    try {
+      setImageUploading(true)
+      const result = await uploadUserProfileImage(token, file, profile.id)
+      setForm((prev) => ({ ...prev, profileImageUrl: result.fileUrl }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '이미지 업로드에 실패했습니다.')
+      setImagePreview(null)
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
+  const currentImageSrc = imagePreview ?? form.profileImageUrl
 
   const newPasswordFilled = form.newPassword.length > 0
   const newPwValid = isPasswordValid(form.newPassword)
@@ -174,6 +208,43 @@ export function ProfileEditModal({
             이메일·주소 등 비공개 정보는 이 화면에서만 표시·수정됩니다.
           </p>
 
+          {/* 프로필 이미지 */}
+          <div className={styles.imageSection}>
+            <div className={styles.avatarWrapper}>
+              {currentImageSrc ? (
+                <img
+                  src={currentImageSrc}
+                  alt="프로필 이미지"
+                  className={styles.avatarImg}
+                />
+              ) : (
+                <div className={styles.avatarPlaceholder}>
+                  {profile.nickname.charAt(0).toUpperCase()}
+                </div>
+              )}
+              {imageUploading && (
+                <div className={styles.avatarOverlay}>
+                  <span className={styles.avatarOverlayText}>업로드 중…</span>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              className={`btn btn-secondary ${styles.imageChangeBtn}`}
+              disabled={submitting || imageUploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              사진 변경
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className={styles.hiddenFileInput}
+              onChange={handleImageFileChange}
+            />
+          </div>
+
           <div className={styles.formGrid}>
             <div className="input-group">
               <label className="input-label" htmlFor="edit-nickname">닉네임</label>
@@ -207,14 +278,10 @@ export function ProfileEditModal({
 
             <div className={`input-group ${styles.colSpan2}`}>
               <label className="input-label" htmlFor="edit-address">주소</label>
-              <input
+              <KakaoAddressSearch
                 id="edit-address"
-                className="input"
-                placeholder="주소"
-                value={form.address}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, address: e.target.value }))
-                }
+                address={form.address}
+                onChange={(value) => setForm((prev) => ({ ...prev, address: value }))}
                 disabled={submitting}
               />
             </div>

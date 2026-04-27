@@ -1,4 +1,4 @@
-import type { SVGProps } from 'react'
+import { useId, type SVGProps } from 'react'
 
 type IconProps = SVGProps<SVGSVGElement>
 
@@ -16,25 +16,36 @@ const BASE: IconProps = {
 }
 
 export function BrandLogo(props: IconProps) {
+  const rawId = useId()
+  const gradId = `sagwim-pinGrad-${rawId.replace(/:/g, '')}`
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
+      viewBox="0 0 256 256"
       aria-hidden
       focusable={false}
       {...props}
     >
-      <g opacity="0.55">
-        <circle cx="5.5" cy="9" r="2.3" />
-        <path d="M1 17.2c0-2.5 2-4.5 4.5-4.5S10 14.7 10 17.2v1.3H1v-1.3z" />
+      <defs>
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FF8A65" />
+          <stop offset="100%" stopColor="#FF5252" />
+        </linearGradient>
+      </defs>
+      <path
+        fill={`url(#${gradId})`}
+        d="M128 20 C76 20 38 58 38 108 C38 170 128 236 128 236 C128 236 218 170 218 108 C218 58 180 20 128 20 Z"
+      />
+      <g stroke="white" strokeWidth="4" strokeLinecap="round" opacity={0.55}>
+        <line x1="100" y1="92" x2="156" y2="92" />
+        <line x1="100" y1="92" x2="128" y2="138" />
+        <line x1="156" y1="92" x2="128" y2="138" />
       </g>
-      <g opacity="0.55">
-        <circle cx="18.5" cy="9" r="2.3" />
-        <path d="M14 17.2c0-2.5 2-4.5 4.5-4.5S23 14.7 23 17.2v1.3h-9v-1.3z" />
+      <g fill="white">
+        <circle cx="100" cy="92" r="14" />
+        <circle cx="156" cy="92" r="14" />
+        <circle cx="128" cy="138" r="14" />
       </g>
-      <circle cx="12" cy="7.5" r="3" />
-      <path d="M5 19.2c0-3.9 3.1-7 7-7s7 3.1 7 7V22H5v-2.8z" />
     </svg>
   )
 }

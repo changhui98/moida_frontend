@@ -34,6 +34,13 @@
   margin-bottom: var(--sp-8);
 }
 
+.brandMark {
+  width: 4.5rem;
+  height: 4.5rem;
+  display: block;
+  margin: 0 auto var(--sp-4);
+}
+
 .brandName {
   font-family: var(--font-brand) !important;
   font-size: 3.75rem;
@@ -60,4 +67,22 @@
 .footer a {
   color: var(--clr-accent);
   font-weight: 600;
+}
+
+/* ── Divider (소셜 로그인 구분선) ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0;
+  color: var(--clr-text-muted);
+  font-size: 0.8125rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--clr-border);
 }

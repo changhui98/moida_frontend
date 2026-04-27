@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom'
+import { BrandLogo } from '../components/NavIcons'
 import { useLoginForm } from '../hooks/useLoginForm'
 import { PasswordInput } from '../components/PasswordInput'
+import { SocialLoginButtons } from '../components/auth/SocialLoginButtons'
 import styles from './HomePage.module.css'
+
+const REDIRECT_URI = `${window.location.origin}/login`
 
 export function HomePage() {
   const { form, setForm, loading, error, handleSubmit } = useLoginForm({
@@ -13,6 +17,7 @@ export function HomePage() {
       <section className={`card animate-scale-in ${styles.card}`}>
         {/* Brand */}
         <div className={styles.brand}>
+          <BrandLogo className={styles.brandMark} aria-hidden />
           <h1 className={styles.brandName}>Moida</h1>
           <p className={styles.tagline}>함께 모이는 공간</p>
         </div>
@@ -52,6 +57,10 @@ export function HomePage() {
             {loading ? '로그인 중…' : '로그인'}
           </button>
         </form>
+
+        <div className={styles.divider}>또는</div>
+
+        <SocialLoginButtons redirectUri={REDIRECT_URI} />
 
         <p className={styles.footer}>
           아직 계정이 없으신가요?{' '}

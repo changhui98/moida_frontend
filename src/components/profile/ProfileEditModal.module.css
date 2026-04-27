@@ -147,6 +147,66 @@
   font-size: 0.875rem;
 }
 
+/* ── 프로필 이미지 ───────────────────────────────────────────── */
+.imageSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--r-full);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: var(--clr-accent-muted);
+  color: var(--clr-accent);
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarOverlayText {
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.imageChangeBtn {
+  font-size: 0.875rem;
+  padding: var(--sp-1) var(--sp-4);
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
 /* ── Mobile ──────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .overlay {

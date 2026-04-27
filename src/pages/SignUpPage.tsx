@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { signUp, sendEmailVerification, verifyEmailCode, checkUsername } from '../api/authApi'
 import { PasswordInput } from '../components/PasswordInput'
 import { PasswordChecklist } from '../components/PasswordChecklist'
+import { KakaoAddressSearch } from '../components/common/KakaoAddressSearch'
 import { isPasswordValid, isConfirmPasswordValid } from '../utils/passwordRules'
 import styles from './SignUpPage.module.css'
 import { AlertDialog } from '../components/common/AlertDialog'
@@ -388,12 +389,14 @@ export function SignUpPage() {
             <label className="input-label" htmlFor="su-address">
               주소
             </label>
-            <input
+            <KakaoAddressSearch
               id="su-address"
-              className="input"
-              placeholder="서울시 강남구 …"
-              value={form.address}
-              onChange={setField('address')}
+              address={form.address}
+              onChange={(value) => {
+                setForm((prev) => ({ ...prev, address: value }))
+                setFieldErrors((prev) => ({ ...prev, address: undefined }))
+              }}
+              disabled={loading}
             />
             {fieldErrors.address && (
               <p className="field-error" role="alert">{fieldErrors.address}</p>

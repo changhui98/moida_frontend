@@ -10,3 +10,9 @@ export interface SignUpRequest {
   userEmail: string
   address: string
 }
+
+export interface SocialSignInResponse {
+  jwtToken: string
+  isNewUser: boolean
+  nickname: string
+}

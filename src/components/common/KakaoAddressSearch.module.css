@@ -1,0 +1,17 @@
+.wrapper {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: stretch;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+}
+
+.searchBtn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 0 var(--sp-4);
+  font-size: 0.875rem;
+}

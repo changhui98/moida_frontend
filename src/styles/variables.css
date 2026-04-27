@@ -8,11 +8,11 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   /* Accent */
-  --clr-accent: #c0784a;
-  --clr-accent-hover: #a8623b;
-  --clr-accent-muted: rgba(192, 120, 74, 0.12);
-  --clr-accent-glow: rgba(192, 120, 74, 0.25);
-  --clr-accent-gradient: linear-gradient(135deg, #c0784a 0%, #d4956a 100%);
+  --clr-accent: #F08080;
+  --clr-accent-hover: #e06060;
+  --clr-accent-muted: rgba(240, 128, 128, 0.12);
+  --clr-accent-glow: rgba(240, 128, 128, 0.25);
+  --clr-accent-gradient: linear-gradient(135deg, #F08080 0%, #f5a0a0 100%);
 
   /* Semantic */
   --clr-error: #ef4444;
@@ -22,22 +22,22 @@
   --clr-warning: #f59e0b;
 
   /* Surface — Light Mode */
-  --clr-bg: #faf6f1;
-  --clr-bg-alt: #f2ece4;
+  --clr-bg: #F5F5F5;
+  --clr-bg-alt: #ebebeb;
   --clr-surface: #ffffff;
-  --clr-surface-2: #fdf9f5;
-  --clr-surface-3: #f5ede3;
-  --clr-border: rgba(120, 90, 60, 0.1);
-  --clr-border-strong: rgba(120, 90, 60, 0.18);
-  --clr-text: #2c1a0e;
-  --clr-text-secondary: #6b4c35;
-  --clr-text-muted: #a08060;
+  --clr-surface-2: #f9f9f9;
+  --clr-surface-3: #f0f0f0;
+  --clr-border: rgba(0, 0, 0, 0.08);
+  --clr-border-strong: rgba(0, 0, 0, 0.14);
+  --clr-text: #1a1a1a;
+  --clr-text-secondary: #555555;
+  --clr-text-muted: #888888;
 
   /* Shadows — Light Mode */
-  --shadow-xs: 0 1px 2px rgba(80, 50, 20, 0.05);
-  --shadow-sm: 0 2px 6px rgba(80, 50, 20, 0.07), 0 1px 3px rgba(80, 50, 20, 0.04);
-  --shadow-md: 0 4px 16px rgba(80, 50, 20, 0.09), 0 2px 6px rgba(80, 50, 20, 0.05);
-  --shadow-lg: 0 12px 40px rgba(80, 50, 20, 0.11), 0 4px 12px rgba(80, 50, 20, 0.06);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.11), 0 4px 12px rgba(0, 0, 0, 0.06);
   --shadow-card: 0 0 0 1px var(--clr-border), var(--shadow-md);
   --shadow-focus: 0 0 0 3px var(--clr-accent-muted), 0 0 0 1px var(--clr-accent);
 
@@ -90,11 +90,11 @@
   --clr-text-muted: #6a6a90;
 
   /* Accent adjustment */
-  --clr-accent: #818cf8;
-  --clr-accent-hover: #6366f1;
-  --clr-accent-muted: rgba(129, 140, 248, 0.14);
-  --clr-accent-glow: rgba(129, 140, 248, 0.22);
-  --clr-accent-gradient: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  --clr-accent: #F08080;
+  --clr-accent-hover: #e06060;
+  --clr-accent-muted: rgba(240, 128, 128, 0.18);
+  --clr-accent-glow: rgba(240, 128, 128, 0.28);
+  --clr-accent-gradient: linear-gradient(135deg, #F08080 0%, #f5a0a0 100%);
 
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);

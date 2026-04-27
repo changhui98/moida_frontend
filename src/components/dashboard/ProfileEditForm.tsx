@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { PasswordInput } from '../PasswordInput'
 import { PasswordChecklist } from '../PasswordChecklist'
+import { KakaoAddressSearch } from '../common/KakaoAddressSearch'
 import { isPasswordValid } from '../../utils/passwordRules'
 import styles from '../../pages/DashboardPage.module.css'
 
@@ -77,12 +78,11 @@ export function ProfileEditForm({
 
           <div className="input-group">
             <label className="input-label" htmlFor="edit-address">주소</label>
-            <input
+            <KakaoAddressSearch
               id="edit-address"
-              className="input"
-              placeholder="주소"
-              value={form.address}
-              onChange={(e) => onFormChange((prev) => ({ ...prev, address: e.target.value }))}
+              address={form.address}
+              onChange={(value) => onFormChange((prev) => ({ ...prev, address: value }))}
+              disabled={loading}
             />
           </div>
 
