@@ -19,6 +19,17 @@ const mapMessageToField = (message: string): SignUpField | null => {
   return null
 }
 
+const isDuplicateEmailMessage = (message: string): boolean => {
+  const normalized = message.toLowerCase()
+  return (
+    (normalized.includes('email') || message.includes('이메일')) &&
+    (normalized.includes('already') ||
+      message.includes('이미') ||
+      message.includes('중복') ||
+      message.includes('사용 중'))
+  )
+}
+
 export function SignUpPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
@@ -105,13 +116,23 @@ export function SignUpPage() {
       setFieldErrors((prev) => ({ ...prev, userEmail: '이메일을 입력해주세요.' }))
       return
     }
+    if (isSendingCode) return
     try {
       setIsSendingCode(true)
       setEmailVerifyError('')
-      await sendEmailVerification({ email: form.userEmail })
+      // UX: 클릭 즉시 인증코드 입력 UI와 재전송 버튼을 노출한다.
       setIsCodeSent(true)
+      await sendEmailVerification({ email: form.userEmail })
     } catch (err) {
       const message = err instanceof Error ? err.message : '인증코드 전송에 실패했습니다.'
+      setIsCodeSent(false)
+      if (isDuplicateEmailMessage(message)) {
+        setUsernameAlertVariant('error')
+        setUsernameAlertMessage('이미 사용 중인 이메일입니다.')
+        setUsernameAlertOpen(true)
+        setEmailVerifyError('')
+        return
+      }
       setEmailVerifyError(message)
     } finally {
       setIsSendingCode(false)
@@ -315,7 +336,7 @@ export function SignUpPage() {
                 disabled={isSendingCode || isEmailVerified || !form.userEmail.trim()}
                 onClick={handleSendCode}
               >
-                {isSendingCode ? '전송 중...' : isCodeSent ? '재전송' : '인증코드 전송'}
+                {isCodeSent ? '이메일 재전송' : '인증코드 전송'}
               </button>
             </div>
             {fieldErrors.userEmail && (
