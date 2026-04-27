@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createGroup } from '../api/groupApi'
 import { uploadGroupImage } from '../api/imageApi'
 import { getMyProfile } from '../api/userApi'
-import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
+import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
 import { Navbar } from '../components/Navbar'
 import { ImageBoxPicker } from '../components/post/ImageBoxPicker'
 import type { GroupCategory } from '../types/group'
@@ -15,6 +15,7 @@ import styles from './GroupCreatePage.module.css'
 export function GroupCreatePage() {
   const navigate = useNavigate()
   const { token, logout } = useAuth()
+  const handleUnauthorized = useHandleUnauthorized()
 
   const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
   const [name, setName] = useState('')
@@ -24,16 +25,6 @@ export function GroupCreatePage() {
   const [images, setImages] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-
-  const handleUnauthorized = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        logout()
-        navigate('/login', { replace: true })
-      }
-    },
-    [logout, navigate],
-  )
 
   useEffect(() => {
     getMyProfile(token)

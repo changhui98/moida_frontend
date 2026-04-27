@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getGroups } from '../api/groupApi'
-import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
+import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
 import { Navbar } from '../components/Navbar'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { EmptyState } from '../components/common/EmptyState'
@@ -15,22 +15,13 @@ const PAGE_SIZE = 12
 export function GroupListPage() {
   const navigate = useNavigate()
   const { token, logout, meRole } = useAuth()
+  const handleUnauthorized = useHandleUnauthorized()
 
   const [groups, setGroups] = useState<GroupResponse[]>([])
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
-  const handleUnauthorized = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        logout()
-        navigate('/login', { replace: true })
-      }
-    },
-    [logout, navigate],
-  )
 
   const loadGroups = useCallback(
     async (targetPage: number) => {

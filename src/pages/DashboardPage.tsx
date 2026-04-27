@@ -1,8 +1,8 @@
 import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMyProfile, getUsers, updateMyProfile } from '../api/userApi'
-import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
+import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
 import { Navbar } from '../components/Navbar'
 import { UserListSection } from '../components/dashboard/UserListSection'
 import { MyProfileSection } from '../components/dashboard/MyProfileSection'
@@ -13,6 +13,7 @@ import type { UserDetailResponse, UserResponse } from '../types/user'
 export function DashboardPage() {
   const navigate = useNavigate()
   const { token, logout } = useAuth()
+  const handleUnauthorized = useHandleUnauthorized()
 
   const [users, setUsers] = useState<UserResponse[]>([])
   const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
@@ -35,16 +36,6 @@ export function DashboardPage() {
     currentPassword: '',
     newPassword: '',
   })
-
-  const handleUnauthorized = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        logout()
-        navigate('/login', { replace: true })
-      }
-    },
-    [logout, navigate],
-  )
 
   const handleLoadUsers = useCallback(
     async (targetPage = page) => {

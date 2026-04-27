@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'reac
 import { useNavigate, useParams } from 'react-router-dom'
 import { getMyProfile, getUserProfile, updateMyProfile } from '../api/userApi'
 import { uploadUserProfileImage } from '../api/imageApi'
-import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
+import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
 import { usePostCreatedSubscription } from '../context/PostCreateModalContext'
 import { Navbar } from '../components/Navbar'
 import { ProfileEditModal } from '../components/profile/ProfileEditModal'
@@ -30,15 +30,7 @@ export function ProfilePage() {
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const isOwner = !!viewerProfile && !!myProfile && viewerProfile.username === myProfile.username
 
-  const handleUnauthorized = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        logout()
-        navigate('/login', { replace: true })
-      }
-    },
-    [logout, navigate],
-  )
+  const handleUnauthorized = useHandleUnauthorized()
 
   const loadProfile = useCallback(async () => {
     try {
