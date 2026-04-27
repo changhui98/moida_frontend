@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { ContentResponse } from '../../types/post'
 import { ApiError } from '../../api/ApiError'
 import { toggleContentLike } from '../../api/postApi'
-import { getContentImages } from '../../api/imageApi'
 import { useAuth } from '../../context/AuthContext'
 import styles from './PostCard.module.css'
 
@@ -60,7 +59,7 @@ export function PostCard({ post }: PostCardProps) {
   // PostCard 역시 새로 마운트 되어 서버의 likedByMe 값으로 자연스럽게 초기화된다.
   const [liked, setLiked] = useState(() => post.likedByMe ?? false)
   const [likeCount, setLikeCount] = useState(() => post.likeCount ?? 0)
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [imageUrls] = useState<string[]>(() => post.imageUrls ?? [])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [pending, setPending] = useState(false)
 
@@ -110,28 +109,6 @@ export function PostCard({ post }: PostCardProps) {
       setPending(false)
     }
   }, [post.id, token, updateLiked, updateLikeCount])
-
-  useEffect(() => {
-    let cancelled = false
-
-    getContentImages(token, post.id)
-      .then((images) => {
-        if (cancelled) return
-        setImageUrls(images.map((image) => image.fileUrl))
-      })
-      .catch(() => {
-        if (cancelled) return
-        setImageUrls([])
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [post.id, token])
-
-  useEffect(() => {
-    setCurrentImageIndex(0)
-  }, [imageUrls])
 
   const commentCount = post.commentCount ?? 0
   const tags = post.tags?.filter((tag) => tag.trim().length > 0) ?? []

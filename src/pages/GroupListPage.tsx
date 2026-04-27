@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getGroups } from '../api/groupApi'
-import { getMyProfile } from '../api/userApi'
 import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
 import { Navbar } from '../components/Navbar'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { EmptyState } from '../components/common/EmptyState'
 import type { GroupResponse } from '../types/group'
-import type { UserDetailResponse } from '../types/user'
 import { GROUP_CATEGORY_LABELS } from '../types/group'
 import styles from './GroupListPage.module.css'
 
@@ -16,10 +14,9 @@ const PAGE_SIZE = 12
 
 export function GroupListPage() {
   const navigate = useNavigate()
-  const { token, logout } = useAuth()
+  const { token, logout, meRole } = useAuth()
 
   const [groups, setGroups] = useState<GroupResponse[]>([])
-  const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -55,19 +52,9 @@ export function GroupListPage() {
     [token, handleUnauthorized],
   )
 
-  const loadProfile = useCallback(async () => {
-    try {
-      const response = await getMyProfile(token)
-      setMyProfile(response)
-    } catch (err) {
-      handleUnauthorized(err)
-    }
-  }, [token, handleUnauthorized])
-
   useEffect(() => {
-    loadProfile()
     loadGroups(0)
-  }, [loadProfile, loadGroups])
+  }, [loadGroups])
 
   const handlePageChange = (nextPage: number) => {
     loadGroups(nextPage)
@@ -175,7 +162,7 @@ export function GroupListPage() {
 
   return (
     <>
-      <Navbar role={myProfile?.role ?? null} onLogout={handleLogout} />
+      <Navbar role={meRole} onLogout={handleLogout} />
 
       <main className={styles.main}>
         {renderContent()}

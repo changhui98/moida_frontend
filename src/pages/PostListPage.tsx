@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getMyProfile } from '../api/userApi'
-import { ApiError } from '../api/ApiError'
 import { useAuth } from '../context/AuthContext'
 import {
   usePostCreateModal,
@@ -15,16 +13,13 @@ import { InfiniteScrollLoader } from '../components/post/InfiniteScrollLoader'
 import { EndOfList } from '../components/post/EndOfList'
 import { Skeleton } from '../components/common/Skeleton'
 import { EmptyState } from '../components/common/EmptyState'
-import type { UserDetailResponse } from '../types/user'
 import styles from './PostListPage.module.css'
 
 const SKELETON_COUNT = 8
 
 export function PostListPage() {
   const navigate = useNavigate()
-  const { token, logout } = useAuth()
-
-  const [myProfile, setMyProfile] = useState<UserDetailResponse | null>(null)
+  const { logout, meRole } = useAuth()
 
   const {
     posts,
@@ -56,29 +51,6 @@ export function PostListPage() {
       loadMore()
     }
   }, [isIntersecting, hasMore, isFetchingMore, loading, loadMore])
-
-  const handleUnauthorized = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        logout()
-        navigate('/login', { replace: true })
-      }
-    },
-    [logout, navigate],
-  )
-
-  const loadProfile = useCallback(async () => {
-    try {
-      const response = await getMyProfile(token)
-      setMyProfile(response)
-    } catch (err) {
-      handleUnauthorized(err)
-    }
-  }, [token, handleUnauthorized])
-
-  useEffect(() => {
-    loadProfile()
-  }, [loadProfile])
 
   const handleLogout = () => {
     logout()
@@ -155,7 +127,7 @@ export function PostListPage() {
   return (
     <>
       <Navbar
-        role={myProfile?.role ?? null}
+        role={meRole}
         onLogout={handleLogout}
       />
 
