@@ -96,9 +96,11 @@ export function ProfileEditModal({
 
   if (!isOpen || !profile) return null
 
+  const isSocialUser = profile.provider != null && profile.provider !== 'LOCAL'
+
   const nicknameValid = form.nickname.trim().length > 0
   const wantsPasswordChange =
-    form.newPassword.length > 0 || form.currentPassword.length > 0
+    !isSocialUser && (form.newPassword.length > 0 || form.currentPassword.length > 0)
   const passwordChangeValid = wantsPasswordChange
     ? form.currentPassword.length > 0 && isPasswordValid(form.newPassword)
     : true
@@ -286,50 +288,54 @@ export function ProfileEditModal({
               />
             </div>
 
-            <div className={`input-group ${styles.colSpan2}`}>
-              <div className={styles.sectionDivider}>
-                <span>비밀번호 변경</span>
-                <span className={styles.sectionDividerNote}>
-                  변경 시에만 입력하세요
-                </span>
-              </div>
-            </div>
+            {!isSocialUser && (
+              <>
+                <div className={`input-group ${styles.colSpan2}`}>
+                  <div className={styles.sectionDivider}>
+                    <span>비밀번호 변경</span>
+                    <span className={styles.sectionDividerNote}>
+                      변경 시에만 입력하세요
+                    </span>
+                  </div>
+                </div>
 
-            <div className="input-group">
-              <label className="input-label" htmlFor="edit-cur-pw">현재 비밀번호</label>
-              <PasswordInput
-                id="edit-cur-pw"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                value={form.currentPassword}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, currentPassword: e.target.value }))
-                }
-                disabled={submitting}
-              />
-            </div>
+                <div className="input-group">
+                  <label className="input-label" htmlFor="edit-cur-pw">현재 비밀번호</label>
+                  <PasswordInput
+                    id="edit-cur-pw"
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    value={form.currentPassword}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, currentPassword: e.target.value }))
+                    }
+                    disabled={submitting}
+                  />
+                </div>
 
-            <div className="input-group">
-              <label className="input-label" htmlFor="edit-new-pw">새 비밀번호</label>
-              <PasswordInput
-                id="edit-new-pw"
-                placeholder="••••••••"
-                autoComplete="new-password"
-                value={form.newPassword}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, newPassword: e.target.value }))
-                }
-                disabled={submitting}
-                className={
-                  newPasswordFilled
-                    ? newPwValid ? styles.pwValid : styles.pwInvalid
-                    : undefined
-                }
-              />
-            </div>
+                <div className="input-group">
+                  <label className="input-label" htmlFor="edit-new-pw">새 비밀번호</label>
+                  <PasswordInput
+                    id="edit-new-pw"
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    value={form.newPassword}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, newPassword: e.target.value }))
+                    }
+                    disabled={submitting}
+                    className={
+                      newPasswordFilled
+                        ? newPwValid ? styles.pwValid : styles.pwInvalid
+                        : undefined
+                    }
+                  />
+                </div>
+              </>
+            )}
           </div>
 
-          {newPasswordFilled && (
+          {!isSocialUser && newPasswordFilled && (
             <PasswordChecklist password={form.newPassword} />
           )}
 
