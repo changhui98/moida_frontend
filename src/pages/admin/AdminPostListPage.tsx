@@ -56,7 +56,12 @@ export function AdminPostListPage() {
         setLoading(true)
         setError('')
         const response = await getAdminContents(token, targetPage, PAGE_SIZE)
-        setContents(response.content)
+        const sortedContents = [...response.content].sort((a, b) => {
+          const aTime = a.createdDate ? new Date(a.createdDate).getTime() : 0
+          const bTime = b.createdDate ? new Date(b.createdDate).getTime() : 0
+          return bTime - aTime
+        })
+        setContents(sortedContents)
         setTotalPages(response.totalPages)
       } catch (err) {
         const message = err instanceof Error ? err.message : '게시글 목록 조회 실패'

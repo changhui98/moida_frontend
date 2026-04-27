@@ -46,7 +46,12 @@ export function AdminUserListPage() {
         setLoading(true)
         setError('')
         const response = await getAdminUsers(token, targetPage, PAGE_SIZE)
-        setUsers(response.content)
+        const sortedUsers = [...response.content].sort((a, b) => {
+          const aTime = a.createdDate ? new Date(a.createdDate).getTime() : 0
+          const bTime = b.createdDate ? new Date(b.createdDate).getTime() : 0
+          return bTime - aTime
+        })
+        setUsers(sortedUsers)
         setTotalPages(response.totalPages)
       } catch (err) {
         const message = err instanceof Error ? err.message : '사용자 목록 조회 실패'

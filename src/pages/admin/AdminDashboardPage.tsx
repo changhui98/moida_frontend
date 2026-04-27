@@ -68,7 +68,12 @@ export function AdminDashboardPage() {
           getAdminUsers(token, 0, 5),
         ])
         setTotalUsers(countRes.totalElements)
-        setRecentUsers(recentRes.content)
+        const sortedRecentUsers = [...recentRes.content].sort((a, b) => {
+          const aTime = a.createdDate ? new Date(a.createdDate).getTime() : 0
+          const bTime = b.createdDate ? new Date(b.createdDate).getTime() : 0
+          return bTime - aTime
+        })
+        setRecentUsers(sortedRecentUsers)
       } catch (err) {
         handleUnauthorized(err)
       } finally {
