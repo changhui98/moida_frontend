@@ -1,0 +1,67 @@
+import { useEffect } from 'react'
+import styles from './CreateTypeSelectorModal.module.css'
+
+interface CreateTypeSelectorModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSelectPost: () => void
+  onSelectGroup: () => void
+}
+
+export function CreateTypeSelectorModal({
+  isOpen,
+  onClose,
+  onSelectPost,
+  onSelectGroup,
+}: CreateTypeSelectorModalProps) {
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
+
+  if (!isOpen) return null
+
+  return (
+    <div
+      className={styles.overlay}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="만들기 유형 선택"
+    >
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>만들기</h2>
+        </div>
+        <div className={styles.buttonList}>
+          <button
+            type="button"
+            className={styles.optionButton}
+            onClick={onSelectGroup}
+          >
+            <span className={styles.optionIcon} aria-hidden="true">👥</span>
+            <div className={styles.optionText}>
+              <span className={styles.optionLabel}>모임 만들기</span>
+              <span className={styles.optionDesc}>새로운 모임을 개설합니다</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            className={styles.optionButton}
+            onClick={onSelectPost}
+          >
+            <span className={styles.optionIcon} aria-hidden="true">📝</span>
+            <div className={styles.optionText}>
+              <span className={styles.optionLabel}>게시글 만들기</span>
+              <span className={styles.optionDesc}>새로운 게시글을 작성합니다</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

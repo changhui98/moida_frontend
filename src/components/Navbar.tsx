@@ -5,11 +5,13 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styles from './Navbar.module.css'
 import { useTheme } from '../context/ThemeContext'
 import { usePostCreateModal } from '../context/PostCreateModalContext'
 import { useAuth } from '../context/AuthContext'
+import { CreateTypeSelectorModal } from './common/CreateTypeSelectorModal'
+import { GroupCreateModal } from './group/GroupCreateModal'
 import {
   ActivityIcon,
   AlertIcon,
@@ -49,12 +51,14 @@ export function Navbar({ role, onLogout }: NavbarProps) {
   const effectiveRole = role ?? meRole ?? null
   const isAdmin = effectiveRole === ADMIN_ROLE
   const location = useLocation()
+  const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
   const { open: openPostCreateModal, isOpen: isPostCreateModalOpen } = usePostCreateModal()
 
   const [moreOpen, setMoreOpen] = useState(false)
   const [moreView, setMoreView] = useState<'root' | 'theme'>('root')
   const menuRef = useRef<HTMLDivElement>(null)
+  const [createFlow, setCreateFlow] = useState<'idle' | 'selecting' | 'group'>('idle')
 
   const closeMenu = useCallback(() => {
     setMoreOpen(false)
@@ -101,8 +105,8 @@ export function Navbar({ role, onLogout }: NavbarProps) {
     {
       label: '만들기',
       icon: <PlusSquareIcon />,
-      onClick: openPostCreateModal,
-      match: () => isPostCreateModalOpen,
+      onClick: () => setCreateFlow('selecting'),
+      match: () => isPostCreateModalOpen || createFlow !== 'idle',
     },
     {
       to: '/app/profile',
@@ -314,6 +318,17 @@ export function Navbar({ role, onLogout }: NavbarProps) {
           </button>
         </div>
       </div>
+      <CreateTypeSelectorModal
+        isOpen={createFlow === 'selecting'}
+        onClose={() => setCreateFlow('idle')}
+        onSelectPost={() => { setCreateFlow('idle'); openPostCreateModal() }}
+        onSelectGroup={() => setCreateFlow('group')}
+      />
+      <GroupCreateModal
+        isOpen={createFlow === 'group'}
+        onClose={() => setCreateFlow('idle')}
+        onCreated={(groupId) => { setCreateFlow('idle'); navigate(`/app/groups/${groupId}`) }}
+      />
     </aside>
   )
 }
