@@ -59,12 +59,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  line-height: 0;
+  min-height: 34px;
+  padding: 0 var(--sp-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--clr-text-secondary);
   text-decoration: none;
-  padding: 0;
   border-radius: var(--r-md);
   transition: color var(--t-fast), background var(--t-fast);
 }
@@ -102,13 +103,7 @@
 }
 
 .refreshIcon {
-  transform: translateY(1px);
-}
-
-.homeIcon {
-  /* 홈 실루엣이 뷰박스 대비 더 작게 보이는 경향이 있어 살짝 확대 */
-  transform: translateY(0px) scale(1.12);
-  transform-origin: 50% 50%;
+  transform: translateY(-1px);
 }
 
 .userInfo {

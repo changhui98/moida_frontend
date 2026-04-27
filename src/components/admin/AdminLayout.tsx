@@ -87,52 +87,43 @@ export function AdminLayout() {
             >
               <svg
                 className={`${styles.iconSvg} ${styles.refreshIcon}`}
-                viewBox="0 0 20 20"
+                viewBox="0 0 24 24"
+                fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
               >
                 <path
-                  d="M15.6 4.4a6.2 6.2 0 1 0 1.8 6.2"
-                  fill="none"
+                  d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
                   stroke="currentColor"
-                  strokeWidth="1.35"
+                  strokeWidth="1.75"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
-                  d="M15.6 4.4h3.2v3.2"
-                  fill="none"
+                  d="M21 3v5h-5"
                   stroke="currentColor"
-                  strokeWidth="1.35"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3 16v5h5"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
             </button>
-            <Link to="/app" className={styles.backLink}>
-              <svg
-                className={`${styles.iconSvg} ${styles.homeIcon}`}
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M4.2 9.4 10 4.8l5.8 4.6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.35"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M6.2 9.1V15.6c0 .6.5 1 1 1h5.6c.6 0 1-.5 1-1V9.1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.35"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <Link to="/app" className={styles.backLink} aria-label="사이트 홈으로 이동">
+              HOME
             </Link>
             <button
               type="button"

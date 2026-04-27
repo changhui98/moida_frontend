@@ -17,7 +17,7 @@ const MAX_VISIBLE_PAGES = 5
 
 export function AdminUserListPage() {
   const navigate = useNavigate()
-  const { token, logout } = useAuth()
+  const { token, logout, meUsername, meProfileImageUrl } = useAuth()
 
   const [users, setUsers] = useState<UserResponse[]>([])
   const [page, setPage] = useState(0)
@@ -106,17 +106,6 @@ export function AdminUserListPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.pageHeader}>
-        <button
-          type="button"
-          className={styles.refreshButton}
-          onClick={() => loadUsers(page)}
-          disabled={loading}
-        >
-          {loading ? '조회 중...' : '새로고침'}
-        </button>
-      </div>
-
       {error && <p className="alert alert-error" role="alert">{error}</p>}
 
       <div className={styles.tableCard}>
@@ -146,14 +135,18 @@ export function AdminUserListPage() {
                       <td colSpan={7}>등록된 사용자가 없습니다.</td>
                     </tr>
                   ) : (
-                    users.map((user) => (
+                    users.map((user) => {
+                      const avatarSrc =
+                        user.profileImageUrl?.trim() ||
+                        (user.username === meUsername ? meProfileImageUrl?.trim() ?? '' : '')
+                      return (
                       <tr key={user.id}>
                         <td>
                           <div className="flex items-center gap-2">
                             <span className="avatar avatar-md">
-                              {user.profileImageUrl?.trim() ? (
+                              {avatarSrc ? (
                                 <img
-                                  src={user.profileImageUrl.trim()}
+                                  src={avatarSrc}
                                   alt={`${user.nickname} 프로필`}
                                   className={styles.avatarImage}
                                 />
@@ -198,7 +191,8 @@ export function AdminUserListPage() {
                           </button>
                         </td>
                       </tr>
-                    ))
+                      )
+                    })
                   )}
                 </tbody>
               </table>

@@ -124,17 +124,6 @@ export function AdminPostListPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.pageHeader}>
-        <button
-          type="button"
-          className={styles.refreshButton}
-          onClick={() => loadContents(page)}
-          disabled={loading}
-        >
-          {loading ? '조회 중...' : '새로고침'}
-        </button>
-      </div>
-
       {error && <p className="alert alert-error" role="alert">{error}</p>}
 
       <div className={styles.tableCard}>

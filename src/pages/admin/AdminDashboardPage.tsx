@@ -31,7 +31,7 @@ function formatDate(date: Date): string {
 
 export function AdminDashboardPage() {
   const navigate = useNavigate()
-  const { token, logout } = useAuth()
+  const { token, logout, meUsername, meProfileImageUrl } = useAuth()
 
   const [currentTime, setCurrentTime] = useState(new Date())
   const [totalUsers, setTotalUsers] = useState<number | null>(null)
@@ -204,14 +204,18 @@ export function AdminDashboardPage() {
                   </td>
                 </tr>
               ) : (
-                recentUsers.map((user) => (
+                recentUsers.map((user) => {
+                  const avatarSrc =
+                    user.profileImageUrl?.trim() ||
+                    (user.username === meUsername ? meProfileImageUrl?.trim() ?? '' : '')
+                  return (
                   <tr key={user.id}>
                     <td>
                       <div className="flex items-center gap-2">
                         <span className="avatar avatar-md">
-                          {user.profileImageUrl?.trim() ? (
+                          {avatarSrc ? (
                             <img
-                              src={user.profileImageUrl.trim()}
+                              src={avatarSrc}
                               alt={`${user.nickname} 프로필`}
                               className={styles.avatarImage}
                             />
@@ -231,7 +235,8 @@ export function AdminDashboardPage() {
                       )}
                     </td>
                   </tr>
-                ))
+                  )
+                })
               )}
             </tbody>
           </table>
