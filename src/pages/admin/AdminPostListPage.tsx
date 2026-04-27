@@ -125,7 +125,6 @@ export function AdminPostListPage() {
   return (
     <div className={styles.container}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>게시글 관리</h1>
         <button
           type="button"
           className={styles.refreshButton}
