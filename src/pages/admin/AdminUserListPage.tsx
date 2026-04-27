@@ -123,6 +123,7 @@ export function AdminUserListPage() {
                     <th>닉네임</th>
                     <th>아이디</th>
                     <th>이메일</th>
+                    <th>가입 경로</th>
                     <th>가입일</th>
                     <th>수정일</th>
                     <th>상태</th>
@@ -132,7 +133,7 @@ export function AdminUserListPage() {
                 <tbody>
                   {users.length === 0 ? (
                     <tr className={styles.emptyRow}>
-                      <td colSpan={7}>등록된 사용자가 없습니다.</td>
+                      <td colSpan={8}>등록된 사용자가 없습니다.</td>
                     </tr>
                   ) : (
                     users.map((user) => {
@@ -164,6 +165,15 @@ export function AdminUserListPage() {
                         </td>
                         <td className={styles.tableSecondary}>
                           {user.userEmail}
+                        </td>
+                        <td>
+                          {user.provider === 'KAKAO' ? (
+                            <span className={styles.badgeKakao}>KAKAO</span>
+                          ) : user.provider === 'GOOGLE' ? (
+                            <span className={styles.badgeGoogle}>GOOGLE</span>
+                          ) : (
+                            <span className={styles.badgeLocal}>일반</span>
+                          )}
                         </td>
                         <td className={styles.tableDate}>
                           {formatDateTime(user.createdDate)}

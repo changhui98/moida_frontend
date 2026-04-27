@@ -5,10 +5,13 @@ export interface UserResponse {
   userEmail: string
   address: string
   profileImageUrl?: string | null
+  provider?: OAuthProvider
   isDeleted?: boolean
   createdDate?: string | null
   modifiedDate?: string | null
 }
+
+export type OAuthProvider = 'LOCAL' | 'KAKAO' | 'GOOGLE'
 
 export interface UserDetailResponse {
   id: string
@@ -18,6 +21,7 @@ export interface UserDetailResponse {
   address: string
   role: string
   profileImageUrl?: string | null
+  provider?: OAuthProvider
   createdAt: string
   modifiedAt: string
 }

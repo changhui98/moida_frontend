@@ -57,10 +57,10 @@
   text-align: left;
   padding: var(--sp-3) var(--sp-4);
   font-weight: 600;
-  color: var(--clr-text-muted);
+  color: #4a1f2a;
   border-bottom: 1px solid var(--clr-border);
   font-size: 0.8125rem;
-  background: var(--clr-surface-2);
+  background: #ffb6c1;
 }
 
 .table td {
@@ -103,6 +103,46 @@
 .badgeDeleted {
   background: var(--clr-error-soft);
   color: var(--clr-error);
+}
+
+/* ── 가입 경로 뱃지 ── */
+.badgeLocal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  background: var(--clr-surface-2, #f3f4f6);
+  color: var(--clr-text-secondary, #6b7280);
+  border: 1px solid var(--clr-border, #e5e7eb);
+}
+
+.badgeKakao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.badgeGoogle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
 }
 
 .deleteButton {
