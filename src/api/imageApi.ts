@@ -1,5 +1,6 @@
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
+import { parseResponse } from './apiUtils'
 
 interface ImageUploadResponse {
   id: number
@@ -23,18 +24,6 @@ export interface ImageResponse {
   contentType: string
   sortOrder: number
   createdDate: string
-}
-
-const parseResponse = async <T>(response: Response): Promise<T> => {
-  if (!response.ok) {
-    const text = await response.text()
-    throw new ApiError(
-      response.status,
-      text || `Request failed: ${response.status} ${response.statusText}`,
-    )
-  }
-
-  return response.json() as Promise<T>
 }
 
 export const uploadContentImage = (

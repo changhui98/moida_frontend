@@ -4,31 +4,8 @@ import type {
   UserResponse,
   UserUpdateRequest,
 } from '../types/user'
-import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
-
-const createAuthHeaders = (token: string): HeadersInit => {
-  if (!token.trim()) {
-    throw new ApiError(401, '로그인이 필요합니다.')
-  }
-
-  return {
-    'Content-Type': 'application/json',
-    Authorization: token.trim(),
-  }
-}
-
-const parseResponse = async <T>(response: Response): Promise<T> => {
-  if (!response.ok) {
-    const text = await response.text()
-    throw new ApiError(
-      response.status,
-      text || `Request failed: ${response.status} ${response.statusText}`,
-    )
-  }
-
-  return response.json() as Promise<T>
-}
+import { createAuthHeaders, parseResponse } from './apiUtils'
 
 export const getUsers = (token: string, page = 0, size = 10) => {
   return fetch(`${API_BASE_URL}/users?page=${page}&size=${size}`, {
