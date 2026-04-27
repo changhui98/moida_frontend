@@ -24,6 +24,7 @@ export function LoginPage() {
   const [socialError, setSocialError] = useState('')
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [addressSaving, setAddressSaving] = useState(false)
+  const [socialNickname, setSocialNickname] = useState('')
 
   // OAuth redirect callback 처리 (?code=...&state=KAKAO|GOOGLE)
   useEffect(() => {
@@ -45,7 +46,8 @@ export function LoginPage() {
         login(jwtToken)
 
         if (data.isNewUser) {
-          // 최초 가입 사용자 — 주소 등록 모달 표시
+          // 최초 가입 사용자 — 추가 정보 등록 모달 표시
+          setSocialNickname(data.nickname ?? '')
           setAddressModalOpen(true)
         } else {
           navigate(nextPath, { replace: true })
@@ -61,14 +63,13 @@ export function LoginPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search])
 
-  const handleAddressSubmit = async (address: string) => {
+  const handleAddressSubmit = async (data: { nickname: string; address: string }) => {
     try {
       setAddressSaving(true)
-      // 현재 토큰으로 주소 업데이트 (newPassword는 빈 문자열로 전달하여 변경 없음을 표시)
       await updateMyProfile(token, {
-        nickname: '',
+        nickname: data.nickname,
         userEmail: '',
-        address,
+        address: data.address,
         currentPassword: '',
         newPassword: '',
       })
@@ -132,7 +133,7 @@ export function LoginPage() {
 
           <div className={styles.divider}>또는</div>
 
-          <SocialLoginButtons redirectUri={REDIRECT_URI} />
+          <SocialLoginButtons redirectUri={REDIRECT_URI} variant="continue" />
 
           <p className={styles.footer}>
             아직 계정이 없으신가요?{' '}
@@ -149,6 +150,7 @@ export function LoginPage() {
         }}
         onSubmit={handleAddressSubmit}
         loading={addressSaving}
+        defaultNickname={socialNickname}
       />
     </>
   )

@@ -1,20 +1,25 @@
+import { useState } from 'react'
 import styles from './SocialLoginButtons.module.css'
-
-const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID as string | undefined
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
 
 interface SocialLoginButtonsProps {
   redirectUri: string
+  variant?: 'start' | 'continue'
 }
 
-export function SocialLoginButtons({ redirectUri }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({ redirectUri, variant = 'start' }: SocialLoginButtonsProps) {
+  const label = variant === 'continue' ? '계속하기' : '시작하기'
+  const [envError, setEnvError] = useState('')
+
   const handleKakaoLogin = () => {
-    if (!KAKAO_CLIENT_ID) {
-      console.warn('[SocialLogin] VITE_KAKAO_CLIENT_ID 가 설정되지 않았습니다.')
+    const kakaoClientId = import.meta.env.VITE_KAKAO_CLIENT_ID as string | undefined
+    if (!kakaoClientId) {
+      setEnvError('카카오 로그인을 사용할 수 없습니다. (CLIENT_ID 미설정)')
+      console.error('[SocialLogin] VITE_KAKAO_CLIENT_ID 가 설정되지 않았습니다.')
       return
     }
+    setEnvError('')
     const url = new URL('https://kauth.kakao.com/oauth/authorize')
-    url.searchParams.set('client_id', KAKAO_CLIENT_ID)
+    url.searchParams.set('client_id', kakaoClientId)
     url.searchParams.set('redirect_uri', redirectUri)
     url.searchParams.set('response_type', 'code')
     url.searchParams.set('state', 'KAKAO')
@@ -22,12 +27,15 @@ export function SocialLoginButtons({ redirectUri }: SocialLoginButtonsProps) {
   }
 
   const handleGoogleLogin = () => {
-    if (!GOOGLE_CLIENT_ID) {
-      console.warn('[SocialLogin] VITE_GOOGLE_CLIENT_ID 가 설정되지 않았습니다.')
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
+    if (!googleClientId) {
+      setEnvError('구글 로그인을 사용할 수 없습니다. (CLIENT_ID 미설정)')
+      console.error('[SocialLogin] VITE_GOOGLE_CLIENT_ID 가 설정되지 않았습니다.')
       return
     }
+    setEnvError('')
     const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
-    url.searchParams.set('client_id', GOOGLE_CLIENT_ID)
+    url.searchParams.set('client_id', googleClientId)
     url.searchParams.set('redirect_uri', redirectUri)
     url.searchParams.set('response_type', 'code')
     url.searchParams.set('scope', 'openid email profile')
@@ -37,6 +45,10 @@ export function SocialLoginButtons({ redirectUri }: SocialLoginButtonsProps) {
 
   return (
     <div className={styles.container}>
+      {envError && (
+        <p className="alert alert-error" role="alert">{envError}</p>
+      )}
+
       <button
         type="button"
         className={`${styles.btn} ${styles.kakaoBtn}`}
@@ -45,7 +57,7 @@ export function SocialLoginButtons({ redirectUri }: SocialLoginButtonsProps) {
         <svg className={styles.icon} viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 3C7.032 3 3 6.336 3 10.5c0 2.676 1.608 5.028 4.032 6.456l-.972 3.636 4.212-2.784A10.8 10.8 0 0012 18c4.968 0 9-3.336 9-7.5S16.968 3 12 3z" fill="#3B1E1E"/>
         </svg>
-        Continue with Kakao
+        <span>카카오로 {label}</span>
       </button>
 
       <button
@@ -59,7 +71,7 @@ export function SocialLoginButtons({ redirectUri }: SocialLoginButtonsProps) {
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        Continue with Google
+        <span>구글로 {label}</span>
       </button>
     </div>
   )

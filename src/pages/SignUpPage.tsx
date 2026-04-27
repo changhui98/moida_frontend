@@ -1,12 +1,19 @@
-import { type FormEvent, useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { type FormEvent, useState, useRef, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { signUp, sendEmailVerification, verifyEmailCode, checkUsername } from '../api/authApi'
+import { socialSignIn } from '../api/socialAuthApi'
+import { updateMyProfile } from '../api/userApi'
 import { PasswordInput } from '../components/PasswordInput'
 import { PasswordChecklist } from '../components/PasswordChecklist'
 import { KakaoAddressSearch } from '../components/common/KakaoAddressSearch'
+import { SocialLoginButtons } from '../components/auth/SocialLoginButtons'
+import { SocialAddressModal } from '../components/auth/SocialAddressModal'
 import { isPasswordValid, isConfirmPasswordValid } from '../utils/passwordRules'
+import { useAuth } from '../context/AuthContext'
 import styles from './SignUpPage.module.css'
 import { AlertDialog } from '../components/common/AlertDialog'
+
+const REDIRECT_URI = `${window.location.origin}/sign-up`
 
 type SignUpField = 'username' | 'password' | 'nickname' | 'userEmail' | 'address'
 
@@ -33,8 +40,72 @@ const isDuplicateEmailMessage = (message: string): boolean => {
 
 export function SignUpPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login, token } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // 소셜 로그인 상태
+  const [socialLoading, setSocialLoading] = useState(false)
+  const [socialError, setSocialError] = useState('')
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [addressSaving, setAddressSaving] = useState(false)
+  const [socialNickname, setSocialNickname] = useState('')
+
+  // OAuth redirect callback 처리 (?code=...&state=KAKAO|GOOGLE)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const code = params.get('code')
+    const provider = params.get('state')
+
+    if (!code || !provider) return
+    if (socialLoading) return
+
+    navigate('/sign-up', { replace: true })
+
+    const processSocialLogin = async () => {
+      try {
+        setSocialLoading(true)
+        setSocialError('')
+        const { token: jwtToken, data } = await socialSignIn(provider, code, REDIRECT_URI)
+        login(jwtToken)
+
+        if (data.isNewUser) {
+          setSocialNickname(data.nickname ?? '')
+          setAddressModalOpen(true)
+        } else {
+          navigate('/app', { replace: true })
+        }
+      } catch (err) {
+        setSocialError(err instanceof Error ? err.message : '소셜 로그인에 실패했습니다.')
+      } finally {
+        setSocialLoading(false)
+      }
+    }
+
+    processSocialLogin()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search])
+
+  const handleAddressSubmit = async (data: { nickname: string; address: string }) => {
+    try {
+      setAddressSaving(true)
+      await updateMyProfile(token, {
+        nickname: data.nickname,
+        userEmail: '',
+        address: data.address,
+        currentPassword: '',
+        newPassword: '',
+      })
+      setAddressModalOpen(false)
+      navigate('/app', { replace: true })
+    } catch {
+      setAddressModalOpen(false)
+      navigate('/app', { replace: true })
+    } finally {
+      setAddressSaving(false)
+    }
+  }
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<SignUpField, string>>>({})
   const [confirmPassword, setConfirmPassword] = useState('')
   const [form, setForm] = useState({
@@ -161,7 +232,7 @@ export function SignUpPage() {
   const validateRequiredFields = (): boolean => {
     const errors: Partial<Record<SignUpField, string>> = {}
     if (!form.username.trim()) errors.username = '아이디를 입력해주세요.'
-    if (!form.nickname.trim()) errors.nickname = '닉네임을 입력해주세요.'
+    if (form.nickname.trim().length < 2) errors.nickname = '닉네임은 최소 2글자 이상이어야 합니다.'
     if (!form.userEmail.trim()) errors.userEmail = '이메일을 입력해주세요.'
 
     if (Object.keys(errors).length > 0) {
@@ -306,7 +377,7 @@ export function SignUpPage() {
             <input
               id="su-nickname"
               className="input"
-              placeholder="4~10자, 한글·영문·숫자"
+              placeholder="2~10자, 한글·영문·숫자"
               value={form.nickname}
               onChange={setField('nickname')}
             />
@@ -404,15 +475,20 @@ export function SignUpPage() {
           </div>
 
           {error && <p className="alert alert-error" role="alert">{error}</p>}
+          {socialError && <p className="alert alert-error" role="alert">{socialError}</p>}
 
           <button
             type="submit"
             className="btn btn-primary btn-full btn-lg"
-            disabled={loading || !canSubmit}
+            disabled={loading || socialLoading || !canSubmit}
           >
             {loading ? '가입 처리 중…' : '회원가입'}
           </button>
         </form>
+
+        <div className={styles.divider}>또는</div>
+
+        <SocialLoginButtons redirectUri={REDIRECT_URI} />
 
         <p className={styles.footer}>
           이미 계정이 있으신가요?{' '}
@@ -426,6 +502,17 @@ export function SignUpPage() {
       variant={usernameAlertVariant}
       message={usernameAlertMessage}
       onClose={() => setUsernameAlertOpen(false)}
+    />
+
+    <SocialAddressModal
+      isOpen={addressModalOpen}
+      onClose={() => {
+        setAddressModalOpen(false)
+        navigate('/app', { replace: true })
+      }}
+      onSubmit={handleAddressSubmit}
+      loading={addressSaving}
+      defaultNickname={socialNickname}
     />
     </>
   )

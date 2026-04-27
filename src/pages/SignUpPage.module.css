@@ -112,6 +112,24 @@
   }
 }
 
+/* ── Divider ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0;
+  color: var(--clr-text-muted);
+  font-size: 0.8125rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--clr-border);
+}
+
 /* ── Password input state feedback ── */
 .pwInput {
   transition:

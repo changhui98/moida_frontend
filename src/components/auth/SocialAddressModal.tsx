@@ -5,8 +5,9 @@ import styles from './SocialAddressModal.module.css'
 interface SocialAddressModalProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (address: string) => void
+  onSubmit: (data: { nickname: string; address: string }) => void
   loading?: boolean
+  defaultNickname?: string
 }
 
 export function SocialAddressModal({
@@ -14,15 +15,25 @@ export function SocialAddressModal({
   onClose,
   onSubmit,
   loading = false,
+  defaultNickname = '',
 }: SocialAddressModalProps) {
+  const [nickname, setNickname] = useState(defaultNickname)
   const [address, setAddress] = useState('')
+  const [nicknameError, setNicknameError] = useState('')
 
   if (!isOpen) return null
 
   const handleSubmit = () => {
+    const trimmedNickname = nickname.trim()
+    if (trimmedNickname.length < 2) {
+      setNicknameError('닉네임은 최소 2글자 이상이어야 합니다.')
+      return
+    }
     if (!address.trim()) return
-    onSubmit(address.trim())
+    onSubmit({ nickname: trimmedNickname, address: address.trim() })
   }
+
+  const isSubmittable = nickname.trim().length >= 2 && address.trim().length > 0
 
   return (
     <div
@@ -33,11 +44,32 @@ export function SocialAddressModal({
     >
       <div className={styles.modal}>
         <h2 id="social-address-modal-title" className={styles.title}>
-          주소를 입력해주세요
+          추가 정보 입력
         </h2>
         <p className={styles.description}>
-          Moida 서비스 이용을 위해 거주 주소가 필요합니다.
+          Moida 서비스 이용을 위해 아래 정보를 입력해주세요.
         </p>
+
+        <div className="input-group">
+          <label className="input-label" htmlFor="social-nickname">
+            닉네임
+          </label>
+          <input
+            id="social-nickname"
+            className="input"
+            placeholder="2~10자, 한글·영문·숫자"
+            value={nickname}
+            onChange={(e) => {
+              setNickname(e.target.value)
+              setNicknameError('')
+            }}
+            disabled={loading}
+            maxLength={10}
+          />
+          {nicknameError && (
+            <p className="field-error" role="alert">{nicknameError}</p>
+          )}
+        </div>
 
         <div className="input-group">
           <label className="input-label" htmlFor="social-address">
@@ -64,7 +96,7 @@ export function SocialAddressModal({
             type="button"
             className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={loading || !address.trim()}
+            disabled={loading || !isSubmittable}
           >
             {loading ? '저장 중…' : '확인'}
           </button>
