@@ -4,6 +4,7 @@ export interface UserResponse {
   nickname: string
   userEmail: string
   address: string
+  profileImageUrl?: string | null
   isDeleted?: boolean
   createdDate?: string | null
   modifiedDate?: string | null

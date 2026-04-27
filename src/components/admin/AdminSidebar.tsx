@@ -11,8 +11,8 @@ interface MenuItem {
 
 const MENU_ITEMS: readonly MenuItem[] = [
   { path: '/app/admin', label: 'Dashboard', icon: '📊' },
-  { path: '/app/admin/users', label: 'Users', icon: '👥' },
-  { path: '/app/admin/posts', label: 'Posts', icon: '📝' },
+  { path: '/app/admin/users', label: '사용자 관리', icon: '👥' },
+  { path: '/app/admin/posts', label: '게시글 관리', icon: '📝' },
 ] as const
 
 interface AdminSidebarProps {
@@ -34,7 +34,15 @@ export function AdminSidebar({ profile }: AdminSidebarProps) {
       {profile && (
         <div className={styles.profileSection}>
           <span className={`avatar avatar-lg ${styles.profileAvatar}`}>
-            {getInitials(profile.nickname)}
+            {profile.profileImageUrl?.trim() ? (
+              <img
+                src={profile.profileImageUrl.trim()}
+                alt={`${profile.nickname} 프로필`}
+                className={styles.profileAvatarImg}
+              />
+            ) : (
+              getInitials(profile.nickname)
+            )}
           </span>
           <div className={styles.profileInfo}>
             <span className={styles.profileName}>{profile.nickname}</span>

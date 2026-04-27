@@ -107,7 +107,6 @@ export function AdminUserListPage() {
   return (
     <div className={styles.container}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>사용자 관리</h1>
         <button
           type="button"
           className={styles.refreshButton}
@@ -152,7 +151,15 @@ export function AdminUserListPage() {
                         <td>
                           <div className="flex items-center gap-2">
                             <span className="avatar avatar-md">
-                              {getInitials(user.nickname)}
+                              {user.profileImageUrl?.trim() ? (
+                                <img
+                                  src={user.profileImageUrl.trim()}
+                                  alt={`${user.nickname} 프로필`}
+                                  className={styles.avatarImage}
+                                />
+                              ) : (
+                                getInitials(user.nickname)
+                              )}
                             </span>
                             <span className={styles.tableUsername}>
                               {user.nickname}

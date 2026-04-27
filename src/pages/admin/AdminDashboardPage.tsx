@@ -209,7 +209,15 @@ export function AdminDashboardPage() {
                     <td>
                       <div className="flex items-center gap-2">
                         <span className="avatar avatar-md">
-                          {getInitials(user.nickname)}
+                          {user.profileImageUrl?.trim() ? (
+                            <img
+                              src={user.profileImageUrl.trim()}
+                              alt={`${user.nickname} 프로필`}
+                              className={styles.avatarImage}
+                            />
+                          ) : (
+                            getInitials(user.nickname)
+                          )}
                         </span>
                         <span className="font-semibold">{user.nickname}</span>
                       </div>

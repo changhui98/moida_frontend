@@ -9,15 +9,8 @@
 .pageHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--sp-4);
-}
-
-.pageTitle {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: var(--clr-text);
-  margin: 0;
 }
 
 .refreshButton {
@@ -83,6 +76,13 @@
 
 .tableUsername {
   font-weight: 600;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
 }
 
 .tableSecondary {
