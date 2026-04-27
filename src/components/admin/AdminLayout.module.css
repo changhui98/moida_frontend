@@ -56,11 +56,15 @@
 }
 
 .backLink {
-  font-size: 0.8125rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  line-height: 0;
   color: var(--clr-text-secondary);
   text-decoration: none;
-  padding: var(--sp-1) var(--sp-3);
+  padding: 0;
   border-radius: var(--r-md);
   transition: color var(--t-fast), background var(--t-fast);
 }
@@ -68,6 +72,43 @@
 .backLink:hover {
   color: var(--clr-accent);
   background: var(--clr-accent-muted);
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  line-height: 0;
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.iconButton:hover {
+  color: var(--clr-accent);
+  background: var(--clr-accent-muted);
+}
+
+.iconSvg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.refreshIcon {
+  transform: translateY(1px);
+}
+
+.homeIcon {
+  /* 홈 실루엣이 뷰박스 대비 더 작게 보이는 경향이 있어 살짝 확대 */
+  transform: translateY(0px) scale(1.12);
+  transform-origin: 50% 50%;
 }
 
 .userInfo {

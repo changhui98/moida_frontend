@@ -78,8 +78,61 @@ export function AdminLayout() {
           </div>
 
           <div className={styles.navRight}>
+            <button
+              type="button"
+              className={styles.iconButton}
+              onClick={() => window.location.reload()}
+              aria-label="새로고침"
+              title="새로고침"
+            >
+              <svg
+                className={`${styles.iconSvg} ${styles.refreshIcon}`}
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M15.6 4.4a6.2 6.2 0 1 0 1.8 6.2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M15.6 4.4h3.2v3.2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
             <Link to="/app" className={styles.backLink}>
-              사이트로 돌아가기
+              <svg
+                className={`${styles.iconSvg} ${styles.homeIcon}`}
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4.2 9.4 10 4.8l5.8 4.6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M6.2 9.1V15.6c0 .6.5 1 1 1h5.6c.6 0 1-.5 1-1V9.1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Link>
             <button
               type="button"
