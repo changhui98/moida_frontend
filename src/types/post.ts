@@ -29,6 +29,7 @@ export interface AdminContentResponse {
 export interface CreateContentRequest {
   body: string
   tags?: string[]
+  groupId?: number | null
 }
 
 // 하위 호환용 타입 alias

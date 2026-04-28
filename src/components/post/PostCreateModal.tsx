@@ -12,9 +12,11 @@ interface PostCreateModalProps {
   isOpen: boolean
   onClose: () => void
   onCreated: () => void
+  /** 모임 내에서 작성하는 경우 해당 모임 ID를 전달한다. 없으면 전체 피드 게시글로 등록된다. */
+  groupId?: number
 }
 
-export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalProps) {
+export function PostCreateModal({ isOpen, onClose, onCreated, groupId }: PostCreateModalProps) {
   const { token } = useAuth()
   const [body, setBody] = useState('')
   const [images, setImages] = useState<File[]>([])
@@ -79,6 +81,7 @@ export function PostCreateModal({ isOpen, onClose, onCreated }: PostCreateModalP
       const createdPost = await createPost(token, {
         body: body.trim(),
         tags,
+        groupId: groupId ?? null,
       })
       if (images.length > 0) {
         await Promise.all(images.map((file) => uploadContentImage(token, file, createdPost.id)))

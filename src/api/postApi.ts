@@ -80,3 +80,23 @@ export const getUserPosts = (
     headers: createAuthHeaders(token),
   }).then((response) => parseResponse<PageResponse<ContentResponse>>(response))
 }
+
+/**
+ * 특정 모임에 속한 게시글 목록을 조회한다.
+ * GET /api/v1/contents/groups/{groupId}
+ */
+export const getGroupPosts = (
+  token: string,
+  groupId: number,
+  page = 0,
+  size = 10,
+): Promise<PageResponse<ContentResponse>> => {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  })
+
+  return fetch(`${API_BASE_URL}/contents/groups/${groupId}?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<PageResponse<ContentResponse>>(response))
+}
