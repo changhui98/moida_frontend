@@ -1,11 +1,11 @@
 /* ── ScheduleCalendar ── */
 
 .calendar {
-  background: var(--clr-surface);
+  background: transparent;
   border-radius: var(--r-xl);
   padding: var(--sp-4);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--clr-border);
+  box-shadow: none;
+  border: none;
 }
 
 /* 헤더 */
@@ -77,7 +77,8 @@
 
 /* 빈 셀 */
 .emptyCell {
-  height: 44px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 /* 날짜 셀 */
@@ -88,7 +89,8 @@
   align-items: center;
   justify-content: flex-start;
   gap: 2px;
-  height: 44px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   padding-top: var(--sp-2);
   background: transparent;
   border: 1px solid transparent;
@@ -119,6 +121,31 @@
   line-height: 1;
 }
 
+.holidayName {
+  font-size: 0.625rem;
+  color: #ef4444;
+  line-height: 1.1;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 2px;
+}
+
+.dayCell.holiday .dayNumber {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.holidayNameSubstitute {
+  color: #f59e0b;
+}
+
+.dayCell.substituteHoliday .dayNumber {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
 /* 오늘 */
 .dayCell.today {
   background: var(--clr-accent-muted);
@@ -139,6 +166,10 @@
 .dayCell.selected .dayNumber {
   color: #ffffff;
   font-weight: 700;
+}
+
+.dayCell.selected .holidayName {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .dayCell.selected .dot {
@@ -169,7 +200,7 @@
   }
 
   .dayCell {
-    height: 38px;
+    width: 100%;
   }
 
   .dayNumber {

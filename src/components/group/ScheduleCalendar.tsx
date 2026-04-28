@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+import Holidays from 'date-holidays'
 import type { ScheduleResponse } from '../../types/group'
 import styles from './ScheduleCalendar.module.css'
 
@@ -36,6 +38,58 @@ function getTodayString(): string {
   return toDateString(today.getFullYear(), today.getMonth(), today.getDate())
 }
 
+interface HolidayInfo {
+  name: string
+  isSubstitute: boolean
+}
+
+function buildKoreanHolidayMap(year: number): Map<string, HolidayInfo> {
+  const hd = new Holidays('KR')
+  const base = hd
+    .getHolidays(year)
+    .filter((holiday) => holiday.type === 'public')
+    .map((holiday) => ({
+      date: holiday.date.slice(0, 10),
+      name: holiday.name,
+      isSubstitute:
+        Boolean((holiday as { substitute?: boolean }).substitute) ||
+        holiday.name.includes('대체공휴일'),
+    }))
+
+  // 근로자의 날(5/1)은 법정공휴일은 아니지만 국내 캘린더 기대값에 맞춰 별도 표기한다.
+  const laborDay = `${year}-05-01`
+  if (!base.some((h) => h.date === laborDay)) {
+    base.push({ date: laborDay, name: '근로자의 날', isSubstitute: false })
+  }
+
+  const byDate = new Map<string, HolidayInfo>()
+  base.forEach((holiday) => {
+    byDate.set(holiday.date, { name: holiday.name, isSubstitute: holiday.isSubstitute })
+  })
+
+  // 라이브러리 누락 대비: 대체공휴일(예: 석가탄신일 일요일 -> 익일)을 보강 계산한다.
+  const substituteEligible = new Set(['어린이날', '석가탄신일'])
+  base.forEach((holiday) => {
+    if (!substituteEligible.has(holiday.name)) return
+    const dt = new Date(`${holiday.date}T00:00:00`)
+    const day = dt.getDay()
+    if (day !== 0 && day !== 6) return
+
+    const cursor = new Date(dt)
+    while (true) {
+      cursor.setDate(cursor.getDate() + 1)
+      const dd = cursor.getDay()
+      const dateStr = toDateString(cursor.getFullYear(), cursor.getMonth(), cursor.getDate())
+      const isWeekend = dd === 0 || dd === 6
+      if (isWeekend || byDate.has(dateStr)) continue
+      byDate.set(dateStr, { name: `${holiday.name} 대체공휴일`, isSubstitute: true })
+      break
+    }
+  })
+
+  return byDate
+}
+
 export function ScheduleCalendar({
   year,
   month,
@@ -44,6 +98,16 @@ export function ScheduleCalendar({
   onDateSelect,
   onMonthChange,
 }: ScheduleCalendarProps) {
+  const holidayMap = useMemo(() => {
+    const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}-`
+    const all = buildKoreanHolidayMap(year)
+    const monthly = new Map<string, HolidayInfo>()
+    all.forEach((value, key) => {
+      if (key.startsWith(monthPrefix)) monthly.set(key, value)
+    })
+    return monthly
+  }, [year, month])
+
   const today = getTodayString()
   const daysInMonth = getDaysInMonth(year, month)
   const firstDayOfWeek = getFirstDayOfWeek(year, month)
@@ -122,6 +186,9 @@ export function ScheduleCalendar({
           const isToday = dateStr === today
           const isSelected = dateStr === selectedDate
           const hasSchedule = scheduledDates.has(dateStr)
+          const holidayInfo = holidayMap.get(dateStr)
+          const holidayName = holidayInfo?.name
+          const isSubstituteHoliday = holidayInfo?.isSubstitute ?? false
           const dayOfWeek = (firstDayOfWeek + day - 1) % 7
 
           return (
@@ -132,16 +199,26 @@ export function ScheduleCalendar({
                 styles.dayCell,
                 isToday ? styles.today : '',
                 isSelected ? styles.selected : '',
+                holidayName ? styles.holiday : '',
+                isSubstituteHoliday ? styles.substituteHoliday : '',
                 dayOfWeek === 0 ? styles.sunday : '',
                 dayOfWeek === 6 ? styles.saturday : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
               onClick={() => onDateSelect(dateStr)}
-              aria-label={`${year}년 ${month + 1}월 ${day}일${hasSchedule ? ' (일정 있음)' : ''}`}
+              aria-label={`${year}년 ${month + 1}월 ${day}일${holidayName ? ` (${holidayName})` : ''}${hasSchedule ? ' (일정 있음)' : ''}`}
               aria-pressed={isSelected}
+              title={holidayName ? `${holidayName}` : undefined}
             >
               <span className={styles.dayNumber}>{day}</span>
+              {holidayName && (
+                <span
+                  className={`${styles.holidayName} ${isSubstituteHoliday ? styles.holidayNameSubstitute : ''}`}
+                >
+                  {holidayName}
+                </span>
+              )}
               {hasSchedule && <span className={styles.dot} aria-hidden="true" />}
             </button>
           )
