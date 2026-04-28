@@ -1,0 +1,98 @@
+/* ── TabMemberList ── */
+
+.membersSection {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  padding: var(--sp-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--clr-text);
+  margin: 0 0 var(--sp-4) 0;
+}
+
+.memberList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-lg);
+  background: var(--clr-surface-2);
+  transition: background var(--t-fast);
+}
+
+.memberItem:hover {
+  background: var(--clr-surface-3);
+}
+
+.memberAvatar {
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  flex: 1;
+}
+
+.memberNickname {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--clr-text);
+}
+
+.memberUsername {
+  font-size: 0.8125rem;
+  color: var(--clr-text-muted);
+}
+
+.leaderBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--clr-accent);
+  background: var(--clr-accent-muted);
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-full);
+  flex-shrink: 0;
+}
+
+.kickButton {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--clr-error);
+  background: transparent;
+  border: 1px solid var(--clr-error);
+  padding: 2px var(--sp-3);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+}
+
+.kickButton:hover:not(:disabled) {
+  background: var(--clr-error-soft);
+}
+
+.kickButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

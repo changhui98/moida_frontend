@@ -373,6 +373,13 @@
 
 .kickButton:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── Tab Section ── */
+.tabSection {
+  display: flex;
+  flex-direction: column;
+  /* 탭 네비게이션과 탭 콘텐츠 패널 사이 gap 없음 — 시각적 연결을 위해 border-radius 이어받음 */
+}
+
 @media (max-width: 767px) {
   .main {
     padding: var(--sp-4);

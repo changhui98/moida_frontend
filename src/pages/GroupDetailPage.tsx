@@ -8,8 +8,12 @@ import { extractErrorMessage } from '../utils/errorUtils'
 import { Navbar } from '../components/Navbar'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { GroupEditForm } from '../components/group/GroupEditForm'
-import { GroupMemberList } from '../components/group/GroupMemberList'
-import type { GroupDetailResponse } from '../types/group'
+import { GroupDetailTabs } from '../components/group/GroupDetailTabs'
+import { TabMemberList } from '../components/group/TabMemberList'
+import { TabPostList } from '../components/group/TabPostList'
+import { TabSchedule } from '../components/group/TabSchedule'
+import type { GroupTab } from '../components/group/GroupDetailTabs'
+import type { GroupCategory, GroupDetailResponse } from '../types/group'
 import type { UserDetailResponse } from '../types/user'
 import { GROUP_CATEGORY_LABELS } from '../types/group'
 import styles from './GroupDetailPage.module.css'
@@ -27,6 +31,7 @@ export function GroupDetailPage() {
   const [error, setError] = useState('')
 
   const [isEditMode, setIsEditMode] = useState(false)
+  const [activeTab, setActiveTab] = useState<GroupTab>('posts')
 
   const loadData = useCallback(async () => {
     if (!groupId) return
@@ -91,7 +96,7 @@ export function GroupDetailPage() {
   const handleEditSubmit = async (data: {
     name: string
     description: string
-    category: string
+    category: GroupCategory
     maxMemberCount: number
   }) => {
     if (!groupId) return
@@ -259,12 +264,25 @@ export function GroupDetailPage() {
           </div>
         )}
 
-        <GroupMemberList
-          members={group.members}
-          isLeader={isLeader}
-          actionLoading={actionLoading}
-          onKick={handleKick}
-        />
+        {/* 탭 네비게이션 */}
+        <div className={styles.tabSection}>
+          <GroupDetailTabs activeTab={activeTab} onChange={setActiveTab} />
+
+          {activeTab === 'posts' && (
+            <TabPostList groupId={Number(groupId)} isMember={isMember} />
+          )}
+          {activeTab === 'members' && (
+            <TabMemberList
+              members={group.members}
+              isLeader={isLeader}
+              actionLoading={actionLoading}
+              onKick={handleKick}
+            />
+          )}
+          {activeTab === 'schedule' && (
+            <TabSchedule groupId={Number(groupId)} isLeader={isLeader} />
+          )}
+        </div>
       </main>
     </>
   )
