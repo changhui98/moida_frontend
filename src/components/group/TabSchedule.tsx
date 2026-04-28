@@ -69,20 +69,19 @@ export function TabSchedule({ groupId, isLeader }: TabScheduleProps) {
         </div>
       )}
 
-      {/* 캘린더 */}
-      {loading ? (
-        <div className={styles.loadingWrapper}>
+      {/* 캘린더: 로딩 중에도 DOM을 유지해 스크롤 점프를 막는다 */}
+      <ScheduleCalendar
+        year={currentYear}
+        month={currentMonth}
+        schedules={schedules}
+        selectedDate={selectedDate}
+        onDateSelect={setSelectedDate}
+        onMonthChange={handleMonthChange}
+      />
+      {loading && (
+        <div className={styles.loadingInline} aria-live="polite">
           <span className={styles.loadingText}>일정을 불러오는 중...</span>
         </div>
-      ) : (
-        <ScheduleCalendar
-          year={currentYear}
-          month={currentMonth}
-          schedules={schedules}
-          selectedDate={selectedDate}
-          onDateSelect={setSelectedDate}
-          onMonthChange={handleMonthChange}
-        />
       )}
 
       {/* 선택된 날짜의 일정 목록 */}

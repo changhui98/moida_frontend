@@ -90,7 +90,7 @@ export function TabPostList({ groupId, isMember }: TabPostListProps) {
           <ul className={styles.postList}>
             {posts.map((post) => (
               <li key={post.id}>
-                <PostCard post={post} />
+                <PostCard post={post} fullWidth />
               </li>
             ))}
           </ul>
