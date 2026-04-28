@@ -12,6 +12,8 @@ import { GroupDetailTabs } from '../components/group/GroupDetailTabs'
 import { TabMemberList } from '../components/group/TabMemberList'
 import { TabPostList } from '../components/group/TabPostList'
 import { TabSchedule } from '../components/group/TabSchedule'
+import photoCameraIcon from '../assets/photo-camera-photograph-svgrepo-com.svg'
+import userAlt1Icon from '../assets/user-alt-1-svgrepo-com.svg'
 import type { GroupTab } from '../components/group/GroupDetailTabs'
 import type { GroupCategory, GroupDetailResponse } from '../types/group'
 import type { UserDetailResponse } from '../types/user'
@@ -31,7 +33,7 @@ export function GroupDetailPage() {
   const [error, setError] = useState('')
 
   const [isEditMode, setIsEditMode] = useState(false)
-  const [activeTab, setActiveTab] = useState<GroupTab>('posts')
+  const [activeTab, setActiveTab] = useState<GroupTab>('schedule')
 
   const loadData = useCallback(async () => {
     if (!groupId) return
@@ -63,6 +65,7 @@ export function GroupDetailPage() {
 
   const isMember = group?.members.some((m) => m.username === myProfile?.username) ?? false
   const isLeader = myProfile?.username === group?.leaderUsername
+  const groupImageUrl = group?.imageUrl?.trim() ? group.imageUrl.trim() : null
 
   const handleJoin = async () => {
     if (!groupId) return
@@ -177,32 +180,81 @@ export function GroupDetailPage() {
       <Navbar role={myProfile?.role ?? null} onLogout={handleLogout} />
 
       <main className={styles.main}>
-        <button
-          type="button"
-          className={styles.backButton}
-          onClick={() => navigate('/app/groups')}
-        >
-          &larr; 모임 목록
-        </button>
+        <div className={styles.topRow}>
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => navigate('/app/groups')}
+          >
+            &larr; 모임 목록
+          </button>
+
+          {!isLeader && (
+            <div className={styles.actionRow}>
+              {isMember ? (
+                <button
+                  type="button"
+                  className={styles.topTextAction}
+                  onClick={handleLeave}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? '처리 중...' : '모임 탈퇴'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.topTextAction}
+                  onClick={handleJoin}
+                  disabled={actionLoading || group.currentMemberCount >= group.maxMemberCount}
+                >
+                  {actionLoading
+                    ? '처리 중...'
+                    : group.currentMemberCount >= group.maxMemberCount
+                      ? '정원 초과'
+                      : '모임 가입'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className={styles.groupHeader}>
-          <div className={styles.groupHeaderLeft}>
-            <span className={styles.categoryBadge}>
-              {GROUP_CATEGORY_LABELS[group.category]}
-            </span>
-            <h1 className={styles.groupName}>{group.name}</h1>
-            {group.description && (
-              <p className={styles.groupDescription}>{group.description}</p>
+          <div className={styles.heroMedia}>
+            {groupImageUrl ? (
+              <img
+                src={groupImageUrl}
+                alt={`${group.name} 대표 이미지`}
+                className={styles.heroImage}
+              />
+            ) : (
+              <div className={styles.heroImagePlaceholder} role="img" aria-label="모임 이미지 준비중">
+                <img src={photoCameraIcon} alt="" className={styles.placeholderIcon} />
+                <p className={styles.placeholderText}>
+                  {isLeader ? '사진을 등록해주세요.' : '모임의 사진을 준비중입니다.'}
+                </p>
+              </div>
             )}
           </div>
-          <div className={styles.groupHeaderRight}>
-            <div className={styles.memberCountBox}>
-              <span className={styles.memberCountLabel}>인원</span>
-              <span className={styles.memberCountValue}>
-                {group.currentMemberCount} / {group.maxMemberCount}
+
+          <div className={styles.groupSummary}>
+            <div className={styles.groupHeaderLeft}>
+              <span className={styles.categoryBadge}>
+                {GROUP_CATEGORY_LABELS[group.category]}
               </span>
+              <h1 className={styles.groupName}>{group.name}</h1>
+              {group.description && (
+                <p className={styles.groupDescription}>{group.description}</p>
+              )}
             </div>
-            <p className={styles.leaderName}>모임장: {group.leaderNickname}</p>
+
+            <div className={styles.groupHeaderRight}>
+              <div className={styles.memberCountBox}>
+                <img src={userAlt1Icon} alt="" aria-hidden="true" className={styles.memberCountIcon} />
+                <span className={styles.memberCountValue}>
+                  {group.currentMemberCount} / {group.maxMemberCount}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -236,33 +288,7 @@ export function GroupDetailPage() {
           />
         )}
 
-        {!isLeader && (
-          <div className={styles.actionRow}>
-            {isMember ? (
-              <button
-                type="button"
-                className={styles.leaveButton}
-                onClick={handleLeave}
-                disabled={actionLoading}
-              >
-                {actionLoading ? '처리 중...' : '모임 탈퇴'}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className={styles.joinButton}
-                onClick={handleJoin}
-                disabled={actionLoading || group.currentMemberCount >= group.maxMemberCount}
-              >
-                {actionLoading
-                  ? '처리 중...'
-                  : group.currentMemberCount >= group.maxMemberCount
-                    ? '정원 초과'
-                    : '모임 가입'}
-              </button>
-            )}
-          </div>
-        )}
+        <div className={styles.contentDivider} aria-hidden="true" />
 
         {/* 탭 네비게이션 */}
         <div className={styles.tabSection}>
