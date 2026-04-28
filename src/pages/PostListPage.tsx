@@ -102,7 +102,7 @@ export function PostListPage() {
       <>
         <div className={styles.feed}>
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} fullWidth />
           ))}
         </div>
 

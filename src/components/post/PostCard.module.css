@@ -1,15 +1,21 @@
 /* ── PostCard (Feed Style) ── */
 
 .card {
-  --post-body-max-w: 520px;
+  --post-body-max-w: 760px;
+  --post-inline-pad: var(--sp-2);
   position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
   background: transparent;
-  padding: var(--sp-2) var(--sp-5) var(--sp-3);
+  padding: var(--sp-2) var(--post-inline-pad) var(--sp-3);
   cursor: default;
   transition: background var(--t-fast);
+}
+
+.cardFullWidth {
+  --post-body-max-w: 100%;
+  --post-inline-pad: 0px;
 }
 
 .card::after {
@@ -18,7 +24,7 @@
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  width: min(var(--post-body-max-w), calc(100% - (2 * var(--sp-5))));
+  width: min(var(--post-body-max-w), calc(100% - (2 * var(--post-inline-pad))));
   height: 1px;
   background: var(--clr-border);
 }

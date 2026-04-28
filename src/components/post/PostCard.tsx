@@ -8,6 +8,7 @@ import styles from './PostCard.module.css'
 
 interface PostCardProps {
   post: ContentResponse
+  fullWidth?: boolean
 }
 
 /**
@@ -50,7 +51,7 @@ function formatCount(n: number): string {
   return `${Math.floor(n / 1000)}K`
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, fullWidth = false }: PostCardProps) {
   const { token, meUsername, meProfileImageUrl } = useAuth()
 
   // 좋아요 상태의 단일 소스는 로컬 state. 초기값만 prop 에서 가져오고, 이후
@@ -122,7 +123,7 @@ export function PostCard({ post }: PostCardProps) {
   const avatarUrl = isMine ? meProfileImageUrl : null
 
   return (
-    <article className={styles.card}>
+    <article className={`${styles.card} ${fullWidth ? styles.cardFullWidth : ''}`}>
       <div className={styles.header}>
         <Link to={profilePath} className={styles.authorAvatarLink} aria-label={`${displayName} 프로필 보기`}>
           {avatarUrl ? (
