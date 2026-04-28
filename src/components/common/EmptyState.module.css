@@ -16,6 +16,25 @@
   opacity: 0.6;
 }
 
+.iconGraphic {
+  font-size: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-text-muted);
+}
+
+.iconGraphic svg {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: block;
+  opacity: 0.85;
+}
+
+.iconGraphicCustom svg {
+  opacity: 1;
+}
+
 .title {
   font-size: 1.0625rem;
   font-weight: 700;

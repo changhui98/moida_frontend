@@ -17,6 +17,7 @@ import { InfiniteScrollLoader } from '../post/InfiniteScrollLoader'
 import { EndOfList } from '../post/EndOfList'
 import { Skeleton } from '../common/Skeleton'
 import { EmptyState } from '../common/EmptyState'
+import { MenuMeatballsIcon } from '../NavIcons'
 import type { ContentResponse } from '../../types/post'
 import styles from './MyPostsSection.module.css'
 
@@ -24,6 +25,9 @@ type ViewMode = 'card' | 'list'
 
 const PAGE_SIZE = 12
 const VIEW_MODE_STORAGE_KEY = 'moida.profile.myPosts.viewMode'
+
+const myPostsEmptyIcon = <MenuMeatballsIcon />
+const MY_POSTS_EMPTY_ICON_COLOR = 'var(--clr-accent)'
 
 interface MyPostsSectionProps {
   username?: string
@@ -277,7 +281,8 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
         return (
           <div className={styles.emptyWrap}>
             <EmptyState
-              title="아직 작성한 글이 없어요"
+              icon={myPostsEmptyIcon}
+              iconColor={MY_POSTS_EMPTY_ICON_COLOR}
               description="첫 사진을 공유해 목록을 채워보세요."
             />
           </div>
@@ -288,7 +293,8 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
         return (
           <div className={styles.emptyWrap}>
             <EmptyState
-              title="아직 작성한 글이 없어요"
+              icon={myPostsEmptyIcon}
+              iconColor={MY_POSTS_EMPTY_ICON_COLOR}
               description={isOwner ? '첫 게시글을 작성해 목록을 채워보세요.' : '아직 작성된 게시글이 없습니다.'}
             />
           </div>
@@ -299,6 +305,8 @@ export const MyPostsSection = forwardRef<MyPostsSectionHandle, MyPostsSectionPro
         return (
           <div className={styles.emptyWrap}>
             <EmptyState
+              icon={myPostsEmptyIcon}
+              iconColor={MY_POSTS_EMPTY_ICON_COLOR}
               title="사진 없는 글이 없습니다"
               description="글 탭에서는 사진이 없는 글만 보여드려요."
             />

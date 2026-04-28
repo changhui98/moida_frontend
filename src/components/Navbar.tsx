@@ -21,7 +21,7 @@ import {
   GroupIcon,
   HomeIcon,
   LogoutIcon,
-  MenuIcon,
+  GridEvenMoreIcon,
   MoonIcon,
   PlusSquareIcon,
   SearchIcon,
@@ -312,7 +312,7 @@ export function Navbar({ role, onLogout }: NavbarProps) {
             aria-expanded={moreOpen}
           >
             <span className={styles.navIcon}>
-              <MenuIcon />
+              <GridEvenMoreIcon />
             </span>
             <span className={styles.navLabel}>더 보기</span>
           </button>
