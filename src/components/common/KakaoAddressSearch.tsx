@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import styles from './KakaoAddressSearch.module.css'
 
 interface KakaoAddressSearchProps {
@@ -13,17 +14,29 @@ export function KakaoAddressSearch({
   disabled = false,
   id,
 }: KakaoAddressSearchProps) {
-  const handleSearchClick = () => {
-    if (typeof window.daum === 'undefined' || !window.daum.Postcode) {
-      // 카카오 스크립트 미로드 시 fallback: 직접 입력 허용 (아무 동작 없음)
+  const [isLayerOpen, setIsLayerOpen] = useState(false)
+  const layerRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!isLayerOpen) return
+    if (typeof window.daum === 'undefined' || !window.daum.Postcode || !layerRef.current) {
       return
     }
 
+    layerRef.current.innerHTML = ''
     new window.daum.Postcode({
       oncomplete: (data) => {
         onChange(data.roadAddress || data.address)
+        setIsLayerOpen(false)
       },
-    }).open()
+      width: '100%',
+      height: '100%',
+    }).embed(layerRef.current)
+  }, [isLayerOpen, onChange])
+
+  const handleSearchClick = () => {
+    if (typeof window.daum === 'undefined' || !window.daum.Postcode) return
+    setIsLayerOpen(true)
   }
 
   const isDaumAvailable =
@@ -50,6 +63,27 @@ export function KakaoAddressSearch({
       >
         주소 검색
       </button>
+
+      {isLayerOpen && (
+        <div
+          className={styles.layerOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="주소 검색"
+        >
+          <div className={styles.layerPanel}>
+            <button
+              type="button"
+              className={styles.layerClose}
+              onClick={() => setIsLayerOpen(false)}
+              aria-label="주소 검색 닫기"
+            >
+              닫기
+            </button>
+            <div ref={layerRef} className={styles.layerBody} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

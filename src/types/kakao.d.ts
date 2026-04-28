@@ -14,7 +14,8 @@ interface DaumPostcode {
     width?: string
     height?: string
   }): {
-    open(): void
+    open(options?: { left?: number; top?: number }): void
+    embed(element: HTMLElement): void
   }
 }
 
