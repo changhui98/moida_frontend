@@ -3,11 +3,11 @@
 .tabNav {
   display: flex;
   gap: 0;
-  border-bottom: 2px solid var(--clr-border);
-  background: var(--clr-surface);
+  border-bottom: none;
+  background: transparent;
   border-radius: var(--r-xl) var(--r-xl) 0 0;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .tabBtn {
@@ -19,8 +19,8 @@
   padding: var(--sp-3) var(--sp-4);
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  border-bottom: none;
+  margin-bottom: 0;
   font-size: 0.9375rem;
   font-weight: 500;
   color: var(--clr-text-muted);
@@ -33,14 +33,13 @@
 
 .tabBtn:hover {
   color: var(--clr-text);
-  background: var(--clr-accent-muted);
+  background: transparent;
 }
 
 .tabBtnActive {
   color: var(--clr-accent);
   font-weight: 700;
-  border-bottom-color: var(--clr-accent);
-  background: var(--clr-accent-muted);
+  background: transparent;
 }
 
 .tabBtnActive:hover {
@@ -50,6 +49,17 @@
 .tabIcon {
   font-size: 1rem;
   line-height: 1;
+}
+
+.tabImageIcon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  color: var(--clr-text-muted);
+}
+
+.tabBtnActive .tabImageIcon {
+  color: var(--clr-accent);
 }
 
 .tabLabel {
