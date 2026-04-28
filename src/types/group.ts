@@ -43,3 +43,21 @@ export const GROUP_CATEGORY_LABELS: Record<GroupCategory, string> = {
   STUDY: '스터디',
   SOCIAL: '소셜',
 }
+
+export interface ScheduleResponse {
+  id: number
+  title: string
+  startAt: string
+  endAt: string
+  location: string | null
+  description: string | null
+  createdByUsername: string
+}
+
+export interface ScheduleCreateRequest {
+  title: string
+  startAt: string
+  endAt: string
+  location?: string
+  description?: string
+}

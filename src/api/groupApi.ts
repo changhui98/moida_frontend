@@ -4,6 +4,8 @@ import type {
   GroupDetailResponse,
   GroupMemberResponse,
   GroupResponse,
+  ScheduleCreateRequest,
+  ScheduleResponse,
 } from '../types/group'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
@@ -130,4 +132,28 @@ export const kickGroupMember = (
       })
     }
   })
+}
+
+export const getGroupSchedules = (
+  token: string,
+  groupId: number,
+  year: number,
+  month: number,
+): Promise<ScheduleResponse[]> => {
+  const params = new URLSearchParams({ year: String(year), month: String(month) })
+  return fetch(`${API_BASE_URL}/groups/${groupId}/schedules?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((res) => parseResponse<ScheduleResponse[]>(res))
+}
+
+export const createGroupSchedule = (
+  token: string,
+  groupId: number,
+  data: ScheduleCreateRequest,
+): Promise<ScheduleResponse> => {
+  return fetch(`${API_BASE_URL}/groups/${groupId}/schedules`, {
+    method: 'POST',
+    headers: createAuthHeaders(token),
+    body: JSON.stringify(data),
+  }).then((res) => parseResponse<ScheduleResponse>(res))
 }
