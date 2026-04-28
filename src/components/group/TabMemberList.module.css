@@ -1,55 +1,80 @@
 /* ── TabMemberList ── */
 
 .membersSection {
-  background: var(--clr-surface);
-  border: 1px solid var(--clr-border);
+  background: transparent;
+  border: none;
   border-radius: 0 0 var(--r-xl) var(--r-xl);
-  padding: var(--sp-6);
-  box-shadow: var(--shadow-sm);
+  padding: var(--sp-3) 0 0;
+  box-shadow: none;
 }
 
-.sectionTitle {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--clr-text);
-  margin: 0 0 var(--sp-4) 0;
-}
-
-.memberList {
+.memberGrid {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: var(--sp-3);
 }
 
 .memberItem {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-3);
+  justify-content: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  aspect-ratio: 1 / 1;
   border-radius: var(--r-lg);
-  background: var(--clr-surface-2);
+  background: transparent;
+  border: 1px solid var(--clr-border);
   transition: background var(--t-fast);
 }
 
 .memberItem:hover {
-  background: var(--clr-surface-3);
+  background: transparent;
+}
+
+.memberLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  text-decoration: none;
+  color: inherit;
+}
+
+.memberAvatarWrap {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memberAvatarImg {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--r-full);
+  object-fit: cover;
+  display: block;
 }
 
 .memberAvatar {
-  width: 40px;
-  height: 40px;
-  font-size: 1rem;
+  width: 100px;
+  height: 100px;
+  font-size: 1.75rem;
   flex-shrink: 0;
 }
 
 .memberInfo {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
-  flex: 1;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  min-height: 44px;
 }
 
 .memberNickname {
@@ -58,19 +83,26 @@
   color: var(--clr-text);
 }
 
-.memberUsername {
-  font-size: 0.8125rem;
+.memberJoinedAt {
+  font-size: 0.75rem;
   color: var(--clr-text-muted);
 }
 
 .leaderBadge {
-  font-size: 0.75rem;
-  font-weight: 600;
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
   color: var(--clr-accent);
-  background: var(--clr-accent-muted);
-  padding: 2px var(--sp-2);
-  border-radius: var(--r-full);
+  background: transparent;
+  padding: 0;
+  line-height: 1;
   flex-shrink: 0;
+}
+
+.crownIcon {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .kickButton {
@@ -86,6 +118,7 @@
   transition:
     background var(--t-fast),
     color var(--t-fast);
+  margin-top: var(--sp-1);
 }
 
 .kickButton:hover:not(:disabled) {
