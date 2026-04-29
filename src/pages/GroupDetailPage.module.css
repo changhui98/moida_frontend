@@ -272,7 +272,7 @@
   gap: var(--sp-2);
   background: transparent;
   border-radius: var(--r-md);
-  padding: var(--sp-2) var(--sp-3);
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) 0;
 }
 
 .memberCountIcon {
