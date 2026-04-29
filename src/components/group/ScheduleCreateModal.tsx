@@ -1,7 +1,8 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { createGroupSchedule } from '../../api/groupApi'
+import { useEffect, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react'
+import { createGroupSchedule, searchPlaceSuggestions } from '../../api/groupApi'
 import { ApiError } from '../../api/ApiError'
 import { useAuth } from '../../context/AuthContext'
+import type { PlaceSuggestionResponse } from '../../types/group'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { SuccessDialog } from '../common/SuccessDialog'
 import styles from './ScheduleCreateModal.module.css'
@@ -23,7 +24,12 @@ interface ScheduleFormState {
   description: string
 }
 
-const INITIAL_FORM: ScheduleFormState = {
+interface SuggestedPlace {
+  id: string
+  label: string
+}
+
+const EMPTY_FORM: ScheduleFormState = {
   title: '',
   startDate: '',
   startTime: '',
@@ -33,9 +39,48 @@ const INITIAL_FORM: ScheduleFormState = {
   description: '',
 }
 
+const DEFAULT_SUGGESTED_PLACES: SuggestedPlace[] = [
+  { id: 'sejong-center', label: '세종문화회관' },
+  { id: 'gangnam-station', label: '강남역' },
+  { id: 'hongdae-street', label: '홍대거리' },
+  { id: 'jamsil-lotteworld', label: '잠실 롯데월드' },
+  { id: 'haeundae-beach', label: '해운대 해수욕장' },
+]
+
+function toDateInputValue(date: Date): string {
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
+function toTimeInputValue(date: Date): string {
+  const hh = String(date.getHours()).padStart(2, '0')
+  const mm = String(date.getMinutes()).padStart(2, '0')
+  return `${hh}:${mm}`
+}
+
+function getDefaultFormState(): ScheduleFormState {
+  const now = new Date()
+  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
+  return {
+    ...EMPTY_FORM,
+    startDate: toDateInputValue(now),
+    startTime: toTimeInputValue(now),
+    endDate: toDateInputValue(oneHourLater),
+    endTime: toTimeInputValue(oneHourLater),
+  }
+}
+
 export function ScheduleCreateModal({ isOpen, groupId, onClose, onCreated }: ScheduleCreateModalProps) {
   const { token } = useAuth()
-  const [form, setForm] = useState<ScheduleFormState>(INITIAL_FORM)
+  const [form, setForm] = useState<ScheduleFormState>(EMPTY_FORM)
+  const [placeQuery, setPlaceQuery] = useState('')
+  const [selectedPlaceLabel, setSelectedPlaceLabel] = useState('')
+  const [placeResults, setPlaceResults] = useState<PlaceSuggestionResponse[]>([])
+  const [placeSearching, setPlaceSearching] = useState(false)
+  const [placeSearchError, setPlaceSearchError] = useState<string | null>(null)
+  const [placeSearched, setPlaceSearched] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -43,12 +88,37 @@ export function ScheduleCreateModal({ isOpen, groupId, onClose, onCreated }: Sch
 
   useEffect(() => {
     if (!isOpen) return
-    setForm(INITIAL_FORM)
+    setForm(getDefaultFormState())
+    setPlaceQuery('')
+    setSelectedPlaceLabel('')
+    setPlaceResults([])
+    setPlaceSearchError(null)
+    setPlaceSearching(false)
+    setPlaceSearched(false)
     setError(null)
     setSubmitting(false)
     setConfirmOpen(false)
     setSuccessOpen(false)
   }, [isOpen])
+
+  const handlePlaceSearch = async () => {
+    const keyword = placeQuery.trim()
+    if (keyword.length < 2 || keyword === selectedPlaceLabel) return
+
+    setPlaceSearching(true)
+    setPlaceSearchError(null)
+    setPlaceSearched(false)
+    try {
+      const data = await searchPlaceSuggestions(token, keyword)
+      setPlaceResults(Array.isArray(data) ? data : [])
+      setPlaceSearched(true)
+    } catch {
+      setPlaceResults([])
+      setPlaceSearchError('장소 검색에 실패했습니다. 다시 시도해 주세요.')
+    } finally {
+      setPlaceSearching(false)
+    }
+  }
 
   useEffect(() => {
     if (!isOpen) return
@@ -89,6 +159,34 @@ export function ScheduleCreateModal({ isOpen, groupId, onClose, onCreated }: Sch
     if (!isValid || submitting) return
     setError(null)
     setConfirmOpen(true)
+  }
+
+  const handlePlaceSelect = (result: PlaceSuggestionResponse) => {
+    const selectedAddress = result.fullAddress || result.primaryText
+    setSelectedPlaceLabel(selectedAddress)
+    setPlaceQuery(selectedAddress)
+    handleChange('location', selectedAddress)
+    setPlaceResults([])
+    setPlaceSearchError(null)
+    setPlaceSearched(false)
+  }
+
+  const clearPlaceSelection = () => {
+    setSelectedPlaceLabel('')
+    setPlaceQuery('')
+    handleChange('location', '')
+    setPlaceResults([])
+    setPlaceSearchError(null)
+    setPlaceSearched(false)
+  }
+
+  const handleSuggestedPlaceSelect = (label: string) => {
+    setSelectedPlaceLabel(label)
+    setPlaceQuery(label)
+    handleChange('location', label)
+    setPlaceResults([])
+    setPlaceSearchError(null)
+    setPlaceSearched(false)
   }
 
   const handleConfirmCreate = async () => {
@@ -256,12 +354,78 @@ export function ScheduleCreateModal({ isOpen, groupId, onClose, onCreated }: Sch
                 id="schedule-location"
                 type="text"
                 className={styles.input}
-                placeholder="장소를 입력하세요 (선택)"
-                value={form.location}
-                onChange={(e) => handleChange('location', e.target.value)}
+                placeholder="위치 입력 후 엔터로 검색"
+                value={placeQuery}
+                onChange={(e) => {
+                  setSelectedPlaceLabel('')
+                  setPlaceQuery(e.target.value)
+                  handleChange('location', e.target.value)
+                  if (placeResults.length > 0) setPlaceResults([])
+                  if (placeSearchError) setPlaceSearchError(null)
+                  if (placeSearched) setPlaceSearched(false)
+                }}
+                onKeyDown={(e: ReactKeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handlePlaceSearch()
+                  }
+                }}
                 disabled={submitting}
-                maxLength={200}
               />
+              {placeSearchError && <p className={styles.validationError}>{placeSearchError}</p>}
+              {placeSearching && (
+                <p className={styles.placeHelper}>검색 중…</p>
+              )}
+              {placeResults.length > 0 && selectedPlaceLabel !== placeQuery && (
+                <ul className={styles.placeResultList}>
+                  {placeResults.map((result) => (
+                    <li key={result.placeId || result.fullAddress}>
+                      <button
+                        type="button"
+                        className={styles.placeResultItem}
+                        onClick={() => handlePlaceSelect(result)}
+                        disabled={submitting}
+                      >
+                        <span className={styles.placePrimaryText}>{result.primaryText}</span>
+                        {result.secondaryText && (
+                          <span className={styles.placeSecondaryText}>{result.secondaryText}</span>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {placeSearched && !placeSearching && placeResults.length === 0 && !placeSearchError && selectedPlaceLabel !== placeQuery && (
+                <p className={styles.placeHelper}>검색 결과가 없습니다.</p>
+              )}
+              {selectedPlaceLabel && (
+                <button
+                  type="button"
+                  className={styles.placeSelectedChip}
+                  onClick={clearPlaceSelection}
+                  disabled={submitting}
+                >
+                  {selectedPlaceLabel} · 선택 해제
+                </button>
+              )}
+              {!placeQuery.trim() && !selectedPlaceLabel && (
+                <div className={styles.suggestedPlaceSection}>
+                  <p className={styles.placeHelper}>추천 위치</p>
+                  <div className={styles.suggestedPlaceChips}>
+                    {DEFAULT_SUGGESTED_PLACES.map((place) => (
+                      <button
+                        key={place.id}
+                        type="button"
+                        className={styles.suggestedPlaceChip}
+                        onClick={() => handleSuggestedPlaceSelect(place.label)}
+                        disabled={submitting}
+                      >
+                        {place.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 설명 */}

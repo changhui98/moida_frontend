@@ -95,6 +95,95 @@
   gap: var(--sp-2);
 }
 
+.placeResultList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  max-height: 180px;
+  overflow-y: auto;
+  background: var(--clr-surface);
+}
+
+.placeResultItem {
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--clr-border);
+  background: transparent;
+  color: var(--clr-text-secondary);
+  font-size: 0.8125rem;
+  padding: var(--sp-2) var(--sp-3);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.placeResultList li:last-child .placeResultItem {
+  border-bottom: none;
+}
+
+.placeResultItem:hover:not(:disabled) {
+  background: var(--clr-surface-2);
+}
+
+.placeHelper {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+}
+
+.placePrimaryText {
+  color: var(--clr-text);
+  font-size: 0.8125rem;
+}
+
+.placeSecondaryText {
+  color: var(--clr-text-muted);
+  font-size: 0.75rem;
+}
+
+.placeSelectedChip {
+  align-self: flex-start;
+  border: 1px solid var(--clr-accent);
+  background: var(--clr-accent-muted);
+  color: var(--clr-accent);
+  border-radius: var(--r-full);
+  padding: 4px var(--sp-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.suggestedPlaceSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.suggestedPlaceChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.suggestedPlaceChip {
+  border: 1px solid var(--clr-border);
+  background: var(--clr-surface-2);
+  color: var(--clr-text-secondary);
+  border-radius: var(--r-full);
+  padding: 4px var(--sp-3);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.suggestedPlaceChip:hover:not(:disabled) {
+  border-color: var(--clr-accent);
+  color: var(--clr-accent);
+}
+
 /* 날짜+시간 행 (2열) */
 .fieldRow {
   display: grid;
