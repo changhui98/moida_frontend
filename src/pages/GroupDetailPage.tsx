@@ -339,19 +339,7 @@ export function GroupDetailPage() {
               <span className={styles.categoryBadge}>
                 {GROUP_CATEGORY_LABELS[group.category]}
               </span>
-              <div className={styles.groupNameRow}>
-                <h1 className={styles.groupName}>{group.name}</h1>
-                <button
-                  type="button"
-                  className={`${styles.likeButton} ${liked ? styles.likeButtonActive : ''}`}
-                  onClick={handleLikeToggle}
-                  disabled={likeLoading}
-                  aria-label={liked ? '좋아요 취소' : '좋아요'}
-                >
-                  <span className={styles.likeIcon}>{liked ? '♥' : '♡'}</span>
-                  <span className={styles.likeCount}>{likeCount}</span>
-                </button>
-              </div>
+              <h1 className={styles.groupName}>{group.name}</h1>
               {group.description && (
                 <p className={styles.groupDescription}>{group.description}</p>
               )}
@@ -364,6 +352,16 @@ export function GroupDetailPage() {
                   {group.currentMemberCount} / {group.maxMemberCount}
                 </span>
               </div>
+              <button
+                type="button"
+                className={`${styles.likeButton} ${liked ? styles.likeButtonActive : ''}`}
+                onClick={handleLikeToggle}
+                disabled={likeLoading}
+                aria-label={liked ? '좋아요 취소' : '좋아요'}
+              >
+                <span className={styles.likeIcon}>{liked ? '♥' : '♡'}</span>
+                <span className={styles.likeCount}>{likeCount}</span>
+              </button>
             </div>
           </div>
         </div>

@@ -223,13 +223,6 @@
   width: fit-content;
 }
 
-.groupNameRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: var(--sp-3);
-}
 
 .groupName {
   font-size: 1.5rem;
