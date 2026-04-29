@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getGroup, joinGroup, leaveGroup, updateGroup, deleteGroup, kickGroupMember } from '../api/groupApi'
+import { getGroup, joinGroup, leaveGroup, updateGroup, deleteGroup, kickGroupMember, uploadGroupImage } from '../api/groupApi'
 import { getMyProfile } from '../api/userApi'
 import { useAuth } from '../context/AuthContext'
 import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
@@ -34,6 +34,8 @@ export function GroupDetailPage() {
 
   const [isEditMode, setIsEditMode] = useState(false)
   const [activeTab, setActiveTab] = useState<GroupTab>('schedule')
+  const [imageUploading, setImageUploading] = useState(false)
+  const imageInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = useCallback(async () => {
     if (!groupId) return
@@ -146,6 +148,31 @@ export function GroupDetailPage() {
     }
   }
 
+  const handleImageAreaClick = () => {
+    if (!isLeader) return
+    imageInputRef.current?.click()
+  }
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !groupId) return
+
+    // 동일 파일 재선택 허용을 위해 value 초기화
+    e.target.value = ''
+
+    try {
+      setImageUploading(true)
+      const updated = await uploadGroupImage(token, Number(groupId), file)
+      // 업로드 성공 시 group 상태의 imageUrl만 즉시 반영 (전체 재조회 없이)
+      setGroup((prev) => (prev ? { ...prev, imageUrl: updated.imageUrl } : prev))
+    } catch (err) {
+      alert(extractErrorMessage(err, '이미지 업로드에 실패했습니다.'))
+      handleUnauthorized(err)
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
   if (loading) {
     return (
       <>
@@ -240,13 +267,43 @@ export function GroupDetailPage() {
         </div>
 
         <div className={styles.groupHeader}>
-          <div className={styles.heroMedia}>
-            {groupImageUrl ? (
-              <img
-                src={groupImageUrl}
-                alt={`${group.name} 대표 이미지`}
-                className={styles.heroImage}
-              />
+          {/* hidden file input — 모임장 전용 */}
+          {isLeader && (
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              style={{ display: 'none' }}
+              onChange={handleImageFileChange}
+            />
+          )}
+
+          <div
+            className={`${styles.heroMedia} ${isLeader ? styles.heroMediaLeader : ''}`}
+            onClick={handleImageAreaClick}
+            role={isLeader ? 'button' : undefined}
+            tabIndex={isLeader ? 0 : undefined}
+            aria-label={isLeader ? '모임 대표 사진 변경' : undefined}
+            onKeyDown={isLeader ? (e) => { if (e.key === 'Enter' || e.key === ' ') handleImageAreaClick() } : undefined}
+          >
+            {imageUploading ? (
+              <div className={styles.heroImagePlaceholder}>
+                <p className={styles.placeholderText}>업로드 중...</p>
+              </div>
+            ) : groupImageUrl ? (
+              <>
+                <img
+                  src={groupImageUrl}
+                  alt={`${group.name} 대표 이미지`}
+                  className={styles.heroImage}
+                />
+                {isLeader && (
+                  <div className={styles.heroImageEditOverlay} aria-hidden="true">
+                    <img src={photoCameraIcon} alt="" className={styles.overlayIcon} />
+                    <span className={styles.overlayText}>사진 변경</span>
+                  </div>
+                )}
+              </>
             ) : (
               <div className={styles.heroImagePlaceholder} role="img" aria-label="모임 이미지 준비중">
                 <img src={photoCameraIcon} alt="" className={styles.placeholderIcon} />
