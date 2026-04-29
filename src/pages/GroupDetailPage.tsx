@@ -16,9 +16,9 @@ import { TabSchedule } from '../components/group/TabSchedule'
 import photoCameraIcon from '../assets/photo-camera-photograph-svgrepo-com.svg'
 import userAlt1Icon from '../assets/user-alt-1-svgrepo-com.svg'
 import type { GroupTab } from '../components/group/GroupDetailTabs'
-import type { GroupCategory, GroupDetailResponse } from '../types/group'
+import type { GroupCategory, GroupDetailResponse, GroupMeetingType } from '../types/group'
 import type { UserDetailResponse } from '../types/user'
-import { GROUP_CATEGORY_LABELS } from '../types/group'
+import { GROUP_CATEGORY_LABELS, GROUP_MEETING_TYPE_LABELS } from '../types/group'
 import styles from './GroupDetailPage.module.css'
 
 export function GroupDetailPage() {
@@ -111,6 +111,7 @@ export function GroupDetailPage() {
     name: string
     description: string
     category: GroupCategory
+    meetingType: GroupMeetingType
     maxMemberCount: number
   }) => {
     if (!groupId) return
@@ -345,9 +346,20 @@ export function GroupDetailPage() {
           </div>
 
           <div className={styles.groupSummary}>
-            <span className={styles.categoryBadge}>
-              {GROUP_CATEGORY_LABELS[group.category]}
-            </span>
+            <div className={styles.badgeRow}>
+              <span className={styles.categoryBadge}>
+                {GROUP_CATEGORY_LABELS[group.category]}
+              </span>
+              <span
+                className={
+                  group.meetingType === 'ONLINE'
+                    ? styles.meetingTypeBadgeOnline
+                    : styles.meetingTypeBadgeOffline
+                }
+              >
+                {GROUP_MEETING_TYPE_LABELS[group.meetingType]}
+              </span>
+            </div>
 
             <h1 className={styles.groupName}>{group.name}</h1>
             <div className={styles.memberCountBox}>

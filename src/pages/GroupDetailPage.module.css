@@ -199,8 +199,15 @@
   align-items: center;
 }
 
-.categoryBadge {
+.badgeRow {
   grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.categoryBadge {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--clr-accent);
@@ -208,6 +215,42 @@
   padding: 2px var(--sp-2);
   border-radius: var(--r-full);
   width: fit-content;
+}
+
+/* 온라인 뱃지: 파란 계열 */
+.meetingTypeBadgeOnline {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2b6cb0;
+  background: #ebf8ff;
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-full);
+  width: fit-content;
+  border: 1px solid #bee3f8;
+}
+
+/* 오프라인 뱃지: 초록 계열 */
+.meetingTypeBadgeOffline {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #276749;
+  background: #f0fff4;
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-full);
+  width: fit-content;
+  border: 1px solid #c6f6d5;
+}
+
+[data-theme='dark'] .meetingTypeBadgeOnline {
+  background: rgba(49, 130, 206, 0.15);
+  color: #63b3ed;
+  border-color: rgba(49, 130, 206, 0.3);
+}
+
+[data-theme='dark'] .meetingTypeBadgeOffline {
+  background: rgba(56, 161, 105, 0.15);
+  color: #68d391;
+  border-color: rgba(56, 161, 105, 0.3);
 }
 
 
@@ -222,10 +265,10 @@
 /* ── 좋아요 영역: 하트 + 숫자를 나란히 배치 ── */
 .likeArea {
   grid-column: 2;
-  justify-self: start;
+  justify-self: end;
   display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: var(--sp-1);
 }
 
 /* 하트 버튼 (토글) */
@@ -291,12 +334,13 @@
 
 .memberCountBox {
   grid-column: 2;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: var(--sp-2);
   background: transparent;
   border-radius: var(--r-md);
-  padding: var(--sp-2) var(--sp-3) var(--sp-2) 0;
+  padding: var(--sp-2) 0;
 }
 
 .memberCountIcon {
@@ -515,6 +559,62 @@
   font-size: 0.875rem;
   cursor: pointer;
   outline: none;
+}
+
+/* ── Edit Form Meeting Type Toggle ── */
+.editMeetingTypeToggle {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.editMeetingTypeBtn {
+  flex: 1;
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--clr-border);
+  background: var(--clr-surface);
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--t-fast),
+    background var(--t-fast),
+    color var(--t-fast);
+}
+
+.editMeetingTypeBtn:hover:not(:disabled) {
+  border-color: var(--clr-accent);
+  color: var(--clr-text);
+}
+
+.editMeetingTypeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.editMeetingTypeBtnActive {
+  border-color: #38a169;
+  background: #f0fff4;
+  color: #276749;
+}
+
+.editMeetingTypeBtnOnline {
+  border-color: #3182ce;
+  background: #ebf8ff;
+  color: #2b6cb0;
+}
+
+[data-theme='dark'] .editMeetingTypeBtnActive {
+  background: rgba(56, 161, 105, 0.15);
+  color: #68d391;
+  border-color: #38a169;
+}
+
+[data-theme='dark'] .editMeetingTypeBtnOnline {
+  background: rgba(49, 130, 206, 0.15);
+  color: #63b3ed;
+  border-color: #3182ce;
 }
 
 .editButtonRow {
