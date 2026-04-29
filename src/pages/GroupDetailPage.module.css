@@ -226,6 +226,8 @@
 .groupNameRow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: var(--sp-3);
 }
 
@@ -241,19 +243,17 @@
   align-items: center;
   gap: var(--sp-1);
   background: none;
-  border: 1px solid var(--clr-border);
-  border-radius: var(--r-full);
-  padding: 4px var(--sp-3);
+  border: none;
+  padding: 0;
   cursor: pointer;
   color: var(--clr-text-muted);
   font-size: 0.875rem;
-  transition: color var(--t-fast), border-color var(--t-fast);
+  transition: color var(--t-fast);
   flex-shrink: 0;
 }
 
 .likeButton:hover:not(:disabled) {
   color: var(--clr-accent);
-  border-color: var(--clr-accent);
 }
 
 .likeButton:disabled {
@@ -263,7 +263,6 @@
 
 .likeButtonActive {
   color: var(--clr-accent);
-  border-color: var(--clr-accent);
 }
 
 .likeIcon {
