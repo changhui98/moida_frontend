@@ -148,11 +148,24 @@
   backdrop-filter: blur(4px);
 }
 
+/* 온라인 뱃지: 파란 계열 반투명 */
+.imageBadgeOnline {
+  background: rgba(49, 130, 206, 0.8);
+  color: #fff;
+}
+
+/* 오프라인 뱃지: 초록 계열 반투명 */
+.imageBadgeOffline {
+  background: rgba(56, 161, 105, 0.8);
+  color: #fff;
+}
+
 .newGroupInfo {
   padding: var(--sp-2) var(--sp-1);
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
+  overflow: hidden;
 }
 
 .newGroupName {
@@ -169,10 +182,11 @@
   font-size: 0.8125rem;
   color: var(--clr-text-secondary);
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .newGroupNameRow {
@@ -181,6 +195,32 @@
   justify-content: space-between;
   gap: var(--sp-2);
   width: 100%;
+}
+
+.cardMemberCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--clr-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.cardMemberCountIcon {
+  width: 13px;
+  height: 13px;
+  display: block;
+  opacity: 0.7;
+}
+
+.newGroupDescRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: 1.2em;
 }
 
 .cardLikeButton {

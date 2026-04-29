@@ -7,7 +7,8 @@ import { Navbar } from '../components/Navbar'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { EmptyState } from '../components/common/EmptyState'
 import type { GroupResponse } from '../types/group'
-import { GROUP_CATEGORY_LABELS } from '../types/group'
+import { GROUP_CATEGORY_LABELS, GROUP_MEETING_TYPE_LABELS } from '../types/group'
+import userAlt1Icon from '../assets/user-alt-1-svgrepo-com.svg'
 import styles from './GroupListPage.module.css'
 
 const PAGE_SIZE = 12
@@ -114,14 +115,21 @@ export function GroupListPage() {
                   <span className={styles.imageBadge}>
                     {GROUP_CATEGORY_LABELS[group.category]}
                   </span>
-                  <span className={styles.imageBadge}>
-                    {group.currentMemberCount}/{group.maxMemberCount}명
+                  <span className={`${styles.imageBadge} ${group.meetingType === 'ONLINE' ? styles.imageBadgeOnline : styles.imageBadgeOffline}`}>
+                    {GROUP_MEETING_TYPE_LABELS[group.meetingType]}
                   </span>
                 </div>
               </div>
               <div className={styles.newGroupInfo}>
                 <div className={styles.newGroupNameRow}>
                   <p className={styles.newGroupName}>{group.name}</p>
+                  <div className={styles.cardMemberCount}>
+                    <img src={userAlt1Icon} alt="" aria-hidden="true" className={styles.cardMemberCountIcon} />
+                    <span>{group.currentMemberCount}/{group.maxMemberCount}</span>
+                  </div>
+                </div>
+                <div className={styles.newGroupDescRow}>
+                  <p className={styles.newGroupDesc}>{group.description ?? ''}</p>
                   <button
                     type="button"
                     className={`${styles.cardLikeButton} ${likedMap[group.id] ? styles.cardLikeButtonActive : ''}`}
@@ -132,9 +140,6 @@ export function GroupListPage() {
                     <span>{likeCountMap[group.id] ?? 0}</span>
                   </button>
                 </div>
-                {group.description && (
-                  <p className={styles.newGroupDesc}>{group.description}</p>
-                )}
               </div>
             </div>
           ))}
