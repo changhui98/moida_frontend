@@ -18,11 +18,11 @@ import {
   BookmarkIcon,
   BrandLogo,
   ChevronLeftIcon,
-  GroupIcon,
   HomeIcon,
   LogoutIcon,
   GridEvenMoreIcon,
   MoonIcon,
+  PeopleIcon,
   PlusSquareIcon,
   SearchIcon,
   SettingsIcon,
@@ -99,7 +99,7 @@ export function Navbar({ role, onLogout }: NavbarProps) {
     {
       to: '/app/groups',
       label: '모임',
-      icon: <GroupIcon />,
+      icon: <PeopleIcon />,
       match: (p) => p.startsWith('/app/groups'),
     },
     {

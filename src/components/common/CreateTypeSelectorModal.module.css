@@ -15,7 +15,7 @@
 
 .modal {
   width: 100%;
-  max-width: 360px;
+  max-width: 400px;
   background: var(--clr-surface);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-lg);
@@ -38,44 +38,50 @@
   text-align: center;
 }
 
-.buttonList {
+/* 가로 배치 컨테이너 */
+.buttonRow {
   display: flex;
-  flex-direction: column;
-  padding: var(--sp-3);
-  gap: var(--sp-2);
+  flex-direction: row;
+  align-items: stretch;
+  padding: var(--sp-4) var(--sp-5);
+  gap: 0;
 }
 
+/* 세로 구분선 */
+.divider {
+  width: 1px;
+  background: var(--clr-border);
+  flex-shrink: 0;
+  margin: var(--sp-2) 0;
+}
+
+/* 각 항목 버튼 */
 .optionButton {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--sp-4);
-  width: 100%;
-  padding: var(--sp-4) var(--sp-4);
-  background: var(--clr-surface-2);
-  border: 1px solid var(--clr-border);
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-3);
+  background: transparent;
+  border: none;
   border-radius: var(--r-lg);
   cursor: pointer;
-  transition:
-    background var(--t-fast),
-    border-color var(--t-fast);
-  text-align: left;
+  transition: background var(--t-fast);
+  text-align: center;
 }
 
 .optionButton:hover {
   background: var(--clr-accent-muted);
-  border-color: var(--clr-accent);
 }
 
 .optionIcon {
-  font-size: 1.75rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.optionText {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+  opacity: 0.75;
+  /* 라이트 모드: 그대로, 다크 모드: --icon-filter CSS 변수 활용 */
+  filter: var(--_icon-filter, none);
 }
 
 .optionLabel {
@@ -85,8 +91,10 @@
 }
 
 .optionDesc {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: var(--clr-text-muted);
+  line-height: 1.4;
+  word-break: keep-all;
 }
 
 @media (max-width: 640px) {

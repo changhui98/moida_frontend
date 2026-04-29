@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import styles from './CreateTypeSelectorModal.module.css'
+import groupIcon from '../../assets/cel-rings-love-svgrepo-com.svg'
+import postIcon from '../../assets/clipboard-list-alt-svgrepo-com.svg'
 
 interface CreateTypeSelectorModalProps {
   isOpen: boolean
@@ -37,28 +39,25 @@ export function CreateTypeSelectorModal({
         <div className={styles.header}>
           <h2 className={styles.title}>만들기</h2>
         </div>
-        <div className={styles.buttonList}>
+        <div className={styles.buttonRow}>
           <button
             type="button"
             className={styles.optionButton}
             onClick={onSelectGroup}
           >
-            <span className={styles.optionIcon} aria-hidden="true">👥</span>
-            <div className={styles.optionText}>
-              <span className={styles.optionLabel}>모임 만들기</span>
-              <span className={styles.optionDesc}>새로운 모임을 개설합니다</span>
-            </div>
+            <img src={groupIcon} alt="" className={styles.optionIcon} aria-hidden="true" />
+            <span className={styles.optionLabel}>모임</span>
+            <span className={styles.optionDesc}>새로운 모임을 개설해보세요</span>
           </button>
+          <div className={styles.divider} aria-hidden="true" />
           <button
             type="button"
             className={styles.optionButton}
             onClick={onSelectPost}
           >
-            <span className={styles.optionIcon} aria-hidden="true">📝</span>
-            <div className={styles.optionText}>
-              <span className={styles.optionLabel}>게시글 만들기</span>
-              <span className={styles.optionDesc}>새로운 게시글을 작성합니다</span>
-            </div>
+            <img src={postIcon} alt="" className={styles.optionIcon} aria-hidden="true" />
+            <span className={styles.optionLabel}>게시글</span>
+            <span className={styles.optionDesc}>자유롭게 글을 작성해보세요</span>
           </button>
         </div>
       </div>
