@@ -56,6 +56,60 @@ export function GroupListPage() {
     navigate('/login', { replace: true })
   }
 
+  const renderNewGroups = () => {
+    const newGroups = groups.slice(0, 4)
+
+    return (
+      <section className={styles.newSection}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <p className={styles.sectionTitle}>🐣 따끈따끈 신규 모임 &gt;</p>
+            <p className={styles.sectionSubtitle}>새로 생긴 모임을 만나보세요</p>
+          </div>
+          <button type="button" className={styles.sectionViewAll}>
+            전체 보기
+          </button>
+        </div>
+        <div className={styles.horizontalScroll}>
+          {newGroups.map((group) => (
+            <button
+              key={group.id}
+              type="button"
+              className={styles.newGroupCard}
+              onClick={() => navigate(`/app/groups/${group.id}`)}
+            >
+              <div className={styles.newGroupImageWrap}>
+                {group.imageUrl ? (
+                  <img
+                    src={group.imageUrl}
+                    alt={group.name}
+                    className={styles.newGroupImage}
+                  />
+                ) : (
+                  <div className={styles.newGroupImagePlaceholder}>🏠</div>
+                )}
+                <div className={styles.imageBadges}>
+                  <span className={styles.imageBadge}>
+                    {GROUP_CATEGORY_LABELS[group.category]}
+                  </span>
+                  <span className={styles.imageBadge}>
+                    {group.currentMemberCount}/{group.maxMemberCount}명
+                  </span>
+                </div>
+              </div>
+              <div className={styles.newGroupInfo}>
+                <p className={styles.newGroupName}>{group.name}</p>
+                {group.description && (
+                  <p className={styles.newGroupDesc}>{group.description}</p>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -87,6 +141,8 @@ export function GroupListPage() {
 
     return (
       <>
+        {renderNewGroups()}
+
         <div className={styles.grid}>
           {groups.map((group) => (
             <button

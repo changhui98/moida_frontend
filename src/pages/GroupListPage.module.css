@@ -177,3 +177,144 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── NewGroupSection ── */
+.newSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--clr-text);
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-size: 0.875rem;
+  color: var(--clr-text-secondary);
+  margin: var(--sp-1) 0 0;
+}
+
+.sectionViewAll {
+  font-size: 0.8125rem;
+  color: var(--clr-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.sectionViewAll:hover {
+  color: var(--clr-text-secondary);
+}
+
+.horizontalScroll {
+  display: flex;
+  overflow-x: auto;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  scrollbar-width: none;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.newGroupCard {
+  flex-shrink: 0;
+  width: 220px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  padding: 0;
+  transition: transform var(--t-fast);
+}
+
+.newGroupCard:hover {
+  transform: translateY(-2px);
+}
+
+.newGroupImageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--clr-surface-2);
+}
+
+.newGroupImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.newGroupImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-surface-2);
+  font-size: 2.5rem;
+}
+
+.imageBadges {
+  position: absolute;
+  top: var(--sp-2);
+  left: var(--sp-2);
+  display: flex;
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+}
+
+.imageBadge {
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--r-full);
+  backdrop-filter: blur(4px);
+}
+
+.newGroupInfo {
+  padding: var(--sp-2) var(--sp-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.newGroupName {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--clr-text);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.newGroupDesc {
+  font-size: 0.8125rem;
+  color: var(--clr-text-secondary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
