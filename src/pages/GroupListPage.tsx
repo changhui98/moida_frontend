@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getGroups } from '../api/groupApi'
+import { getGroups, toggleGroupLike } from '../api/groupApi'
 import { useAuth } from '../context/AuthContext'
 import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
 import { Navbar } from '../components/Navbar'
@@ -20,6 +20,8 @@ export function GroupListPage() {
   const [groups, setGroups] = useState<GroupResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [likedMap, setLikedMap] = useState<Record<number, boolean>>({})
+  const [likeCountMap, setLikeCountMap] = useState<Record<number, number>>({})
 
   const loadGroups = useCallback(
     async () => {
@@ -28,6 +30,9 @@ export function GroupListPage() {
         setError('')
         const response = await getGroups(token, 0, PAGE_SIZE)
         setGroups(response.content)
+        const countMap: Record<number, number> = {}
+        response.content.forEach((g) => { countMap[g.id] = g.likeCount ?? 0 })
+        setLikeCountMap(countMap)
       } catch (err) {
         const message = err instanceof Error ? err.message : '모임 목록 조회 실패'
         setError(message)
@@ -42,6 +47,17 @@ export function GroupListPage() {
   useEffect(() => {
     loadGroups()
   }, [loadGroups])
+
+  const handleLikeToggle = async (e: React.MouseEvent, groupId: number) => {
+    e.stopPropagation()
+    try {
+      const res = await toggleGroupLike(token, groupId)
+      setLikedMap((prev) => ({ ...prev, [groupId]: res.liked }))
+      setLikeCountMap((prev) => ({ ...prev, [groupId]: res.likeCount }))
+    } catch {
+      // 조용히 실패
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -64,11 +80,13 @@ export function GroupListPage() {
         </div>
         <div className={styles.horizontalScroll}>
           {newGroups.map((group) => (
-            <button
+            <div
               key={group.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               className={styles.newGroupCard}
               onClick={() => navigate(`/app/groups/${group.id}`)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/app/groups/${group.id}`) }}
             >
               <div className={styles.newGroupImageWrap}>
                 {group.imageUrl ? (
@@ -90,12 +108,23 @@ export function GroupListPage() {
                 </div>
               </div>
               <div className={styles.newGroupInfo}>
-                <p className={styles.newGroupName}>{group.name}</p>
+                <div className={styles.newGroupNameRow}>
+                  <p className={styles.newGroupName}>{group.name}</p>
+                  <button
+                    type="button"
+                    className={`${styles.cardLikeButton} ${likedMap[group.id] ? styles.cardLikeButtonActive : ''}`}
+                    onClick={(e) => handleLikeToggle(e, group.id)}
+                    aria-label={likedMap[group.id] ? '좋아요 취소' : '좋아요'}
+                  >
+                    <span>{likedMap[group.id] ? '♥' : '♡'}</span>
+                    <span>{likeCountMap[group.id] ?? 0}</span>
+                  </button>
+                </div>
                 {group.description && (
                   <p className={styles.newGroupDesc}>{group.description}</p>
                 )}
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </section>

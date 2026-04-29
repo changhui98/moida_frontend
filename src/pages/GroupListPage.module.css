@@ -174,3 +174,33 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.newGroupNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  width: 100%;
+}
+
+.cardLikeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--clr-text-muted);
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  transition: color var(--t-fast);
+}
+
+.cardLikeButton:hover {
+  color: var(--clr-accent);
+}
+
+.cardLikeButtonActive {
+  color: var(--clr-accent);
+}
