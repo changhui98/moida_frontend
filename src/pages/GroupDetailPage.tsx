@@ -335,34 +335,31 @@ export function GroupDetailPage() {
           </div>
 
           <div className={styles.groupSummary}>
-            <div className={styles.groupHeaderLeft}>
-              <span className={styles.categoryBadge}>
-                {GROUP_CATEGORY_LABELS[group.category]}
+            <span className={styles.categoryBadge}>
+              {GROUP_CATEGORY_LABELS[group.category]}
+            </span>
+
+            <h1 className={styles.groupName}>{group.name}</h1>
+            <div className={styles.memberCountBox}>
+              <img src={userAlt1Icon} alt="" aria-hidden="true" className={styles.memberCountIcon} />
+              <span className={styles.memberCountValue}>
+                {group.currentMemberCount} / {group.maxMemberCount}
               </span>
-              <h1 className={styles.groupName}>{group.name}</h1>
-              {group.description && (
-                <p className={styles.groupDescription}>{group.description}</p>
-              )}
             </div>
 
-            <div className={styles.groupHeaderRight}>
-              <div className={styles.memberCountBox}>
-                <img src={userAlt1Icon} alt="" aria-hidden="true" className={styles.memberCountIcon} />
-                <span className={styles.memberCountValue}>
-                  {group.currentMemberCount} / {group.maxMemberCount}
-                </span>
-              </div>
-              <button
-                type="button"
-                className={`${styles.likeButton} ${liked ? styles.likeButtonActive : ''}`}
-                onClick={handleLikeToggle}
-                disabled={likeLoading}
-                aria-label={liked ? '좋아요 취소' : '좋아요'}
-              >
-                <span className={styles.likeIcon}>{liked ? '♥' : '♡'}</span>
-                <span className={styles.likeCount}>{likeCount}</span>
-              </button>
-            </div>
+            {group.description && (
+              <p className={styles.groupDescription}>{group.description}</p>
+            )}
+            <button
+              type="button"
+              className={`${styles.likeButton} ${liked ? styles.likeButtonActive : ''}`}
+              onClick={handleLikeToggle}
+              disabled={likeLoading}
+              aria-label={liked ? '좋아요 취소' : '좋아요'}
+            >
+              <span className={styles.likeIcon}>{liked ? '♥' : '♡'}</span>
+              <span className={styles.likeCount}>{likeCount}</span>
+            </button>
           </div>
         </div>
 

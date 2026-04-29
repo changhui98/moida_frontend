@@ -191,29 +191,16 @@
 }
 
 .groupSummary {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sp-4);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: var(--sp-4);
+  row-gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-2) var(--sp-1);
-}
-
-.groupHeaderLeft {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  flex: 1;
-}
-
-.groupHeaderRight {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--sp-2);
-  flex-shrink: 0;
+  align-items: center;
 }
 
 .categoryBadge {
+  grid-column: 1;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--clr-accent);
@@ -225,6 +212,7 @@
 
 
 .groupName {
+  grid-column: 1;
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--clr-text);
@@ -232,6 +220,8 @@
 }
 
 .likeButton {
+  grid-column: 2;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-1);
@@ -242,7 +232,6 @@
   color: var(--clr-text-muted);
   font-size: 0.875rem;
   transition: color var(--t-fast);
-  flex-shrink: 0;
 }
 
 .likeButton:hover:not(:disabled) {
@@ -269,6 +258,7 @@
 }
 
 .groupDescription {
+  grid-column: 1;
   font-size: 0.9375rem;
   color: var(--clr-text-secondary);
   margin: 0;
@@ -276,6 +266,7 @@
 }
 
 .memberCountBox {
+  grid-column: 2;
   display: flex;
   align-items: center;
   gap: var(--sp-2);
@@ -576,11 +567,4 @@
     min-height: 220px;
   }
 
-  .groupSummary {
-    flex-direction: column;
-  }
-
-  .groupHeaderRight {
-    align-items: flex-start;
-  }
 }
