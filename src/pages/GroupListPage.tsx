@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getGroups, toggleGroupLike } from '../api/groupApi'
+import { getGroups, getGroupLikeStatus, toggleGroupLike } from '../api/groupApi'
 import { useAuth } from '../context/AuthContext'
 import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
 import { Navbar } from '../components/Navbar'
@@ -30,9 +30,21 @@ export function GroupListPage() {
         setError('')
         const response = await getGroups(token, 0, PAGE_SIZE)
         setGroups(response.content)
+
         const countMap: Record<number, number> = {}
         response.content.forEach((g) => { countMap[g.id] = g.likeCount ?? 0 })
         setLikeCountMap(countMap)
+
+        // 각 모임의 좋아요 여부를 병렬로 조회해 likedMap 초기화
+        const likeStatusResults = await Promise.allSettled(
+          response.content.map((g) => getGroupLikeStatus(token, g.id)),
+        )
+        const likedMapInit: Record<number, boolean> = {}
+        response.content.forEach((g, idx) => {
+          const result = likeStatusResults[idx]
+          likedMapInit[g.id] = result.status === 'fulfilled' ? result.value.liked : false
+        })
+        setLikedMap(likedMapInit)
       } catch (err) {
         const message = err instanceof Error ? err.message : '모임 목록 조회 실패'
         setError(message)
