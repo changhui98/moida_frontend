@@ -248,12 +248,12 @@
 }
 
 .likeIcon {
-  font-size: 1rem;
+  font-size: 1.25rem;
   line-height: 1;
 }
 
 .likeCount {
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 
