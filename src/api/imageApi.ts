@@ -93,23 +93,21 @@ export const uploadGroupImage = (
   token: string,
   file: File,
   groupId: number,
-): Promise<ImageUploadResponse> => {
+): Promise<void> => {
   if (!token.trim()) {
     throw new ApiError(401, '로그인이 필요합니다.')
   }
 
   const formData = new FormData()
   formData.append('file', file)
-  formData.append('targetType', 'GROUP')
-  formData.append('targetId', String(groupId))
 
-  return fetch(`${API_BASE_URL}/images`, {
-    method: 'POST',
+  return fetch(`${API_BASE_URL}/groups/${groupId}/image`, {
+    method: 'PATCH',
     headers: {
       Authorization: token.trim(),
     },
     body: formData,
-  }).then((response) => parseResponse<ImageUploadResponse>(response))
+  }).then((response) => parseResponse<void>(response))
 }
 
 export const getGroupImages = (token: string, groupId: number): Promise<ImageResponse[]> => {
