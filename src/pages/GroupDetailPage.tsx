@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getGroup, joinGroup, leaveGroup, updateGroup, deleteGroup, kickGroupMember, uploadGroupImage } from '../api/groupApi'
+import { getGroup, joinGroup, leaveGroup, updateGroup, deleteGroup, kickGroupMember, uploadGroupImage, toggleGroupLike, getGroupLikeStatus } from '../api/groupApi'
 import { getMyProfile } from '../api/userApi'
 import { useAuth } from '../context/AuthContext'
 import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
@@ -37,6 +37,10 @@ export function GroupDetailPage() {
   const [imageUploading, setImageUploading] = useState(false)
   const imageInputRef = useRef<HTMLInputElement>(null)
 
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
+  const [likeLoading, setLikeLoading] = useState(false)
+
   const loadData = useCallback(async () => {
     if (!groupId) return
     try {
@@ -48,6 +52,8 @@ export function GroupDetailPage() {
       ])
       setGroup(groupData)
       setMyProfile(profileData)
+      setLikeCount(groupData.likeCount ?? 0)
+      getGroupLikeStatus(token, Number(groupId)).then((res) => setLiked(res.liked)).catch(() => {})
     } catch (err) {
       setError(extractErrorMessage(err, '모임 정보 조회 실패'))
       handleUnauthorized(err)
@@ -145,6 +151,20 @@ export function GroupDetailPage() {
       handleUnauthorized(err)
     } finally {
       setActionLoading(false)
+    }
+  }
+
+  const handleLikeToggle = async () => {
+    if (!groupId || likeLoading) return
+    try {
+      setLikeLoading(true)
+      const res = await toggleGroupLike(token, Number(groupId))
+      setLiked(res.liked)
+      setLikeCount(res.likeCount)
+    } catch {
+      // 조용히 실패
+    } finally {
+      setLikeLoading(false)
     }
   }
 
@@ -319,7 +339,19 @@ export function GroupDetailPage() {
               <span className={styles.categoryBadge}>
                 {GROUP_CATEGORY_LABELS[group.category]}
               </span>
-              <h1 className={styles.groupName}>{group.name}</h1>
+              <div className={styles.groupNameRow}>
+                <h1 className={styles.groupName}>{group.name}</h1>
+                <button
+                  type="button"
+                  className={`${styles.likeButton} ${liked ? styles.likeButtonActive : ''}`}
+                  onClick={handleLikeToggle}
+                  disabled={likeLoading}
+                  aria-label={liked ? '좋아요 취소' : '좋아요'}
+                >
+                  <span className={styles.likeIcon}>{liked ? '♥' : '♡'}</span>
+                  <span className={styles.likeCount}>{likeCount}</span>
+                </button>
+              </div>
               {group.description && (
                 <p className={styles.groupDescription}>{group.description}</p>
               )}

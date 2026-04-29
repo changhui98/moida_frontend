@@ -12,6 +12,7 @@ export interface GroupResponse {
   leaderUsername: string
   createdDate: string
   imageUrl: string | null
+  likeCount?: number
 }
 
 export interface GroupSearchParams {

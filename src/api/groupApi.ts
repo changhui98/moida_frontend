@@ -8,6 +8,7 @@ import type {
   ScheduleCreateRequest,
   ScheduleResponse,
 } from '../types/group'
+import type { LikeToggleResponse } from '../types/post'
 import { ApiError } from './ApiError'
 import { API_BASE_URL } from './config'
 import { createAuthHeaders, parseResponse } from './apiUtils'
@@ -184,4 +185,17 @@ export const searchPlaceSuggestions = (
   return fetch(`${API_BASE_URL}/places/autocomplete?${params.toString()}`, {
     headers: createAuthHeaders(token),
   }).then((res) => parseResponse<PlaceSuggestionResponse[]>(res))
+}
+
+export const toggleGroupLike = (token: string, groupId: number): Promise<LikeToggleResponse> => {
+  return fetch(`${API_BASE_URL}/groups/${groupId}/likes`, {
+    method: 'POST',
+    headers: createAuthHeaders(token),
+  }).then((res) => parseResponse<LikeToggleResponse>(res))
+}
+
+export const getGroupLikeStatus = (token: string, groupId: number): Promise<{ liked: boolean }> => {
+  return fetch(`${API_BASE_URL}/groups/${groupId}/likes/me`, {
+    headers: createAuthHeaders(token),
+  }).then((res) => parseResponse<{ liked: boolean }>(res))
 }
