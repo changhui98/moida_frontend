@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getGroup, joinGroup, leaveGroup, updateGroup, deleteGroup, kickGroupMember, uploadGroupImage, toggleGroupLike, getGroupLikeStatus } from '../api/groupApi'
+import { GroupLikersModal } from '../components/group/GroupLikersModal'
 import { getMyProfile } from '../api/userApi'
 import { useAuth } from '../context/AuthContext'
 import { useHandleUnauthorized } from '../hooks/useHandleUnauthorized'
@@ -40,20 +41,22 @@ export function GroupDetailPage() {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
   const [likeLoading, setLikeLoading] = useState(false)
+  const [likersModalOpen, setLikersModalOpen] = useState(false)
 
   const loadData = useCallback(async () => {
     if (!groupId) return
     try {
       setLoading(true)
       setError('')
-      const [groupData, profileData] = await Promise.all([
+      const [groupData, profileData, likeStatus] = await Promise.all([
         getGroup(token, Number(groupId)),
         getMyProfile(token),
+        getGroupLikeStatus(token, Number(groupId)).catch(() => ({ liked: false })),
       ])
       setGroup(groupData)
       setMyProfile(profileData)
-      setLikeCount(groupData.likeCount ?? 0)
-      getGroupLikeStatus(token, Number(groupId)).then((res) => setLiked(res.liked)).catch(() => {})
+      setLikeCount(groupData.likeCount)
+      setLiked(likeStatus.liked)
     } catch (err) {
       setError(extractErrorMessage(err, '모임 정보 조회 실패'))
       handleUnauthorized(err)
@@ -226,6 +229,13 @@ export function GroupDetailPage() {
     <>
       <Navbar role={myProfile?.role ?? null} onLogout={handleLogout} />
 
+      <GroupLikersModal
+        isOpen={likersModalOpen}
+        groupId={Number(groupId)}
+        token={token}
+        onClose={() => setLikersModalOpen(false)}
+      />
+
       <main className={styles.main}>
         <div className={styles.topRow}>
           <button
@@ -350,16 +360,25 @@ export function GroupDetailPage() {
             {group.description && (
               <p className={styles.groupDescription}>{group.description}</p>
             )}
-            <button
-              type="button"
-              className={`${styles.likeButton} ${liked ? styles.likeButtonActive : ''}`}
-              onClick={handleLikeToggle}
-              disabled={likeLoading}
-              aria-label={liked ? '좋아요 취소' : '좋아요'}
-            >
-              <span className={styles.likeIcon}>{liked ? '♥' : '♡'}</span>
-              <span className={styles.likeCount}>{likeCount}</span>
-            </button>
+            <div className={styles.likeArea}>
+              <button
+                type="button"
+                className={`${styles.likeHeartButton} ${liked ? styles.likeButtonActive : ''}`}
+                onClick={handleLikeToggle}
+                disabled={likeLoading}
+                aria-label={liked ? '좋아요 취소' : '좋아요'}
+              >
+                <span className={styles.likeIcon}>{liked ? '♥' : '♡'}</span>
+              </button>
+              <button
+                type="button"
+                className={`${styles.likeCountButton} ${liked ? styles.likeButtonActive : ''}`}
+                onClick={() => setLikersModalOpen(true)}
+                aria-label={`좋아요 ${likeCount}명 보기`}
+              >
+                <span className={styles.likeCount}>{likeCount}</span>
+              </button>
+            </div>
           </div>
         </div>
 

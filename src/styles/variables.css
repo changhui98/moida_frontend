@@ -74,6 +74,9 @@
   --btn-bg: var(--clr-surface);
   --btn-bg-hover: var(--clr-surface-2);
   --btn-text: var(--clr-text);
+
+  /* Icon filter */
+  --_icon-filter: none;
 }
 
 [data-theme='dark'] {
@@ -110,4 +113,7 @@
   --btn-bg: var(--clr-surface-2);
   --btn-bg-hover: var(--clr-surface-3);
   --btn-text: var(--clr-text);
+
+  /* Icon filter — 검정 SVG를 다크 테마에서 밝게 보이게 */
+  --_icon-filter: invert(1) brightness(0.85);
 }

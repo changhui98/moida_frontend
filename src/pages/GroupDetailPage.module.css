@@ -219,28 +219,52 @@
   margin: 0;
 }
 
-.likeButton {
+/* ── 좋아요 영역: 하트 + 숫자를 나란히 배치 ── */
+.likeArea {
   grid-column: 2;
   justify-self: start;
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
+  gap: 0;
+}
+
+/* 하트 버튼 (토글) */
+.likeHeartButton {
+  display: inline-flex;
+  align-items: center;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   color: var(--clr-text-muted);
-  font-size: 0.875rem;
   transition: color var(--t-fast);
 }
 
-.likeButton:hover:not(:disabled) {
+.likeHeartButton:hover:not(:disabled) {
   color: var(--clr-accent);
 }
 
-.likeButton:disabled {
+.likeHeartButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* 숫자 버튼 (모달 오픈) */
+.likeCountButton {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0 0 0 var(--sp-1);
+  cursor: pointer;
+  color: var(--clr-text-muted);
+  transition: color var(--t-fast);
+}
+
+.likeCountButton:hover {
+  color: var(--clr-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .likeButtonActive {

@@ -199,3 +199,18 @@ export const getGroupLikeStatus = (token: string, groupId: number): Promise<{ li
     headers: createAuthHeaders(token),
   }).then((res) => parseResponse<{ liked: boolean }>(res))
 }
+
+export interface GroupLikerResponse {
+  username: string
+  nickname: string
+  profileImageUrl: string | null
+}
+
+export const getGroupLikers = (
+  token: string,
+  groupId: number,
+): Promise<GroupLikerResponse[]> => {
+  return fetch(`${API_BASE_URL}/groups/${groupId}/likes/users`, {
+    headers: createAuthHeaders(token),
+  }).then((res) => parseResponse<GroupLikerResponse[]>(res))
+}
