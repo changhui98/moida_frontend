@@ -150,6 +150,64 @@
   margin: 0;
 }
 
+/* ── Meeting Type Toggle ── */
+.meetingTypeToggle {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.meetingTypeBtn {
+  flex: 1;
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--clr-border-strong);
+  background: var(--clr-surface-2);
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--t-fast),
+    background var(--t-fast),
+    color var(--t-fast);
+}
+
+.meetingTypeBtn:hover:not(:disabled) {
+  border-color: var(--clr-accent);
+  color: var(--clr-text);
+}
+
+.meetingTypeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 오프라인 선택 시: 초록 계열 */
+.meetingTypeBtnActive {
+  border-color: #38a169;
+  background: #f0fff4;
+  color: #276749;
+}
+
+/* 온라인 선택 시: 파란 계열 (Active + Online 조합) */
+.meetingTypeBtnOnline {
+  border-color: #3182ce;
+  background: #ebf8ff;
+  color: #2b6cb0;
+}
+
+[data-theme='dark'] .meetingTypeBtnActive {
+  background: rgba(56, 161, 105, 0.15);
+  color: #68d391;
+  border-color: #38a169;
+}
+
+[data-theme='dark'] .meetingTypeBtnOnline {
+  background: rgba(49, 130, 206, 0.15);
+  color: #63b3ed;
+  border-color: #3182ce;
+}
+
 @media (max-width: 640px) {
   .overlay {
     padding: 0;

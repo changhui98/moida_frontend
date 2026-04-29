@@ -3,7 +3,7 @@ import { createGroup } from '../../api/groupApi'
 import { uploadGroupImage } from '../../api/imageApi'
 import { useAuth } from '../../context/AuthContext'
 import { ImageBoxPicker } from '../post/ImageBoxPicker'
-import type { GroupCategory } from '../../types/group'
+import type { GroupCategory, GroupMeetingType } from '../../types/group'
 import { GROUP_CATEGORY_LABELS } from '../../types/group'
 import styles from './GroupCreateModal.module.css'
 
@@ -19,6 +19,7 @@ export function GroupCreateModal({ isOpen, onClose, onCreated }: GroupCreateModa
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<GroupCategory>('CLUB')
+  const [meetingType, setMeetingType] = useState<GroupMeetingType>('OFFLINE')
   const [maxMemberCount, setMaxMemberCount] = useState(10)
   const [images, setImages] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
@@ -30,6 +31,7 @@ export function GroupCreateModal({ isOpen, onClose, onCreated }: GroupCreateModa
       setName('')
       setDescription('')
       setCategory('CLUB')
+      setMeetingType('OFFLINE')
       setMaxMemberCount(10)
       setImages([])
       setErrors({})
@@ -72,6 +74,7 @@ export function GroupCreateModal({ isOpen, onClose, onCreated }: GroupCreateModa
         name: name.trim(),
         description: description.trim(),
         category,
+        meetingType,
         maxMemberCount,
       })
       if (images.length > 0) {
@@ -178,6 +181,25 @@ export function GroupCreateModal({ isOpen, onClose, onCreated }: GroupCreateModa
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>
+              모임 방식 <span className={styles.required}>*</span>
+            </label>
+            <div className={styles.meetingTypeToggle}>
+              {(['OFFLINE', 'ONLINE'] as GroupMeetingType[]).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`${styles.meetingTypeBtn} ${meetingType === type ? styles.meetingTypeBtnActive : ''} ${meetingType === type && type === 'ONLINE' ? styles.meetingTypeBtnOnline : ''}`}
+                  onClick={() => setMeetingType(type)}
+                  disabled={submitting}
+                >
+                  {type === 'OFFLINE' ? '오프라인' : '온라인'}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className={styles.fieldGroup}>

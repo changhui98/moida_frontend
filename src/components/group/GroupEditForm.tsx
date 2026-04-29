@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { GroupCategory, GroupDetailResponse } from '../../types/group'
+import type { GroupCategory, GroupDetailResponse, GroupMeetingType } from '../../types/group'
 import { GROUP_CATEGORY_LABELS } from '../../types/group'
 import styles from '../../pages/GroupDetailPage.module.css'
 
@@ -7,6 +7,7 @@ interface GroupEditFormData {
   name: string
   description: string
   category: GroupCategory
+  meetingType: GroupMeetingType
   maxMemberCount: number
 }
 
@@ -21,6 +22,7 @@ export function GroupEditForm({ group, actionLoading, onSubmit, onCancel }: Grou
   const [editName, setEditName] = useState(group.name)
   const [editDescription, setEditDescription] = useState(group.description ?? '')
   const [editCategory, setEditCategory] = useState<GroupCategory>(group.category)
+  const [editMeetingType, setEditMeetingType] = useState<GroupMeetingType>(group.meetingType)
   const [editMaxMemberCount, setEditMaxMemberCount] = useState(group.maxMemberCount)
 
   const handleSubmit = () => {
@@ -32,6 +34,7 @@ export function GroupEditForm({ group, actionLoading, onSubmit, onCancel }: Grou
       name: editName.trim(),
       description: editDescription,
       category: editCategory,
+      meetingType: editMeetingType,
       maxMemberCount: editMaxMemberCount,
     })
   }
@@ -64,6 +67,23 @@ export function GroupEditForm({ group, actionLoading, onSubmit, onCancel }: Grou
           <option key={key} value={key}>{GROUP_CATEGORY_LABELS[key]}</option>
         ))}
       </select>
+      <div className={styles.editMeetingTypeToggle}>
+        {(['OFFLINE', 'ONLINE'] as GroupMeetingType[]).map((type) => (
+          <button
+            key={type}
+            type="button"
+            className={[
+              styles.editMeetingTypeBtn,
+              editMeetingType === type ? styles.editMeetingTypeBtnActive : '',
+              editMeetingType === type && type === 'ONLINE' ? styles.editMeetingTypeBtnOnline : '',
+            ].join(' ')}
+            onClick={() => setEditMeetingType(type)}
+            disabled={actionLoading}
+          >
+            {type === 'OFFLINE' ? '오프라인' : '온라인'}
+          </button>
+        ))}
+      </div>
       <input
         type="number"
         className={styles.editInput}

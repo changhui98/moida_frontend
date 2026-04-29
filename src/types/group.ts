@@ -1,11 +1,13 @@
 export type GroupCategory = 'CLUB' | 'STUDY' | 'SOCIAL'
 export type GroupMemberRole = 'LEADER' | 'MEMBER'
+export type GroupMeetingType = 'ONLINE' | 'OFFLINE'
 
 export interface GroupResponse {
   id: number
   name: string
   description: string | null
   category: GroupCategory
+  meetingType: GroupMeetingType
   maxMemberCount: number
   currentMemberCount: number
   leaderNickname: string
@@ -36,6 +38,7 @@ export interface GroupCreateRequest {
   name: string
   description: string
   category: GroupCategory
+  meetingType: GroupMeetingType
   maxMemberCount: number
 }
 
@@ -43,6 +46,11 @@ export const GROUP_CATEGORY_LABELS: Record<GroupCategory, string> = {
   CLUB: '동아리',
   STUDY: '스터디',
   SOCIAL: '소셜',
+}
+
+export const GROUP_MEETING_TYPE_LABELS: Record<GroupMeetingType, string> = {
+  ONLINE: '온라인',
+  OFFLINE: '오프라인',
 }
 
 export interface ScheduleResponse {
