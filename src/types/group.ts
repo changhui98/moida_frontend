@@ -52,6 +52,7 @@ export interface ScheduleResponse {
   location: string | null
   description: string | null
   createdByUsername: string
+  createdByNickname: string
 }
 
 export interface ScheduleCreateRequest {
@@ -60,4 +61,11 @@ export interface ScheduleCreateRequest {
   endAt: string
   location?: string
   description?: string
+}
+
+export interface PlaceSuggestionResponse {
+  placeId: string
+  primaryText: string
+  secondaryText: string
+  fullAddress: string
 }

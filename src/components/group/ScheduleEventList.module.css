@@ -6,11 +6,35 @@
   gap: var(--sp-3);
 }
 
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+}
+
 .dateTitle {
   font-size: 1rem;
   font-weight: 700;
   color: var(--clr-text);
   margin: 0;
+  margin-right: auto;
+}
+
+.createBtn {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--clr-accent-gradient);
+  border: none;
+  padding: var(--sp-2) var(--sp-5);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: filter var(--t-fast);
+}
+
+.createBtn:hover {
+  filter: brightness(1.08);
 }
 
 .list {

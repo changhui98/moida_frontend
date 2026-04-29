@@ -189,6 +189,27 @@ export function GroupDetailPage() {
             &larr; 모임 목록
           </button>
 
+          {isLeader && !isEditMode && (
+            <div className={styles.topActions}>
+              <button
+                type="button"
+                className={styles.topTextAction}
+                onClick={() => setIsEditMode(true)}
+                disabled={actionLoading}
+              >
+                수정
+              </button>
+              <button
+                type="button"
+                className={styles.topTextAction}
+                onClick={handleDeleteGroup}
+                disabled={actionLoading}
+              >
+                삭제
+              </button>
+            </div>
+          )}
+
           {!isLeader && (
             <div className={styles.actionRow}>
               {isMember ? (
@@ -258,27 +279,6 @@ export function GroupDetailPage() {
           </div>
         </div>
 
-        {isLeader && !isEditMode && (
-          <div className={styles.actionRow}>
-            <button
-              type="button"
-              className={styles.editButton}
-              onClick={() => setIsEditMode(true)}
-              disabled={actionLoading}
-            >
-              모임 수정
-            </button>
-            <button
-              type="button"
-              className={styles.deleteButton}
-              onClick={handleDeleteGroup}
-              disabled={actionLoading}
-            >
-              모임 삭제
-            </button>
-          </div>
-        )}
-
         {isLeader && isEditMode && (
           <GroupEditForm
             group={group}
@@ -306,7 +306,7 @@ export function GroupDetailPage() {
             />
           )}
           {activeTab === 'schedule' && (
-            <TabSchedule groupId={Number(groupId)} isLeader={isLeader} />
+            <TabSchedule groupId={Number(groupId)} isMember={isMember} />
           )}
         </div>
       </main>

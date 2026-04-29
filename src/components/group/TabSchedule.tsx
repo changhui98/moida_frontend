@@ -9,16 +9,24 @@ import styles from './TabSchedule.module.css'
 
 interface TabScheduleProps {
   groupId: number
-  isLeader: boolean
+  isMember: boolean
 }
 
-export function TabSchedule({ groupId, isLeader }: TabScheduleProps) {
+function toDateString(year: number, month: number, day: number): string {
+  const mm = String(month + 1).padStart(2, '0')
+  const dd = String(day).padStart(2, '0')
+  return `${year}-${mm}-${dd}`
+}
+
+export function TabSchedule({ groupId, isMember }: TabScheduleProps) {
   const { token } = useAuth()
 
   const today = new Date()
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [currentMonth, setCurrentMonth] = useState(today.getMonth()) // 0-indexed
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(
+    toDateString(today.getFullYear(), today.getMonth(), today.getDate()),
+  )
   const [schedules, setSchedules] = useState<ScheduleResponse[]>([])
   const [loading, setLoading] = useState(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -56,19 +64,6 @@ export function TabSchedule({ groupId, isLeader }: TabScheduleProps) {
 
   return (
     <div className={styles.wrapper}>
-      {/* 일정 등록 버튼 (모임장에게만 표시) */}
-      {isLeader && (
-        <div className={styles.actionRow}>
-          <button
-            type="button"
-            className={styles.createBtn}
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            + 일정 등록
-          </button>
-        </div>
-      )}
-
       {/* 캘린더: 로딩 중에도 DOM을 유지해 스크롤 점프를 막는다 */}
       <ScheduleCalendar
         year={currentYear}
@@ -88,6 +83,8 @@ export function TabSchedule({ groupId, isLeader }: TabScheduleProps) {
       <ScheduleEventList
         selectedDate={selectedDate}
         schedules={schedules}
+        canCreate={isMember}
+        onCreateClick={() => setIsCreateModalOpen(true)}
       />
 
       {/* 일정 등록 모달 */}

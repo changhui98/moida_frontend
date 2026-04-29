@@ -56,6 +56,12 @@
   gap: var(--sp-3);
 }
 
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
 .topTextAction {
   font-size: 0.875rem;
   font-weight: 600;

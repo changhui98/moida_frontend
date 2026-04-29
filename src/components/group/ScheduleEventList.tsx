@@ -5,6 +5,8 @@ import styles from './ScheduleEventList.module.css'
 interface ScheduleEventListProps {
   selectedDate: string | null
   schedules: ScheduleResponse[]
+  canCreate?: boolean
+  onCreateClick?: () => void
 }
 
 function formatDisplayDate(dateStr: string): string {
@@ -15,11 +17,29 @@ function formatDisplayDate(dateStr: string): string {
   return `${month}월 ${day}일 (${weekday})`
 }
 
-export function ScheduleEventList({ selectedDate, schedules }: ScheduleEventListProps) {
+export function ScheduleEventList({
+  selectedDate,
+  schedules,
+  canCreate = false,
+  onCreateClick,
+}: ScheduleEventListProps) {
   if (!selectedDate) {
     return (
-      <div className={styles.emptyState}>
-        <p className={styles.emptyText}>날짜를 선택하면 일정을 확인할 수 있습니다.</p>
+      <div className={styles.listWrapper}>
+        {canCreate && (
+          <div className={styles.actionRow}>
+            <button
+              type="button"
+              className={styles.createBtn}
+              onClick={onCreateClick}
+            >
+              + 일정 등록
+            </button>
+          </div>
+        )}
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>날짜를 선택하면 일정을 확인할 수 있습니다.</p>
+        </div>
       </div>
     )
   }
@@ -28,10 +48,25 @@ export function ScheduleEventList({ selectedDate, schedules }: ScheduleEventList
 
   return (
     <div className={styles.listWrapper}>
-      <h3 className={styles.dateTitle}>{formatDisplayDate(selectedDate)}</h3>
+      <div className={styles.headerRow}>
+        <h3 className={styles.dateTitle}>{formatDisplayDate(selectedDate)}</h3>
+        {canCreate && (
+          <button
+            type="button"
+            className={styles.createBtn}
+            onClick={onCreateClick}
+          >
+            + 일정 등록
+          </button>
+        )}
+      </div>
       {daySchedules.length === 0 ? (
         <div className={styles.emptyState}>
-          <p className={styles.emptyText}>이 날의 일정이 없습니다.</p>
+          {canCreate ? (
+            <p className={styles.emptyText}>등록된 일정이 없습니다.</p>
+          ) : (
+            <p className={styles.emptyText}>이 날의 일정이 없습니다.</p>
+          )}
         </div>
       ) : (
         <ul className={styles.list}>

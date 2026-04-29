@@ -4,6 +4,7 @@ import type {
   GroupDetailResponse,
   GroupMemberResponse,
   GroupResponse,
+  PlaceSuggestionResponse,
   ScheduleCreateRequest,
   ScheduleResponse,
 } from '../types/group'
@@ -156,4 +157,14 @@ export const createGroupSchedule = (
     headers: createAuthHeaders(token),
     body: JSON.stringify(data),
   }).then((res) => parseResponse<ScheduleResponse>(res))
+}
+
+export const searchPlaceSuggestions = (
+  token: string,
+  query: string,
+): Promise<PlaceSuggestionResponse[]> => {
+  const params = new URLSearchParams({ query })
+  return fetch(`${API_BASE_URL}/places/autocomplete?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((res) => parseResponse<PlaceSuggestionResponse[]>(res))
 }
