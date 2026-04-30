@@ -8,6 +8,7 @@ export interface GroupResponse {
   description: string | null
   category: GroupCategory
   meetingType: GroupMeetingType
+  region: string | null
   maxMemberCount: number
   currentMemberCount: number
   leaderNickname: string
@@ -39,6 +40,7 @@ export interface GroupCreateRequest {
   description: string
   category: GroupCategory
   meetingType: GroupMeetingType
+  region: string | null
   maxMemberCount: number
 }
 

@@ -7,8 +7,18 @@ import type {
 import { API_BASE_URL } from './config'
 import { createAuthHeaders, parseResponse } from './apiUtils'
 
-export const getUsers = (token: string, page = 0, size = 10) => {
-  return fetch(`${API_BASE_URL}/users?page=${page}&size=${size}`, {
+export const getUsers = (token: string, page = 0, size = 10, keyword = '') => {
+  const params = new URLSearchParams({ page: String(page), size: String(size) })
+  if (keyword.trim()) params.set('keyword', keyword.trim())
+  return fetch(`${API_BASE_URL}/users?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((response) => parseResponse<PageResponse<UserResponse>>(response))
+}
+
+export const searchUsers = (token: string, keyword: string, page = 0, size = 5) => {
+  const params = new URLSearchParams({ page: String(page), size: String(size) })
+  if (keyword.trim()) params.set('keyword', keyword.trim())
+  return fetch(`${API_BASE_URL}/users/search?${params.toString()}`, {
     headers: createAuthHeaders(token),
   }).then((response) => parseResponse<PageResponse<UserResponse>>(response))
 }

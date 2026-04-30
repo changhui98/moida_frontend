@@ -28,6 +28,35 @@ export const getGroups = (
   }).then((res) => parseResponse<PageResponse<GroupResponse>>(res))
 }
 
+/**
+ * 생성된 지 7일 미만인 신규 모임 목록을 조회합니다.
+ * 백엔드에서 기준 날짜 필터링을 처리합니다.
+ */
+export const getNewGroups = (
+  token: string,
+  page = 0,
+  size = 20,
+): Promise<PageResponse<GroupResponse>> => {
+  const params = new URLSearchParams({ page: String(page), size: String(size) })
+  return fetch(`${API_BASE_URL}/groups/recent?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((res) => parseResponse<PageResponse<GroupResponse>>(res))
+}
+
+/**
+ * 좋아요 수 내림차순으로 인기 모임 목록을 조회합니다.
+ */
+export const getPopularGroups = (
+  token: string,
+  page = 0,
+  size = 20,
+): Promise<PageResponse<GroupResponse>> => {
+  const params = new URLSearchParams({ page: String(page), size: String(size) })
+  return fetch(`${API_BASE_URL}/groups/popular?${params.toString()}`, {
+    headers: createAuthHeaders(token),
+  }).then((res) => parseResponse<PageResponse<GroupResponse>>(res))
+}
+
 export const getGroup = (
   token: string,
   groupId: number,
