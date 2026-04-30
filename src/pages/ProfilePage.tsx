@@ -14,6 +14,7 @@ import {
 import { getInitials } from '../utils/stringUtils'
 import styles from './ProfilePage.module.css'
 import type { UserDetailResponse } from '../types/user'
+import { ApiError } from '../api/ApiError'
 
 export function ProfilePage() {
   const navigate = useNavigate()
