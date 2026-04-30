@@ -208,6 +208,48 @@
   border-color: #3182ce;
 }
 
+/* ── Region Picker Button ── */
+.regionPickerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+  color: var(--clr-text);
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border-strong);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-4);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--t-fast);
+  box-sizing: border-box;
+}
+
+.regionPickerBtn:hover:not(:disabled) {
+  border-color: var(--clr-accent);
+}
+
+.regionPickerBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.regionPickerValue {
+  color: var(--clr-text);
+  font-weight: 500;
+}
+
+.regionPickerPlaceholder {
+  color: var(--clr-text-muted);
+}
+
+.regionPickerArrow {
+  font-size: 1.1rem;
+  color: var(--clr-text-muted);
+  margin-left: var(--sp-2);
+}
+
 @media (max-width: 640px) {
   .overlay {
     padding: 0;

@@ -61,6 +61,8 @@ export function GroupCreatePage() {
         name: name.trim(),
         description: description.trim(),
         category,
+        meetingType: 'OFFLINE',
+        region: null,
         maxMemberCount,
       })
       if (images.length > 0) {

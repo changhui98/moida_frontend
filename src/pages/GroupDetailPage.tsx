@@ -112,6 +112,7 @@ export function GroupDetailPage() {
     description: string
     category: GroupCategory
     meetingType: GroupMeetingType
+    region: string | null
     maxMemberCount: number
   }) => {
     if (!groupId) return
@@ -357,7 +358,9 @@ export function GroupDetailPage() {
                     : styles.meetingTypeBadgeOffline
                 }
               >
-                {GROUP_MEETING_TYPE_LABELS[group.meetingType]}
+                {group.meetingType === 'OFFLINE' && group.region
+                  ? `오프라인 · ${group.region}`
+                  : GROUP_MEETING_TYPE_LABELS[group.meetingType]}
               </span>
             </div>
 
