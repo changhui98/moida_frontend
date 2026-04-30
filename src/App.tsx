@@ -3,6 +3,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminRoute } from './components/AdminRoute'
 import { AdminLayout } from './components/admin/AdminLayout'
 import { useAuth } from './context/AuthContext'
+import { useDevToolsProtection } from './hooks/useDevToolsProtection'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { SignUpPage } from './pages/SignUpPage'
@@ -16,9 +17,12 @@ import { PostCreatePage } from './pages/PostCreatePage'
 import { GroupListPage } from './pages/GroupListPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
 import { GroupCreatePage } from './pages/GroupCreatePage'
+import { NewGroupsPage } from './pages/NewGroupsPage'
+import { PopularGroupsPage } from './pages/PopularGroupsPage'
 
 function App() {
   const { isAuthenticated } = useAuth()
+  useDevToolsProtection()
 
   return (
     <Routes>
@@ -36,6 +40,8 @@ function App() {
         </Route>
         <Route path="/app/groups" element={<GroupListPage />} />
         <Route path="/app/groups/new" element={<GroupCreatePage />} />
+        <Route path="/app/groups/recent" element={<NewGroupsPage />} />
+        <Route path="/app/groups/popular" element={<PopularGroupsPage />} />
         <Route path="/app/groups/:groupId" element={<GroupDetailPage />} />
         <Route path="/app/profile" element={<ProfilePage />} />
         <Route path="/app/profile/:username" element={<ProfilePage />} />

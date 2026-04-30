@@ -12,6 +12,7 @@ import { usePostCreateModal } from '../context/PostCreateModalContext'
 import { useAuth } from '../context/AuthContext'
 import { CreateTypeSelectorModal } from './common/CreateTypeSelectorModal'
 import { GroupCreateModal } from './group/GroupCreateModal'
+import { SidePanel, type SidePanelType } from './SidePanel'
 import {
   ActivityIcon,
   AlertIcon,
@@ -30,6 +31,7 @@ import {
   SunIcon,
   UserCircleIcon,
 } from './NavIcons'
+import bulbIcon from '../assets/bulb-svgrepo-com.svg'
 
 const ADMIN_ROLE = 'ADMIN'
 
@@ -59,6 +61,18 @@ export function Navbar({ role, onLogout }: NavbarProps) {
   const [moreView, setMoreView] = useState<'root' | 'theme'>('root')
   const menuRef = useRef<HTMLDivElement>(null)
   const [createFlow, setCreateFlow] = useState<'idle' | 'selecting' | 'group'>('idle')
+  const [activePanel, setActivePanel] = useState<SidePanelType | null>(null)
+
+  const togglePanel = useCallback((panel: SidePanelType) => {
+    setActivePanel((prev) => (prev === panel ? null : panel))
+    // 패널 열릴 때 더 보기 메뉴가 열려 있으면 닫기
+    setMoreOpen(false)
+    setMoreView('root')
+  }, [])
+
+  const closePanel = useCallback(() => {
+    setActivePanel(null)
+  }, [])
 
   const closeMenu = useCallback(() => {
     setMoreOpen(false)
@@ -91,10 +105,10 @@ export function Navbar({ role, onLogout }: NavbarProps) {
       match: (p) => p === '/app',
     },
     {
-      to: '/app?focus=search',
       label: '검색',
       icon: <SearchIcon />,
-      match: (p) => p === '/app' && location.search.includes('focus=search'),
+      onClick: () => togglePanel('search'),
+      match: () => activePanel === 'search',
     },
     {
       to: '/app/groups',
@@ -119,6 +133,12 @@ export function Navbar({ role, onLogout }: NavbarProps) {
         <UserCircleIcon />
       ),
       match: (p) => p.startsWith('/app/profile'),
+    },
+    {
+      label: '알림',
+      icon: <img src={bulbIcon} alt="" aria-hidden="true" width={24} height={24} />,
+      onClick: () => togglePanel('notifications'),
+      match: () => activePanel === 'notifications',
     },
   ]
 
@@ -149,8 +169,9 @@ export function Navbar({ role, onLogout }: NavbarProps) {
   }
 
   return (
+    <>
     <aside
-      className={`${styles.sidebar} ${moreOpen ? styles.sidebarOpen : ''}`}
+      className={`${styles.sidebar} ${(moreOpen || activePanel !== null) ? styles.sidebarOpen : ''}`}
       aria-label="주 메뉴"
     >
       <div className={styles.sidebarInner}>
@@ -330,5 +351,7 @@ export function Navbar({ role, onLogout }: NavbarProps) {
         onCreated={(groupId) => { setCreateFlow('idle'); navigate(`/app/groups/${groupId}`) }}
       />
     </aside>
+    <SidePanel type={activePanel} onClose={closePanel} />
+    </>
   )
 }

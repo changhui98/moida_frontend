@@ -118,6 +118,10 @@
   color: var(--clr-text);
 }
 
+.navIcon img {
+  filter: var(--_icon-filter);
+}
+
 .navAvatar {
   width: 24px;
   height: 24px;
