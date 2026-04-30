@@ -47,7 +47,7 @@ export function SocialAddressModal({
           추가 정보 입력
         </h2>
         <p className={styles.description}>
-          Moida 서비스 이용을 위해 아래 정보를 입력해주세요.
+          Sagwim 서비스 이용을 위해 아래 정보를 입력해주세요.
         </p>
 
         <div className="input-group">

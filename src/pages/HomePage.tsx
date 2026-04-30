@@ -18,7 +18,7 @@ export function HomePage() {
         {/* Brand */}
         <div className={styles.brand}>
           <BrandLogo className={styles.brandMark} aria-hidden />
-          <h1 className={styles.brandName}>Moida</h1>
+          <h1 className={styles.brandName}>Sagwim</h1>
           <p className={styles.tagline}>함께 모이는 공간</p>
         </div>
 

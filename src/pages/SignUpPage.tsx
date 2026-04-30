@@ -293,7 +293,7 @@ export function SignUpPage() {
         </Link>
 
         <h1 className={styles.heading}>계정 만들기</h1>
-        <p className={styles.subheading}>Moida에 합류하세요</p>
+        <p className={styles.subheading}>Sagwim에 합류하세요</p>
 
         <form className="form" onSubmit={handleSubmit}>
           {/* Username */}

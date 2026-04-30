@@ -72,7 +72,7 @@ export function AdminLayout() {
         <nav className={styles.navbar}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Link to="/app/admin" className={styles.navBrand}>
-              Moida
+              Sagwim
             </Link>
             <span className={styles.navBrandSuffix}>Admin</span>
           </div>

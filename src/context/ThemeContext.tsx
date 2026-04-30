@@ -10,7 +10,7 @@ import {
 
 export type ThemeMode = 'light' | 'dark'
 
-const THEME_STORAGE_KEY = 'moida_theme_mode'
+const THEME_STORAGE_KEY = 'sagwim_theme_mode'
 
 interface ThemeContextValue {
   theme: ThemeMode

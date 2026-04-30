@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'moida_access_token'
+const TOKEN_KEY = 'sagwim_access_token'
 
 export const authStorage = {
   getToken(): string {

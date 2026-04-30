@@ -24,7 +24,7 @@ import styles from './MyPostsSection.module.css'
 type ViewMode = 'card' | 'list'
 
 const PAGE_SIZE = 12
-const VIEW_MODE_STORAGE_KEY = 'moida.profile.myPosts.viewMode'
+const VIEW_MODE_STORAGE_KEY = 'sagwim.profile.myPosts.viewMode'
 
 const myPostsEmptyIcon = <MenuMeatballsIcon />
 const MY_POSTS_EMPTY_ICON_COLOR = 'var(--clr-accent)'

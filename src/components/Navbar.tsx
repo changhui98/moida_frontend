@@ -175,7 +175,7 @@ export function Navbar({ role, onLogout }: NavbarProps) {
       aria-label="주 메뉴"
     >
       <div className={styles.sidebarInner}>
-        <Link to="/app" className={styles.brand} aria-label="Moida 홈">
+        <Link to="/app" className={styles.brand} aria-label="Sagwim 홈">
           <BrandLogo className={styles.brandLogo} />
         </Link>
 
